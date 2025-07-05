@@ -12,27 +12,11 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    /**
-     * Table yang digunakan
-     *
-     * @var string
-     */
     protected $table = 'pengguna';
-
-    /**
-     * Primary key dari tabel
-     *
-     * @var string
-     */
     protected $primaryKey = 'id';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'nama',
+        'name',
         'email',
         'password',
         'photo_profil',
@@ -40,30 +24,24 @@ class User extends Authenticatable
         'verified',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'password' => 'hashed',
         'verified' => 'boolean',
+        'name' => 'encrypted',
+        'email' => 'encrypted',
+        'photo_profil' => 'encrypted',
     ];
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array<int, string>
-     */
     protected $dates = ['deleted_at'];
+
+public function role()
+{
+    return $this->belongsTo(Role::class, 'role_id', 'id');
+}
+
 }

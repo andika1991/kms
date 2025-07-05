@@ -25,12 +25,12 @@ class RoleGroupMiddleware
             ]);
         }
 
-        // Jika role_group cocok → lanjut
-        if ($user->role_group === $group) {
+       
+        if ($user->role->role_group === $group) {
             return $next($request);
         }
 
-        // Role_group tidak cocok → abort 403
+     
         abort(403, 'Unauthorized');
     }
 }

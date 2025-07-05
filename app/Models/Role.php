@@ -27,12 +27,16 @@ class Role extends Model
      */
     protected $fillable = [
         'nama_role',
+        'role_group',
         'parent_id',
         'bidang_id',
         'subbidang_id',
     ];
 
-
+public function users()
+{
+    return $this->hasMany(User::class);
+}
     public function bidang()
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');

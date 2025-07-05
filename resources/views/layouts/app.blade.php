@@ -16,7 +16,22 @@
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
+       @if (Auth::check())
+    @php
+        $roleGroup = Auth::user()->role->role_group ?? '';
+    @endphp
+
+    @if ($roleGroup === 'admin')
+        @include('layouts.navigation-admin')
+    @elseif ($roleGroup === 'magang')
+        @include('layouts.navigation-magang')
+    @elseif ($roleGroup === 'kepalabagian')
+        @include('layouts.navigation-kepalabagian')
+    @else
+        @include('layouts.navigation-default')
+    @endif
+@endif
+
 
             <!-- Page Heading -->
             @if (isset($header))

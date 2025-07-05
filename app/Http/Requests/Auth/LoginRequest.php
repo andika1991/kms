@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
 
 class LoginRequest extends FormRequest
 {
@@ -37,20 +40,45 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(): void
-    {
-        $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+public function authenticate(): void
+{
+    $this->ensureIsNotRateLimited();
+
+    $emailInput = strtolower($this->input('email'));
+    $passwordInput = $this->input('password');
+    $remember = $this->boolean('remember');
+
+    $user = null;
+
+    foreach (User::all() as $u) {
+        try {
+            $decryptedEmail = strtolower(Crypt::decryptString($u->getRawOriginal('email')));
+        } catch (\Exception $e) {
+            // Data tidak terenkripsi? Lewati
+            continue;
         }
 
-        RateLimiter::clear($this->throttleKey());
+        if ($decryptedEmail === $emailInput) {
+            $user = $u;
+            break;
+        }
     }
+
+    if (! $user || ! Hash::check($passwordInput, $user->password)) {
+        RateLimiter::hit($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.failed'),
+        ]);
+    }
+
+    Auth::login($user, $remember);
+
+    RateLimiter::clear($this->throttleKey());
+}
+
 
     /**
      * Ensure the login request is not rate limited.
