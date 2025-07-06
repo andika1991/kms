@@ -5,17 +5,28 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriPengetahuanController;
 use App\Http\Middleware\RoleGroupMiddleware;
+use App\Http\Controllers\ArtikelPengetahuanController;
 
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
 
-Route::middleware(['auth', 'role_group:kepalabagian'])->group(function () {
-    Route::get('/kepalabagian', [DashboardController::class, 'kepalabagian'])->name('kepalabagian.dashboard');
-    Route::get('/kategoripengetahuan', [KategoriPengetahuanController::class, 'showkepalabagian'])->name('kepalabagian.kategoripengetahuan');
-     Route::get('/kategoripengetahuan/create', [KategoriPengetahuanController::class, 'create'])->name('kepalabagian.kategoripengetahuan.create');
-     Route::post('/kategoripengetahuan', [KategoriPengetahuanController::class, 'store'])->name('kepalabagian.kategoripengetahuan.store');
-});
+Route::middleware(['auth', 'role_group:kepalabagian'])
+    ->prefix('kepalabagian')
+    ->name('kepalabagian.')
+    ->group(function () {
+        Route::get('/', [DashboardController::class, 'kepalabagian'])->name('dashboard');
+        Route::resource('kategoripengetahuan', KategoriPengetahuanController::class);
+      Route::resource('artikelpengetahuan', ArtikelPengetahuanController::class);
+
+        // Custom route tampil artikel by kategori
+        Route::get('artikelpengetahuan/kategori/{id}', [ArtikelPengetahuanController::class, 'byKategori'])
+            ->name('artikelpengetahuan.byKategori');
+    });
+
+
+
+
 
 Route::middleware(['auth', 'role_group:magang'])->group(function () {
     Route::get('/magang', [DashboardController::class, 'magang'])->name('magang.dashboard');

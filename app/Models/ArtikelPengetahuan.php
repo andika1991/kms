@@ -13,11 +13,19 @@ class ArtikelPengetahuan extends Model
 
     protected $fillable = [
         'judul',
+        'slug',
         'thumbnail',
         'filedok',
         'isi',
         'kategori_pengetahuan_id',
         'pengguna_id',
+    ];
+
+    protected $casts = [
+        'judul' => 'encrypted',
+        'thumbnail' => 'encrypted',
+        'filedok' => 'encrypted',
+        'isi' => 'encrypted',
     ];
 
     /**

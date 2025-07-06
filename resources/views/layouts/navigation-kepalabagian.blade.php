@@ -19,10 +19,18 @@
                     </x-nav-link>
 
                     <x-nav-link
-                        :href="route('kepalabagian.kategoripengetahuan')"
-                        :active="request()->routeIs('kepalabagian.kategoripengetahuan')"
+                        :href="route('kepalabagian.kategoripengetahuan.index')"
+                        :active="request()->routeIs('kepalabagian.kategoripengetahuan.index')"
                     >
                         Kategori Pengetahuan
+                    </x-nav-link>
+
+                    
+                    <x-nav-link
+                        :href="route('kepalabagian.artikelpengetahuan.index')"
+                        :active="request()->routeIs('kepalabagian.artikelpengetahuan.index')"
+                    >
+                        Artikel Pengetahuan
                     </x-nav-link>
                 </div>
             </div>
@@ -123,11 +131,18 @@
             </x-responsive-nav-link>
 
             <x-responsive-nav-link
-                :href="route('kepalabagian.kategoripengetahuan')"
-                :active="request()->routeIs('kepalabagian.kategoripengetahuan')"
+                :href="route('kepalabagian.kategoripengetahuan.index')"
+                :active="request()->routeIs('kepalabagian.kategoripengetahuan.index')"
             >
                 Kategori Pengetahuan
             </x-responsive-nav-link>
+
+              <x-responsive-nav-link
+                        :href="route('kepalabagian.artikelpengetahuan.index')"
+                        :active="request()->routeIs('kepalabagian.artikelpengetahuan.index')"
+                    >
+                        Artikel Pengetahuan
+                    </x-responsive-nav-link>
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">

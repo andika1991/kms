@@ -43,21 +43,23 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                             <div class="flex space-x-2">
-                                                <a href=""
-                                                   class="inline-block px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black text-xs font-semibold rounded">
-                                                    Edit
-                                                </a>
-                                                
-                                                <form action=""
-                                                      method="POST"
-                                                      onsubmit="return confirm('Yakin ingin menghapus kategori ini?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                        class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded">
-                                                        Hapus
-                                                    </button>
-                                                </form>
+                                         <a href="{{ route('kepalabagian.kategoripengetahuan.edit', $item->id) }}"
+   class="inline-block px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black text-xs font-semibold rounded">
+    Edit
+</a>
+
+<form action="{{ route('kepalabagian.kategoripengetahuan.destroy', $item->id) }}"
+      method="POST"
+      onsubmit="return confirm('Yakin ingin menghapus kategori ini?');">
+    @csrf
+    @method('DELETE')
+    <button type="submit"
+        class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded">
+        Hapus
+    </button>
+</form>
+
+                                        
                                             </div>
                                         </td>
                                     </tr>

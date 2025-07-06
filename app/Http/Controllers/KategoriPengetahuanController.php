@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class KategoriPengetahuanController extends Controller
 {
-public function showkepalabagian()
+public function index()
 {
     $user = Auth::user();
 
@@ -58,7 +58,33 @@ public function showkepalabagian()
     ]);
 
     return redirect()
-        ->route('kepalabagian.kategoripengetahuan')
+        ->route('kepalabagian.kategoripengetahuan.index')
         ->with('success', 'Kategori Pengetahuan berhasil ditambahkan.');
 }
+
+  public function update(Request $request, KategoriPengetahuan $kategoripengetahuan)
+    {
+        $request->validate([
+            'nama_kategoripengetahuan' => 'required|string|max:255',
+        ]);
+
+        $kategoripengetahuan->update([
+            'nama_kategoripengetahuan' => $request->nama_kategoripengetahuan,
+        ]);
+
+        return redirect()->route('kepalabagian.kategoripengetahuan.index')
+            ->with('success', 'Kategori berhasil diupdate.');
+    }
+
+    public function edit(KategoriPengetahuan $kategoripengetahuan)
+    {
+        return view('kepalabagian.kategoripengetahuan-edit', compact('kategoripengetahuan'));
+    }
+    public function destroy(KategoriPengetahuan $kategoripengetahuan)
+    {
+        $kategoripengetahuan->delete();
+
+        return redirect()->route('kepalabagian.kategoripengetahuan.index')
+            ->with('success', 'Kategori berhasil dihapus.');
+    }
 }
