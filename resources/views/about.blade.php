@@ -79,7 +79,7 @@
     </section>
 
     {{-- BIDANG --}}
-    <section class="w-full bg-[#254759] bg-opacity-95 py-12 relative" style="background: url('{{ asset('assets/img/Background-line-landing-page.png') }}') center/cover no-repeat;">
+    <section class="w-full bg-[#254759] bg-opacity-95 py-12 relative" style="background: url('{{ asset('assets/img/background_bidang.png') }}') center/cover no-repeat;">
         <div class="max-w-6xl mx-auto text-center relative z-10">
             <h2 class="font-bold text-xl text-white mb-8 tracking-wide">BIDANG</h2>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-6 justify-items-center">
