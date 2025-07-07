@@ -6,7 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriPengetahuanController;
 use App\Http\Middleware\RoleGroupMiddleware;
 use App\Http\Controllers\ArtikelPengetahuanController;
-
+use App\Http\Controllers\ManajemenDokumenController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
@@ -17,9 +17,8 @@ Route::middleware(['auth', 'role_group:kepalabagian'])
     ->group(function () {
         Route::get('/', [DashboardController::class, 'kepalabagian'])->name('dashboard');
         Route::resource('kategoripengetahuan', KategoriPengetahuanController::class);
-      Route::resource('artikelpengetahuan', ArtikelPengetahuanController::class);
-
-        // Custom route tampil artikel by kategori
+        Route::resource('artikelpengetahuan', ArtikelPengetahuanController::class);
+        Route::resource('manajemendokumen', ManajemenDokumenController::class);
         Route::get('artikelpengetahuan/kategori/{id}', [ArtikelPengetahuanController::class, 'byKategori'])
             ->name('artikelpengetahuan.byKategori');
     });

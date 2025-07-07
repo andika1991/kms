@@ -32,6 +32,14 @@
                     >
                         Artikel Pengetahuan
                     </x-nav-link>
+
+
+                            <x-nav-link
+                        :href="route('kepalabagian.manajemendokumen.index')"
+                        :active="request()->routeIs('kepalabagian.manajemendokumen.index')"
+                    >
+                        Manejemen Dokumen
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -142,6 +150,13 @@
                         :active="request()->routeIs('kepalabagian.artikelpengetahuan.index')"
                     >
                         Artikel Pengetahuan
+                    </x-responsive-nav-link>
+                    
+                            <x-responsive-nav-link
+                        :href="route('kepalabagian.manajemendokumen.index')"
+                        :active="request()->routeIs('kepalabagian.manajemendokumen.index')"
+                    >
+                        Manejemen Dokumen
                     </x-responsive-nav-link>
         </div>
 

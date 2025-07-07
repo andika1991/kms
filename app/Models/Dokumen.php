@@ -47,8 +47,8 @@ class Dokumen extends Model
     /**
      * Relasi ke Pengguna.
      */
-    public function pengguna()
+    public function user()
     {
-        return $this->belongsTo(Pengguna::class, 'pengguna_id');
+        return $this->belongsTo(User::class, 'pengguna_id');
     }
 }
