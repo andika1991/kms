@@ -52,13 +52,23 @@ use App\Http\Controllers\Auth\RegisterController;
 Route::get('/registers', [RegisterController::class, 'showRegistrationForm'])->middleware('guest')->name('register');
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/home', function () {
+    return view('home');
+})->name('home');
 
 Route::get('/about', function () {
     return view('about');
 })->name('about');
+
+// Route untuk Halaman Pengetahuan
+Route::get('/pengetahuan', function () {
+    return view('pengetahuan'); 
+})->name('pengetahuan');
+
+// Route untuk Halaman Dokumen
+Route::get('/dokumen', function () { 
+    return view('dokumen');
+})->name('dokumen');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
