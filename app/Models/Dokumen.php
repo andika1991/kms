@@ -16,12 +16,14 @@ class Dokumen extends Model
      * Kolom yang boleh diisi mass-assignment.
      */
     protected $fillable = [
+        'id',
         'nama_dokumen',
         'path_dokumen',
         'encrypted_key',
         'deskripsi',
         'kategori_dokumen_id',
         'pengguna_id',
+ 
     ];
 
     /**

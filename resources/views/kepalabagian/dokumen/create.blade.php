@@ -52,11 +52,11 @@
                 </div>
 
                 {{-- Field Kunci Rahasia --}}
-<div class="mb-4 hidden" id="encrypted-key-field">
+    <div class="mb-4 hidden" id="encrypted-key-field">
     <label class="block text-gray-700 dark:text-gray-200">Kunci Rahasia / Encrypted Key</label>
     <input type="text" name="encrypted_key" 
            class="w-full rounded border-gray-300 dark:bg-gray-700 dark:text-gray-200">
-</div>
+    </div>
 
 
                 {{-- Submit --}}

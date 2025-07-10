@@ -6,21 +6,26 @@ use App\Models\Dokumen;
 use App\Models\KategoriDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+ use Illuminate\Support\Carbon;
 
+use Exception;
 class ManajemenDokumenController extends Controller
 {
-    public function index(Request $request)
-    {
-        $query = Dokumen::with(['kategoriDokumen', 'user']);
+ public function index(Request $request)
+{
+    $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user']);
+    $dokumen = $dokumenQuery->latest()->get();
 
-        if ($request->filled('search')) {
-            $query->where('nama_dokumen', 'like', '%' . $request->search . '%');
-        }
+    if ($request->filled('search')) {
+        $search = strtolower($request->search);
 
-        $dokumen = $query->latest()->get();
-
-        return view('kepalabagian.dokumen.index', compact('dokumen'));
+        $dokumen = $dokumen->filter(function ($item) use ($search) {
+            return str_contains(strtolower($item->nama_dokumen ?? ''), $search);
+        });
     }
+
+    return view('kepalabagian.dokumen.index', compact('dokumen'));
+}
 
    public function create()
 {
@@ -108,8 +113,10 @@ class ManajemenDokumenController extends Controller
                          ->with('success', 'Dokumen berhasil diperbarui.');
     }
 
-    public function destroy(Dokumen $dokumen)
-    {
+   
+public function destroy(Dokumen $dokumen)
+{
+    try {
         if ($dokumen->path_dokumen && Storage::disk('public')->exists($dokumen->path_dokumen)) {
             Storage::disk('public')->delete($dokumen->path_dokumen);
         }
@@ -117,7 +124,22 @@ class ManajemenDokumenController extends Controller
         $dokumen->delete();
 
         return redirect()->route('kepalabagian.manajemendokumen.index')
-                         ->with('success', 'Dokumen berhasil dihapus.');
+            ->with('success', 'Dokumen berhasil dihapus.');
+    } catch (\Exception $e) {
+        return redirect()->route('kepalabagian.manajemendokumen.index')
+            ->with('error', 'Gagal menghapus dokumen: ' . $e->getMessage());
     }
 }
+
+
+
+
+
+
+
+
+}
+
+
+
 

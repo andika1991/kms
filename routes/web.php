@@ -18,7 +18,10 @@ Route::middleware(['auth', 'role_group:kepalabagian'])
         Route::get('/', [DashboardController::class, 'kepalabagian'])->name('dashboard');
         Route::resource('kategoripengetahuan', KategoriPengetahuanController::class);
         Route::resource('artikelpengetahuan', ArtikelPengetahuanController::class);
-        Route::resource('manajemendokumen', ManajemenDokumenController::class);
+Route::resource('manajemendokumen', ManajemenDokumenController::class)
+    ->parameters(['manajemendokumen' => 'dokumen']);
+Route::resource('forum', \App\Http\Controllers\Kepalabagian\ForumController::class);
+
         Route::get('artikelpengetahuan/kategori/{id}', [ArtikelPengetahuanController::class, 'byKategori'])
             ->name('artikelpengetahuan.byKategori');
     });

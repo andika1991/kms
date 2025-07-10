@@ -40,6 +40,14 @@
                     >
                         Manejemen Dokumen
                     </x-nav-link>
+
+                    <x-nav-link
+    :href="route('kepalabagian.forum.index')"
+    :active="request()->routeIs('kepalabagian.forum.index')"
+>
+    Forum Diskusi
+</x-nav-link>
+
                 </div>
             </div>
 
@@ -158,6 +166,14 @@
                     >
                         Manejemen Dokumen
                     </x-responsive-nav-link>
+
+                    <x-responsive-nav-link
+    :href="route('kepalabagian.forum.index')"
+    :active="request()->routeIs('kepalabagian.forum.index')"
+>
+    Forum Diskusi
+</x-responsive-nav-link>
+
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">

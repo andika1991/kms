@@ -44,7 +44,7 @@
                             </h3>
 
                             <p class="text-gray-600 dark:text-gray-300 text-sm">
-                                Kategori: <span class="font-semibold">{{ $item->kategoriDokumen->nama_kategori_dokumen ?? '-' }}</span>
+                                Kategori: <span class="font-semibold">{{ $item->kategoriDokumen->nama_kategoridokumen ?? '-' }}</span>
                             </p>
 
                             <p class="text-gray-700 dark:text-gray-300 mt-2">
