@@ -7,8 +7,10 @@ use App\Http\Controllers\KategoriPengetahuanController;
 use App\Http\Middleware\RoleGroupMiddleware;
 use App\Http\Controllers\ArtikelPengetahuanController;
 use App\Http\Controllers\ManajemenDokumenController;
-  use App\Http\Controllers\GrupChatMessageController;
+use App\Http\Controllers\GrupChatMessageController;
 use App\Http\Controllers\PengetahuanController;
+use \App\Http\Controllers\Magang\KegiatanController;
+use App\Http\Controllers\DokumenmagangController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
@@ -41,12 +43,10 @@ Route::prefix('magang')
     ->as('magang.')
     ->middleware(['auth', 'role_group:magang'])
     ->group(function () {
-        
-        Route::get('/', [DashboardController::class, 'magang'])
-            ->name('dashboard');
-        
-      
-      Route::resource('berbagipengetahuan', PengetahuanController::class);
+Route::get('/', [DashboardController::class, 'magang'])->name('dashboard');
+Route::resource('kegiatan', KegiatanController::class);
+Route::resource('berbagipengetahuan', PengetahuanController::class);
+Route::resource('manajemendokumen', DokumenmagangController::class);
     });
 // dst. untuk group lain
 

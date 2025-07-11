@@ -17,6 +17,14 @@
                     <x-nav-link :href="route('magang.berbagipengetahuan.index')" :active="request()->routeIs('magang.berbagipengetahuan.index')">
                         Berbagi Pengetahuan
                     </x-nav-link>
+                    <x-nav-link :href="route('magang.kegiatan.index')" :active="request()->routeIs('magang.kegiatan.*')">
+    Kegiatan
+</x-nav-link>
+
+<x-nav-link :href="route('magang.manajemendokumen.index')" :active="request()->routeIs('magang.manajemendokumen.index')">
+    Manajemen dokumen
+</x-nav-link>
+
                 </div>
             </div>
 
@@ -75,6 +83,12 @@
             <x-responsive-nav-link :href="route('magang.berbagipengetahuan.index')" :active="request()->routeIs('magang.berbagipengetahuan.index')">
                 Berbagi Pengetahuan
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('magang.kegiatan.index')" :active="request()->routeIs('magang.kegiatan.*')">
+    Kegiatan
+</x-responsive-nav-link>
+           <x-responsive-nav-link :href="route('magang.kegiatan.index')" :active="request()->routeIs('magang.kegiatan.*')">
+    Kegiatan
+</x-responsive-nav-link>
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">

@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 use App\Models\ArtikelPengetahuan;
 use App\Models\KategoriPengetahuan;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Storage;
 class PengetahuanController extends Controller
 {
  public function index(Request $request)
 {
     $query = ArtikelPengetahuan::query();
-
-    // Filter hanya artikel milik user yang sedang login
     $query->where('pengguna_id', auth()->id());
 
     // Filter pencarian jika ada input "search"
