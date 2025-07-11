@@ -14,7 +14,7 @@
                     <x-nav-link :href="route('magang.dashboard')" :active="request()->routeIs('magang.dashboard')">
                         Dashboard Magang
                     </x-nav-link>
-                    <x-nav-link :href="route('magang.berbagipengetahuan')" :active="request()->routeIs('magang.kegiatan')">
+                    <x-nav-link :href="route('magang.berbagipengetahuan.index')" :active="request()->routeIs('magang.berbagipengetahuan.index')">
                         Berbagi Pengetahuan
                     </x-nav-link>
                 </div>
@@ -72,7 +72,7 @@
             <x-responsive-nav-link :href="route('magang.dashboard')" :active="request()->routeIs('magang.dashboard')">
                 Dashboard Magang
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('magang.berbagipengetahuan')" :active="request()->routeIs('magang.kegiatan')">
+            <x-responsive-nav-link :href="route('magang.berbagipengetahuan.index')" :active="request()->routeIs('magang.berbagipengetahuan.index')">
                 Berbagi Pengetahuan
             </x-responsive-nav-link>
         </div>

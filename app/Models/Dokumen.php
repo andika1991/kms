@@ -16,12 +16,14 @@ class Dokumen extends Model
      * Kolom yang boleh diisi mass-assignment.
      */
     protected $fillable = [
+        'id',
         'nama_dokumen',
         'path_dokumen',
         'encrypted_key',
         'deskripsi',
         'kategori_dokumen_id',
         'pengguna_id',
+ 
     ];
 
     /**
@@ -47,8 +49,8 @@ class Dokumen extends Model
     /**
      * Relasi ke Pengguna.
      */
-    public function pengguna()
+    public function user()
     {
-        return $this->belongsTo(Pengguna::class, 'pengguna_id');
+        return $this->belongsTo(User::class, 'pengguna_id');
     }
 }

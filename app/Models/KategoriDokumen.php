@@ -14,6 +14,7 @@ class KategoriDokumen extends Model
     protected $fillable = [
         'nama_kategoridokumen',
         'subbidang_id',
+        'bidang_id'
     ];
 
  
