@@ -7,6 +7,8 @@ use App\Http\Controllers\KategoriPengetahuanController;
 use App\Http\Middleware\RoleGroupMiddleware;
 use App\Http\Controllers\ArtikelPengetahuanController;
 use App\Http\Controllers\ManajemenDokumenController;
+  use App\Http\Controllers\GrupChatMessageController;
+use App\Http\Controllers\PengetahuanController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
@@ -24,17 +26,28 @@ Route::resource('forum', \App\Http\Controllers\Kepalabagian\ForumController::cla
 
         Route::get('artikelpengetahuan/kategori/{id}', [ArtikelPengetahuanController::class, 'byKategori'])
             ->name('artikelpengetahuan.byKategori');
+          
+
+Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
+
     });
 
 
 
 
 
-Route::middleware(['auth', 'role_group:magang'])->group(function () {
-    Route::get('/magang', [DashboardController::class, 'magang'])->name('magang.dashboard');
-        Route::get('/berbagipengetahuan', [PengetahuanController::class, 'showmagang'])->name('magang.berbagipengetahuan');
-});
-
+Route::prefix('magang')
+    ->as('magang.')
+    ->middleware(['auth', 'role_group:magang'])
+    ->group(function () {
+        
+        Route::get('/', [DashboardController::class, 'magang'])
+            ->name('dashboard');
+        
+      
+      Route::resource('berbagipengetahuan', PengetahuanController::class);
+    });
 // dst. untuk group lain
 
 
@@ -54,7 +67,7 @@ use App\Http\Controllers\Auth\RegisterController;
 Route::get('/registers', [RegisterController::class, 'showRegistrationForm'])->middleware('guest')->name('register');
 
 
-Route::get('/home', function () {
+Route::get('/', function () {
     return view('home');
 })->name('home');
 

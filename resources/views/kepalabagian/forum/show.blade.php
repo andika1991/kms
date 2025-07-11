@@ -33,7 +33,7 @@
                                         ? 'bg-blue-600 text-white' 
                                         : 'bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100' }}">
                             <p class="text-sm font-semibold mb-1">
-                                {{ $message->pengguna?->decrypted_name ?? 'User tidak ditemukan' }}
+                                {{ $message->pengguna?->name ?? 'User tidak ditemukan' }}
                                 <span class="text-xs text-gray-200 dark:text-gray-400 block">
                                     {{ $message->created_at->format('d M Y H:i') }}
                                 </span>
@@ -58,7 +58,7 @@
 
             {{-- Chat Input --}}
             <form method="POST"
-                  action=""
+                  action="{{ route('kepalabagian.grupchat.pesan.store', $grupChat->id) }}"
                   enctype="multipart/form-data"
                   class="mt-4 flex gap-2">
                 @csrf

@@ -44,127 +44,147 @@
                 <div class="p-10 order-2 md:order-1">
                     <h1 class="text-2xl font-bold text-gray-800 mb-6">Daftar untuk menggunakan KMS</h1>
 
-                    <form method="POST" action="{{ route('register') }}">
-                        @csrf
+                     <form method="POST" action="{{ route('register') }}">
+        @csrf
 
-                        <div class="relative mb-4">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                                {{-- Ikon User --}}
-                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus
-                                autocomplete="name"
-                                class="block w-full pl-10 pr-3 py-2.5 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Nama Lengkap">
-                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                        </div>
+        <!-- Name -->
+        <div>
+            <x-input-label for="name" :value="__('Nama Lengkap')" />
+            <x-text-input id="name" class="block mt-1 w-full"
+                          type="text"
+                          name="name"
+                          :value="old('name')"
+                          required
+                          autofocus
+                          autocomplete="name" />
+            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+        </div>
 
-                        <div class="relative mb-4">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                                {{-- Ikon Users --}}
-                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path
-                                        d="M7 8a3 3 0 100-6 3 3 0 000 6zM14.5 9a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM1.496 18.286A5.494 5.494 0 016 15h8a5.494 5.494 0 014.504 3.286A5.5 5.5 0 0114.5 14h-9a5.5 5.5 0 01-4.004 4.286z" />
-                                </svg>
-                            </span>
-                            <select id="tipe_user" name="tipe_user"
-                                class="block w-full pl-10 pr-3 py-2.5 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none"
-                                required onchange="toggleRoleOptions()">
-                                <option value="">-- Pilih Tipe Pendaftar --</option>
-                                <option value="pegawai" @if(old('tipe_user')=='pegawai' ) selected @endif>Pegawai
-                                </option>
-                                <option value="magang" @if(old('tipe_user')=='magang' ) selected @endif>Magang</option>
-                            </select>
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
-                                {{-- Ikon Panah Dropdown --}}
-                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                        </div>
+        <!-- Tipe User -->
+        <div class="mt-4">
+            <x-input-label for="tipe_user" :value="__('Tipe Pendaftar')" />
+            <select id="tipe_user"
+                    name="tipe_user"
+                    class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    required
+                    onchange="toggleRoleOptions()">
+                <option value="">-- Pilih Tipe Pendaftar --</option>
+                <option value="pegawai" {{ old('tipe_user') == 'pegawai' ? 'selected' : '' }}>Pegawai</option>
+                <option value="magang" {{ old('tipe_user') == 'magang' ? 'selected' : '' }}>Magang</option>
+            </select>
+            <x-input-error :messages="$errors->get('tipe_user')" class="mt-2" />
+        </div>
 
-                        <div class="relative mb-4 hidden" id="role-pegawai">
-                            <select name="role_id_pegawai"
-                                class="block w-full py-2.5 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">-- Pilih Role Pegawai --</option>
-                                <option value="1">Admin</option>
-                                <option value="2">Editor</option>
-                            </select>
-                        </div>
+        <!-- Role Pegawai -->
+        <div class="mt-4 {{ old('tipe_user') == 'pegawai' ? '' : 'hidden' }}" id="role-pegawai">
+            <x-input-label for="role_id_pegawai" :value="__('Pilih Role Pegawai')" />
+            <select id="role_id_pegawai"
+                    name="{{ old('tipe_user') == 'pegawai' ? 'role_id' : '' }}"
+                    class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <option value="">-- Pilih Role Pegawai --</option>
+                @foreach ($rolesPegawai as $role)
+                    <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                        {{ $role->nama_role }}
+                    </option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get('role_id')" class="mt-2" />
+        </div>
 
-                        <div class="relative mb-4 hidden" id="role-magang">
-                            <select name="role_id_magang"
-                                class="block w-full py-2.5 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">-- Pilih Role Magang --</option>
-                                <option value="3">Kontributor</option>
-                                <option value="4">Viewer</option>
-                            </select>
-                        </div>
+        <!-- Role Magang -->
+        <div class="mt-4 {{ old('tipe_user') == 'magang' ? '' : 'hidden' }}" id="role-magang">
+            <x-input-label for="role_id_magang" :value="__('Pilih Role Magang')" />
+            <select id="role_id_magang"
+                    name="{{ old('tipe_user') == 'magang' ? 'role_id' : '' }}"
+                    class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <option value="">-- Pilih Role Magang --</option>
+                @foreach ($rolesMagang as $role)
+                    <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                        {{ $role->nama_role }}
+                    </option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get('role_id')" class="mt-2" />
+        </div>
 
-                        <div class="relative mb-4">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                                {{-- Ikon Email --}}
-                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path
-                                        d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
-                                    <path
-                                        d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
-                                </svg>
-                            </span>
-                            <input id="email" type="email" name="email" value="{{ old('email') }}" required
-                                autocomplete="username"
-                                class="block w-full pl-10 pr-3 py-2.5 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Email">
-                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                        </div>
+        <!-- Email -->
+        <div class="mt-4">
+            <x-input-label for="email" :value="__('Email')" />
+            <x-text-input id="email" class="block mt-1 w-full"
+                          type="email"
+                          name="email"
+                          :value="old('email')"
+                          required
+                          autocomplete="username" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
 
-                        <div class="relative mb-4">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                                {{-- Ikon Gembok --}}
-                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <input id="password" type="password" name="password" required autocomplete="new-password"
-                                class="block w-full pl-10 pr-3 py-2.5 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Password">
-                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                        </div>
+        <!-- Password -->
+        <div class="mt-4">
+            <x-input-label for="password" :value="__('Password')" />
+            <x-text-input id="password" class="block mt-1 w-full"
+                          type="password"
+                          name="password"
+                          required
+                          autocomplete="new-password" />
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        </div>
 
-                        <div class="relative mb-4">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                                {{-- Ikon Gembok --}}
-                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <input id="password_confirmation" type="password" name="password_confirmation" required
-                                autocomplete="new-password"
-                                class="block w-full pl-10 pr-3 py-2.5 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Konfirmasi Password">
-                            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                        </div>
+        <!-- Confirm Password -->
+        <div class="mt-4">
+            <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')" />
+            <x-text-input id="password_confirmation" class="block mt-1 w-full"
+                          type="password"
+                          name="password_confirmation"
+                          required
+                          autocomplete="new-password" />
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        </div>
 
-                        <button type="submit"
-                            class="w-full bg-[#4A5568] text-white font-semibold py-2.5 rounded-lg shadow-md hover:bg-gray-800 transition mt-4">
-                            Daftar
-                        </button>
-                    </form>
+        <div class="flex items-center justify-end mt-4">
+            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+               href="{{ route('login') }}">
+                {{ __('Sudah punya akun? Masuk') }}
+            </a>
+
+            <x-primary-button class="ms-4">
+                {{ __('Daftar') }}
+            </x-primary-button>
+        </div>
+    </form>
+
+    <script>
+        function toggleRoleOptions() {
+            const tipeUser = document.getElementById('tipe_user').value;
+            const rolePegawai = document.getElementById('role-pegawai');
+            const roleMagang = document.getElementById('role-magang');
+
+            const pegawaiSelect = document.getElementById('role_id_pegawai');
+            const magangSelect = document.getElementById('role_id_magang');
+
+            // Reset name attributes supaya hanya 1 dikirim
+            pegawaiSelect.name = '';
+            magangSelect.name = '';
+
+            if (tipeUser === 'pegawai') {
+                rolePegawai.classList.remove('hidden');
+                roleMagang.classList.add('hidden');
+                pegawaiSelect.name = 'role_id';
+            } else if (tipeUser === 'magang') {
+                roleMagang.classList.remove('hidden');
+                rolePegawai.classList.add('hidden');
+                magangSelect.name = 'role_id';
+            } else {
+                rolePegawai.classList.add('hidden');
+                roleMagang.classList.add('hidden');
+            }
+        }
+
+        // Panggil sekali saat load halaman untuk handle old() values
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleRoleOptions();
+        });
+    </script>
                 </div>
 
                 {{-- Bagian Kanan (Ilustrasi) --}}
