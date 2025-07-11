@@ -23,7 +23,7 @@
             {{-- Navigasi untuk Desktop --}}
             <nav class="hidden md:flex items-center gap-8">
                 <a href="{{ route('home') }}" class="text-blue-700 text-sm font-semibold transition">Beranda</a>
-                <a href="#" class="text-gray-600 text-sm hover:text-blue-700 transition">Tentang Kami</a>
+                <a href="{{ route('about') }}" class="text-gray-600 text-sm hover:text-blue-700 transition">Tentang Kami</a>
                 <a href="{{ route('pengetahuan') }}"
                     class="text-gray-600 text-sm hover:text-blue-700 transition">Pengetahuan</a>
                 <a href="{{ route('dokumen') }}"
@@ -40,7 +40,7 @@
 
     {{-- HERO SECTION --}}
     <section class="relative py-20 bg-cover bg-center text-white"
-        style="background-image: url('{{ asset('assets/img/Beranda.png') }}');">
+        style="background-image: url('{{ asset('assets/img/Background-line-landing-page.png') }}');">
         {{-- Overlay --}}
         <div class="absolute inset-0 bg-black/40"></div>
         <div class="max-w-[1200px] mx-auto w-full flex justify-between items-center relative z-10 px-6">
