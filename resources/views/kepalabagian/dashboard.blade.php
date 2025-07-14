@@ -1,174 +1,167 @@
 @php
-    use Carbon\Carbon;
-    $carbon = Carbon::now()->locale('id');
-    $carbon->settings(['formatFunction' => 'translatedFormat']);
-    $tanggal = $carbon->format('l, d F Y');
+use Carbon\Carbon;
+$carbon = Carbon::now()->locale('id');
+$carbon->settings(['formatFunction' => 'translatedFormat']);
+$tanggal = $carbon->format('l, d F Y');
 @endphp
 
 <x-app-layout>
-    {{-- Sidebar & Main --}}
-    <div class="flex min-h-screen bg-[#f6faff]">
-        @include('layouts.navigation-kepalabagian')
-        <main class="flex-1 ml-60 p-6">
-            {{-- Header Bar --}}
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+    {{-- Wrapper untuk seluruh konten di sebelah kanan sidebar --}}
+    <div class="w-full min-h-screen bg-[#eaf5ff]">
+        {{-- HEADER KONTEN --}}
+        <div class="p-6 md:p-8 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="font-bold text-xl md:text-2xl text-gray-800 leading-tight mb-1">
-                        Selamat Datang di KMS Diskominfotik Lampung
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Selamat Datang di KMS Diskominfotik Lampung
                     </h2>
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-5">
-                        <span class="text-gray-500 text-sm">{{ $tanggal }}</span>
-                        <span class="text-gray-700 text-sm font-medium">
-                            | Halo, selamat datang <b>{{ Auth::user()->name }}</b>!
-                            Role Anda: <b>{{ Auth::user()->role->nama_role ?? '-' }}</b>
-                        </span>
-                    </div>
+                    <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
-                <div class="flex items-center gap-4 mt-4 md:mt-0">
-                    <div class="relative w-48">
-                        <input type="text" placeholder="Cari"
-                            class="w-full rounded-full pl-10 pr-4 py-2 border border-gray-300 focus:outline-none focus:ring focus:ring-blue-100 bg-gray-50 text-sm" />
-                        <span class="absolute left-3 top-2.5 text-gray-400">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="8" cy="8" r="7" />
-                                <path d="M16 16l-3-3" />
-                            </svg>
+                <div class="flex items-center gap-4 w-full sm:w-auto">
+                    {{-- Search Bar --}}
+                    <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                        <input type="text" placeholder="Cari..."
+                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i class="fa fa-search"></i>
                         </span>
                     </div>
-                    <div class="bg-gray-100 rounded-full p-2">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="10" cy="7" r="4" />
-                            <path d="M16 17c0-2.5-3-4-6-4s-6 1.5-6 4" />
-                        </svg>
+                    {{-- Dropdown Profile --}}
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
+                            title="Profile">
+                            <i class="fa-solid fa-user"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
+                            style="display: none;">
+                            <div class="py-1">
+                                <a href="{{ route('profile.edit') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                        Out</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="text-gray-700 text-sm font-medium mt-4">
+                Halo, selamat datang <b>{{ Auth::user()->name }}</b>!
+                Role Anda: <b>{{ Auth::user()->role->nama_role ?? '-' }}</b>
+            </div>
+        </div>
 
-            {{-- ISI DASHBOARD KAMU DISINI --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="flex items-center p-5 rounded-xl shadow bg-green-600 text-white">
+        {{-- BODY KONTEN --}}
+        <div class="p-6 md:p-8">
+            {{-- STATS CARDS --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {{-- Card 1 --}}
+                <div
+                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
                     <div class="flex-1">
                         <div class="text-3xl font-bold">1422</div>
-                        <div class="text-xs mt-1">Total Dokumen Masuk</div>
+                        <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
                     </div>
-                    <svg class="w-8 h-8 opacity-60 ml-3" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <rect x="4" y="4" width="16" height="16" rx="2" fill="white" />
-                        <path stroke="green" d="M8 8h8M8 12h8M8 16h6" />
-                    </svg>
+                    <i class="fa-solid fa-file-arrow-down text-4xl opacity-50"></i>
                 </div>
-                <div class="flex items-center p-5 rounded-xl shadow bg-blue-600 text-white">
+                {{-- Card 2 --}}
+                <div
+                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
                     <div class="flex-1">
                         <div class="text-3xl font-bold">1234</div>
-                        <div class="text-xs mt-1">Total Artikel Dibagikan</div>
+                        <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
                     </div>
-                    <svg class="w-8 h-8 opacity-60 ml-3" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <rect x="4" y="4" width="16" height="16" rx="2" fill="white" />
-                        <path stroke="blue" d="M8 8h8M8 12h8M8 16h6" />
-                    </svg>
+                    <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
                 </div>
-                <div class="flex items-center p-5 rounded-xl shadow bg-red-600 text-white">
+                {{-- Card 3 --}}
+                <div
+                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-red-500 to-red-600 transition-transform hover:scale-105">
                     <div class="flex-1">
                         <div class="text-3xl font-bold">1422</div>
-                        <div class="text-xs mt-1">Total Dokumen Masuk</div>
+                        <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
                     </div>
-                    <svg class="w-8 h-8 opacity-60 ml-3" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <rect x="4" y="4" width="16" height="16" rx="2" fill="white" />
-                        <path stroke="red" d="M8 8h8M8 12h8M8 16h6" />
-                    </svg>
+                    <i class="fa-solid fa-file-import text-4xl opacity-50"></i>
                 </div>
-                <div class="flex items-center p-5 rounded-xl shadow bg-yellow-500 text-white">
+                {{-- Card 4 --}}
+                <div
+                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
                     <div class="flex-1">
                         <div class="text-3xl font-bold">1234</div>
-                        <div class="text-xs mt-1">Total Artikel Dibagikan</div>
+                        <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
                     </div>
-                    <svg class="w-8 h-8 opacity-60 ml-3" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <rect x="4" y="4" width="16" height="16" rx="2" fill="white" />
-                        <path stroke="orange" d="M8 8h8M8 12h8M8 16h6" />
-                    </svg>
+                    <i class="fa-solid fa-paper-plane text-4xl opacity-50"></i>
                 </div>
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-6">
-                {{-- Chart and KMS Description --}}
-                <div class="flex-1 flex flex-col gap-6">
-                    <div class="bg-white rounded-xl shadow p-5">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-semibold text-base">Perbandingan Dokumen</h3>
-                        </div>
-                        <div class="w-full h-48 flex items-center justify-center bg-gray-100 rounded">
-                            <span class="text-gray-400 text-xs">[Grafik/Chart]</span>
+            {{-- MAIN GRID (Charts, Lists, etc) --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {{-- Kolom Kiri (Lebih besar) --}}
+                <div class="lg:col-span-2 flex flex-col gap-8">
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perbandingan Dokumen</h3>
+                        <div class="w-full h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                            <span class="text-gray-400 text-sm">[Grafik/Chart Area]</span>
                         </div>
                     </div>
-                    <div class="bg-white rounded-xl shadow p-5">
-                        <h3 class="font-semibold text-base mb-3">Knowledge Management System</h3>
-                        <p class="text-sm text-gray-700 mb-4">
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-lg text-gray-800 mb-4">Knowledge Management System</h3>
+                        <p class="text-sm text-gray-700 leading-relaxed">
                             Dashboard Manajemen Pengetahuan Diskominfotik ini dirancang untuk menjadi pusat integrasi
-                            informasi dan dokumentasi strategis bagi seluruh pegawai di lingkungan instansi.
-                            Melalui tampilan yang intuitif, dashboard ini memuat statistik real-time...
+                            informasi dan dokumentasi strategis bagi seluruh pegawai di lingkungan instansi. Melalui
+                            tampilan yang intuitif, dashboard ini memuat statistik real-time.
                         </p>
-                        <p class="text-xs text-gray-500">
-                            Dokumen dikelompokkan berdasarkan kategori seperti total dokumen resmi yang tersimpan (1.238 dokumen), artikel pengetahuan yang dipublikasikan (312 artikel), serta permintaan akses terbaru dari pengguna internal. Setiap dokumen dikelompokkan berdasarkan kategori seperti Regulasi, Pedoman, dsb.
+                        <p class="text-sm text-gray-600 leading-relaxed mt-4">
+                            Seperti total dokumen resmi yang tersimpan (1.238 dokumen), artikel pengetahuan yang
+                            dipublikasikan (312 artikel), serta permintaan akses terbaru dari pengguna internal. Setiap
+                            dokumen dikelompokkan berdasarkan kategori seperti Regulasi, Pedoman.
                         </p>
                     </div>
                 </div>
-                <div class="w-full lg:max-w-xs flex flex-col gap-6">
-                    <div class="bg-white rounded-xl shadow p-5">
-                        <h3 class="font-semibold text-base mb-3">Dokumen Teratas</h3>
-                        <ul class="space-y-2">
-                            <li class="flex justify-between items-center text-sm">
+                {{-- Kolom Kanan (Lebih kecil) --}}
+                <div class="lg:col-span-1 flex flex-col gap-8">
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-lg text-gray-800 mb-4">Dokumen Teratas</h3>
+                        <ul class="space-y-3">
+                            <li class="flex justify-between items-center text-sm text-gray-700">
                                 <span>Renja Diskominfotik 2025</span>
-                                <span class="flex items-center gap-1">56
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="8" cy="8" r="7" />
-                                        <path d="M8 5v4l3 2" />
-                                    </svg>
-                                </span>
+                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">56 <i
+                                        class="fa-solid fa-eye text-xs"></i></span>
                             </li>
-                            <li class="flex justify-between items-center text-sm">
+                            <li class="flex justify-between items-center text-sm text-gray-700">
                                 <span>LKJ Diskominfotik 2025</span>
-                                <span class="flex items-center gap-1">23
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="8" cy="8" r="7" />
-                                        <path d="M8 5v4l3 2" />
-                                    </svg>
-                                </span>
+                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">23 <i
+                                        class="fa-solid fa-eye text-xs"></i></span>
                             </li>
-                            <li class="flex justify-between items-center text-sm">
+                            <li class="flex justify-between items-center text-sm text-gray-700">
                                 <span>Renstra Diskominfotik 2025</span>
-                                <span class="flex items-center gap-1">19
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="8" cy="8" r="7" />
-                                        <path d="M8 5v4l3 2" />
-                                    </svg>
-                                </span>
+                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">19 <i
+                                        class="fa-solid fa-eye text-xs"></i></span>
                             </li>
-                            <li class="flex justify-between items-center text-sm">
+                            <li class="flex justify-between items-center text-sm text-gray-700">
                                 <span>Rencana Aksi Diskominfotik 2025</span>
-                                <span class="flex items-center gap-1">12
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="8" cy="8" r="7" />
-                                        <path d="M8 5v4l3 2" />
-                                    </svg>
-                                </span>
+                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">12 <i
+                                        class="fa-solid fa-eye text-xs"></i></span>
                             </li>
                         </ul>
                     </div>
-                    <div class="bg-white rounded-xl shadow p-5">
-                        <h3 class="font-semibold text-base mb-3">Perkembangan Pengetahuan</h3>
-                        <div class="w-full h-28 flex items-center justify-center bg-gray-100 rounded mb-4">
-                            <span class="text-gray-400 text-xs">[Bar Chart Pengetahuan]</span>
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Pengetahuan</h3>
+                        <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
+                            <span class="text-gray-400 text-sm">[Bar Chart]</span>
                         </div>
-                        <h3 class="font-semibold text-base mb-3">Perkembangan Artikel</h3>
-                        <div class="w-full h-28 flex items-center justify-center bg-gray-100 rounded">
-                            <span class="text-gray-400 text-xs">[Bar Chart Artikel]</span>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Artikel</h3>
+                        <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
+                            <span class="text-gray-400 text-sm">[Bar Chart]</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
 </x-app-layout>
