@@ -11,7 +11,21 @@ use App\Http\Controllers\GrupChatMessageController;
 use App\Http\Controllers\PengetahuanController;
 use \App\Http\Controllers\Magang\KegiatanController;
 use App\Http\Controllers\DokumenmagangController;
+use App\Http\Controllers\FotoKegiatanController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
+    Route::get('dokumen/view/{filename}', function($filename) {
+    $path = storage_path('app/public/dokumen/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'application/pdf',
+        'X-Frame-Options' => 'ALLOWALL', // override header
+    ]);
+});
+
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
 
@@ -47,6 +61,9 @@ Route::get('/', [DashboardController::class, 'magang'])->name('dashboard');
 Route::resource('kegiatan', KegiatanController::class);
 Route::resource('berbagipengetahuan', PengetahuanController::class);
 Route::resource('manajemendokumen', DokumenmagangController::class);
+Route::delete('/magang/kegiatan/foto/{foto}', [FotoKegiatanController::class, 'destroy'])
+    ->name('kegiatan.foto.delete');
+
     });
 // dst. untuk group lain
 
