@@ -4,91 +4,95 @@
     $carbon->settings(['formatFunction' => 'translatedFormat']);
     $tanggal = $carbon->format('l, d F Y');
     $bidangList = [
-        ['label' => 'Sekretariat', 'icon' => 'fa-solid fa-briefcase'],
-        ['label' => 'PLIP', 'icon' => 'fa-solid fa-building-columns'],
-        ['label' => 'PKP', 'icon' => 'fa-solid fa-lightbulb'],
-        ['label' => 'TIK', 'icon' => 'fa-solid fa-network-wired'],
-        ['label' => 'SanStik', 'icon' => 'fa-solid fa-database'],
+        ['label' => 'Sekretariat', 'icon' => 'fa-solid fa-building-user'],
+        ['label' => 'PLIP', 'icon' => 'fa-solid fa-landmark'],
+        ['label' => 'PKP', 'icon' => 'fa-solid fa-people-group'],
+        ['label' => 'TIK', 'icon' => 'fa-solid fa-laptop-code'],
+        ['label' => 'SanStik', 'icon' => 'fa-solid fa-chart-simple'],
     ];
 @endphp
 
 <x-app-layout>
-    <div class="bg-[#eaf5ff] min-h-screen w-full">
-        {{-- Kontainer max width --}}
-        <div class="mx-auto max-w-[1520px] px-4 lg:px-10 pt-8 pb-10 flex flex-col xl:flex-row gap-8">
-            {{-- SIDEBAR tetap fixed, grid utama tidak perlu ml-60! --}}
+    {{-- Wrapper untuk seluruh konten di sebelah kanan sidebar --}}
+    <div class="w-full bg-[#eaf5ff]">
 
-            {{-- Konten utama --}}
-            <div class="flex-1">
-                {{-- Header --}}
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                    <div>
-                        <h2 class="text-2xl md:text-[28px] font-bold text-gray-900 mb-1">Kategori Pengetahuan</h2>
-                        <p class="text-[#828282] text-base font-normal">{{ $tanggal }}</p>
+        {{-- HEADER KONTEN --}}
+        <div class="p-6 md:px-8 md:pt-8 md:pb-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Kategori Pengetahuan</h2>
+                    <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
+                </div>
+                <div class="flex items-center gap-4 w-full sm:w-auto">
+                    {{-- Search Bar --}}
+                    <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                        <input type="text" placeholder="Cari..."
+                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i class="fa fa-search"></i>
+                        </span>
                     </div>
-                    <div class="flex items-center gap-4 mt-4 md:mt-0 w-full md:w-auto">
-                        <div class="relative w-full md:w-64">
-                            <input type="text" placeholder="Cari..."
-                                class="w-full rounded-full border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-none transition" />
-                            <span class="absolute left-3 top-2.5 text-gray-400">
-                                <i class="fa fa-search"></i>
-                            </span>
-                        </div>
-                        <a href="{{ route('profile.edit') }}"
-                            class="w-10 h-10 flex items-center justify-center bg-white rounded-full border border-gray-300 text-black text-lg hover:shadow transition"
+                    {{-- Dropdown Profile --}}
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
                             title="Profile">
                             <i class="fa-solid fa-user"></i>
-                        </a>
-                    </div>
-                </div>
-
-                {{-- Card utama --}}
-                <div class="bg-white rounded-2xl shadow px-0 pt-4 pb-2">
-                    <div class="flex flex-col md:flex-row items-center justify-between px-8 pt-2 mb-2 gap-2">
-                        <span class="font-bold text-lg text-[#2176ae] border-b-4 border-[#2176ae] pb-2">
-                            Pengetahuan
-                        </span>
-                        <div class="flex items-center gap-2">
-                            <button class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-1.5 bg-white hover:bg-blue-50 text-gray-700 font-medium shadow-none transition text-sm">
-                                Urut <i class="fa-solid fa-chevron-down"></i>
-                            </button>
-                            <a href="{{ route('kepalabagian.kategoripengetahuan.create') }}"
-                                class="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-none transition ml-2 text-sm">
-                                + Tambah Kategori
-                            </a>
+                        </button>
+                        <div x-show="open" @click.away="open = false"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20"
+                             x-transition style="display: none;">
+                            <div class="py-1">
+                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                    <div class="px-2 pb-4">
+                </div>
+            </div>
+        </div>
+
+        {{-- BODY KONTEN GRID --}}
+        <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
+            
+            {{-- KOLOM KIRI (TABEL) --}}
+            <section class="xl:col-span-8 w-full">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-200/80">
+                    <div class="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-b border-gray-200 gap-4">
+                        <span class="font-bold text-lg text-blue-700 border-b-4 border-blue-600 pb-2">
+                            Pengetahuan
+                        </span>
+                        <div class="flex items-center gap-3">
+                            <button class="flex items-center gap-2 border border-gray-300 rounded-lg px-4 py-1.5 bg-white hover:bg-gray-50 text-gray-700 font-medium shadow-sm transition text-sm">
+                                <span>Urut</span>
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
                         @if ($kategori->count())
-                            <div>
+                            <div class="overflow-x-auto">
                                 <table class="w-full text-sm text-left text-gray-600">
-                                    <thead class="text-xs text-gray-700 uppercase bg-[#f3f7fb]">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                         <tr>
-                                            <th class="py-3 px-6 font-bold text-left">Judul</th>
-                                            <th class="py-3 px-6 font-bold text-left">Tanggal</th>
-                                            <th class="py-3 px-6 font-bold text-left">Keterangan</th>
-                                            <th class="py-3 px-6 font-bold text-left">Aksi</th>
+                                            <th scope="col" class="py-3 px-6">Judul</th>
+                                            <th scope="col" class="py-3 px-6">Tanggal</th>
+                                            <th scope="col" class="py-3 px-6">Keterangan</th>
+                                            <th scope="col" class="py-3 px-6 text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($kategori as $item)
-                                        <tr class="{{ $loop->odd ? 'bg-[#f3f7fb]' : 'bg-white' }} hover:bg-blue-50 transition">
-                                            <td class="py-3 px-6">{{ $item->judul ?? '-' }}</td>
-                                            <td class="py-3 px-6">{{ $item->tanggal ?? '-' }}</td>
-                                            <td class="py-3 px-6">{{ $item->keterangan ?? '-' }}</td>
-                                            <td class="py-3 px-6 flex gap-2">
-                                                <a href="{{ route('kepalabagian.kategoripengetahuan.edit', $item->id) }}"
-                                                    class="px-3 py-1 rounded bg-yellow-400 hover:bg-yellow-500 text-xs text-black font-bold">Edit</a>
-                                                <form class="inline"
-                                                    action="{{ route('kepalabagian.kategoripengetahuan.destroy', $item->id) }}"
-                                                    method="POST"
-                                                    onsubmit="return confirm('Yakin ingin menghapus kategori ini?');">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit"
-                                                        class="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-xs text-white font-bold">
-                                                        Hapus
-                                                    </button>
-                                                </form>
+                                        <tr class="bg-white border-b hover:bg-gray-50 transition">
+                                            <td class="py-4 px-6 font-medium text-gray-900">{{ $item->judul ?? 'Renja Diskominfotik 2025' }}</td>
+                                            <td class="py-4 px-6">{{ $item->tanggal ?? '2025/01/01' }}</td>
+                                            <td class="py-4 px-6">{{ $item->keterangan ?? 'Dokumen terbaru 2025' }}</td>
+                                            <td class="py-4 px-6 text-center">
+                                                <a href="#" class="font-medium text-blue-600 hover:underline">Edit</a>
                                             </td>
                                         </tr>
                                         @endforeach
@@ -96,38 +100,36 @@
                                 </table>
                             </div>
                         @else
-                            <div class="flex flex-col items-center justify-center py-20 px-6">
-                                <img src="{{ asset('img/empty.svg') }}" class="w-32 mb-4 opacity-80" alt="Data Kosong" />
+                            <div class="flex flex-col items-center justify-center text-center py-20 px-6">
+                                <img src="{{ asset('assets/img/empty-state.svg') }}" class="w-40 mb-6 opacity-80" alt="Data Kosong" />
                                 <h3 class="text-xl font-bold text-gray-700">Data Tidak Ditemukan</h3>
                                 <p class="text-gray-500 mt-2">Saat ini belum ada data kategori pengetahuan yang tersedia.</p>
                             </div>
                         @endif
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {{-- SIDEBAR kanan --}}
-            <div class="w-full xl:w-[370px] flex flex-col gap-8">
-                <div class="bg-[#3773a6] text-white rounded-2xl shadow p-8 flex flex-col">
-                    <div class="font-bold text-lg mb-2 pb-2 border-b border-white/20">Bidang</div>
-                    <ul class="space-y-6 mt-2">
+            {{-- KOLOM KANAN (SIDEBAR) --}}
+            <aside class="xl:col-span-4 w-full flex flex-col gap-8">
+                <div class="bg-gradient-to-br from-blue-700 to-blue-900 text-white rounded-2xl shadow-lg p-7">
+                    <h3 class="font-bold text-lg mb-4 border-b border-white/20 pb-2">Bidang</h3>
+                    <ul class="space-y-4">
                         @foreach ($bidangList as $bidang)
                         <li class="flex items-center gap-4 text-white/90 hover:text-white transition cursor-pointer">
-                            <span class="w-8 flex justify-center items-center">
-                                <i class="{{ $bidang['icon'] }} text-2xl"></i>
-                            </span>
-                            <span class="text-base font-medium">{{ $bidang['label'] }}</span>
+                            <i class="{{ $bidang['icon'] }} text-xl w-6 text-center"></i>
+                            <span class="font-medium">{{ $bidang['label'] }}</span>
                         </li>
                         @endforeach
                     </ul>
                 </div>
-                <div class="bg-white rounded-2xl shadow p-7">
-                    <div class="font-semibold text-blue-700 mb-2 text-lg">Kategori</div>
+                <div class="bg-white rounded-2xl shadow-lg p-7">
+                    <h3 class="font-semibold text-blue-800 mb-3 text-lg">Kategori</h3>
                     <p class="text-sm text-gray-600 leading-relaxed">
-                        Dashboard Manajemen Pengetahuan Diskominfotik ini dirancang untuk menjadi pusat integrasi informasi dan dokumentasi strategis bagi seluruh pegawai di lingkungan instansi.
+                        Dashboard Manajemen Pengetahuan Diskominfotik ini dirancang untuk menjadi pusat integrasi informasi dan dokumentasi strategis bagi seluruh pegawai di lingkungan instansi. Melalui tampilan yang intuitif, dashboard ini memuat statistik real-time.
                     </p>
                 </div>
-            </div>
+            </aside>
         </div>
     </div>
 </x-app-layout>

@@ -20,7 +20,10 @@
 </head>
 
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    {{-- 1. Tambahkan state management Alpine.js di sini --}}
+    <div x-data="{ sidebarOpen: false }" class="min-h-screen bg-[#f8fafc]">
+        
+        {{-- Sidebar Navigasi --}}
         @if (Auth::check())
         @php
         $roleGroup = Auth::user()->role->role_group ?? '';
@@ -39,23 +42,30 @@
         @endif
         @endif
 
+        {{-- Konten Utama --}}
+        <div class="lg:ml-64">
+            {{-- 2. Tambahkan Header Mobile dengan Tombol Hamburger --}}
+            <header class="sticky top-0 z-10 lg:hidden bg-white shadow-sm">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <a href="/">
+                        <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" class="h-8" alt="Logo">
+                    </a>
+                    {{-- Tombol ini akan mengubah state 'sidebarOpen' --}}
+                    <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </header>
 
-        <!-- Page Heading -->
-        @if (isset($header))
-        <header class="bg-white dark:bg-gray-800 shadow">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                {{ $header }}
-            </div>
-        </header>
-        @endif
-
-        <!-- Page Content -->
-        <main class="lg:ml-64">
-            {{ $slot }}
-        </main>
+            <!-- Page Content -->
+            <main>
+                {{ $slot }}
+            </main>
+        </div>
     </div>
     @stack('scripts')
-
 </body>
 
 </html>
