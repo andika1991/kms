@@ -19,7 +19,7 @@ class GrupChatMessageController extends Controller
             'file' => 'nullable|file|max:20480' // Maksimal 20MB
         ]);
 
-        // Simpan file jika ada
+        
         $filePath = null;
         if ($request->hasFile('file')) {
             $filePath = $request->file('file')->store('chat_files', 'public');

@@ -1,30 +1,29 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\ArtikelPengetahuan;
 use App\Models\KategoriPengetahuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-class PengetahuanController extends Controller
+
+class PengetahuanpegawaiController extends Controller
 {
- public function index(Request $request)
+   public function index(Request $request)
 {
     $query = ArtikelPengetahuan::query();
     $query->where('pengguna_id', auth()->id());
 
-    // Filter pencarian jika ada input "search"
     if ($request->filled('search')) {
         $query->where('judul', 'like', '%' . $request->search . '%');
     }
 
     $artikels = $query->latest()->get();
 
-    return view('magang.berbagipengetahuan', compact('artikels'));
+    return view('pegawai.berbagipengetahuan.index', compact('artikels'));
 }
 
-
- 
-    public function create()
+ public function create()
 {
     $user = auth()->user();
 
@@ -45,10 +44,11 @@ class PengetahuanController extends Controller
 
     $kategori = $query->get();
 
-    return view('magang.artikelpengetahuan-create', compact('kategori'));
+    return view('pegawai.berbagipengetahuan.create', compact('kategori'));
 }
 
-    public function store(Request $request)
+
+public function store(Request $request)
     {
         $validated = $request->validate([
             'judul' => ['required', 'string', 'max:255'],
@@ -72,28 +72,10 @@ class PengetahuanController extends Controller
         ArtikelPengetahuan::create($validated);
 
         return redirect()
-            ->route('magang.berbagipengetahuan.index')
+            ->route('pegawai.berbagipengetahuan.index')
             ->with('success', 'Artikel berhasil ditambahkan.');
     }
-
-    /**
-     * Tampilkan detail artikel (hanya jika milik user login).
-     */
-    public function show(ArtikelPengetahuan $artikelpengetahuan)
-    {
-        if ($artikelpengetahuan->pengguna_id !== auth()->id()) {
-            abort(403, 'Anda tidak berhak melihat artikel ini.');
-        }
-
-        $artikelpengetahuan->load(['kategoriPengetahuan', 'pengguna']);
-
-        return view('magang.berbagipengetahuan-show', compact('artikelpengetahuan'));
-    }
-
-    /**
-     * Tampilkan form edit artikel.
-     */
- public function edit($id)
+public function edit($id)
 {
     $userId = auth()->id();
 
@@ -118,7 +100,7 @@ $user = auth()->user();
 
     $kategori = $query->get();
 
-    return view('magang.berbagipengetahuan-edit', compact('artikelpengetahuan', 'kategori'));
+    return view('pegawai.berbagipengetahuan.edit', compact('artikelpengetahuan', 'kategori'));
 }
 
 
@@ -162,15 +144,11 @@ $user = auth()->user();
     $artikelpengetahuan->update($validated);
 
     return redirect()
-        ->route('magang.berbagipengetahuan.index')
+        ->route('pegawai.berbagipengetahuan.index')
         ->with('success', 'Artikel berhasil diperbarui.');
 }
 
-
-    /**
-     * Hapus artikel.
-     */
-   public function destroy($id)
+public function destroy($id)
 {
     $userId = auth()->id();
 
@@ -189,8 +167,9 @@ $user = auth()->user();
     $artikelpengetahuan->delete();
 
     return redirect()
-        ->route('magang.berbagipengetahuan.index')
+        ->route('pegawai.berbagipengetahuan.index')
         ->with('success', 'Artikel berhasil dihapus.');
 }
+
 
 }
