@@ -4,24 +4,24 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('magang.dashboard') }}">
+                    <a href="{{ route('pegawai.dashboard') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('magang.dashboard')" :active="request()->routeIs('magang.dashboard')">
+                    <x-nav-link :href="route('pegawai.dashboard')" :active="request()->routeIs('pegawai.dashboard')">
                         Dashboard Magang
                     </x-nav-link>
-                    <x-nav-link :href="route('magang.berbagipengetahuan.index')" :active="request()->routeIs('magang.berbagipengetahuan.index')">
+                    <x-nav-link :href="route('pegawai.berbagipengetahuan.index')" :active="request()->routeIs('pegawai.berbagipengetahuan.index')">
                         Berbagi Pengetahuan
                     </x-nav-link>
-                    <x-nav-link :href="route('magang.kegiatan.index')" :active="request()->routeIs('magang.kegiatan.*')">
+                    <x-nav-link :href="route('pegawai.kegiatan.index')" :active="request()->routeIs('pegawai.kegiatan.*')">
     Kegiatan
 </x-nav-link>
 
-<x-nav-link :href="route('magang.manajemendokumen.index')" :active="request()->routeIs('magang.manajemendokumen.index')">
+<x-nav-link :href="route('pegawai.manajemendokumen.index')" :active="request()->routeIs('pegawai.manajemendokumen.index')">
     Manajemen dokumen
 </x-nav-link>
 
@@ -79,19 +79,19 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
+  
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('magang.dashboard')" :active="request()->routeIs('magang.dashboard')">
+            <x-responsive-nav-link :href="route('pegawai.dashboard')" :active="request()->routeIs('pegawai.dashboard')">
                 Dashboard Magang
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('magang.berbagipengetahuan.index')" :active="request()->routeIs('magang.berbagipengetahuan.index')">
+            <x-responsive-nav-link :href="route('pegawai.berbagipengetahuan.index')" :active="request()->routeIs('pegawai.berbagipengetahuan.index')">
                 Berbagi Pengetahuan
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('magang.kegiatan.index')" :active="request()->routeIs('magang.kegiatan.*')">
+            <x-responsive-nav-link :href="route('pegawai.kegiatan.index')" :active="request()->routeIs('pegawai.kegiatan.*')">
     Kegiatan
 </x-responsive-nav-link>
-    <x-responsive-nav-link :href="route('magang.manajemendokumen.index')" :active="request()->routeIs('magang.manajemendokumen.index')">
+    <x-responsive-nav-link :href="route('pegawai.manajemendokumen.index')" :active="request()->routeIs('pegawai.manajemendokumen.index')">
     Manajemen dokumen
 </x-responsive-nav-link>
 <x-responsive-nav-link :href="route('magang.forum.index')" :active="request()->routeIs('magang.forum.*')">

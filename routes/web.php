@@ -12,19 +12,12 @@ use App\Http\Controllers\PengetahuanController;
 use \App\Http\Controllers\Magang\KegiatanController;
 use App\Http\Controllers\DokumenmagangController;
 use App\Http\Controllers\FotoKegiatanController;
+use App\Http\Controllers\ForumMagangController;
+use App\Http\Controllers\PengetahuanpegawaiController;
+use App\Http\Controllers\KegiatanpegawaiController;
+use App\Http\Controllers\DokumenpegawaiController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
-    Route::get('dokumen/view/{filename}', function($filename) {
-    $path = storage_path('app/public/dokumen/' . $filename);
 
-    if (!File::exists($path)) {
-        abort(404);
-    }
-
-    return response()->file($path, [
-        'Content-Type' => 'application/pdf',
-        'X-Frame-Options' => 'ALLOWALL', // override header
-    ]);
-});
 
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
@@ -63,10 +56,22 @@ Route::resource('berbagipengetahuan', PengetahuanController::class);
 Route::resource('manajemendokumen', DokumenmagangController::class);
 Route::delete('/magang/kegiatan/foto/{foto}', [FotoKegiatanController::class, 'destroy'])
     ->name('kegiatan.foto.delete');
-
+ Route::resource('forum', ForumMagangController::class);
+ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
     });
-// dst. untuk group lain
 
+Route::prefix('pegawai')
+    ->as('pegawai.')
+    ->middleware(['auth', 'role_group:pegawai'])
+    ->group(function () {
+Route::get('/', [DashboardController::class, 'pegawai'])->name('dashboard');
+Route::resource('berbagipengetahuan', PengetahuanpegawaiController::class);
+Route::resource('kegiatan', KegiatanpegawaiController::class);
+Route::resource('manajemendokumen', DokumenpegawaiController::class);
+ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
+    });
 
 /*
 |--------------------------------------------------------------------------

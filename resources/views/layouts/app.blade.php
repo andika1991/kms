@@ -25,18 +25,21 @@
         
         {{-- Sidebar Navigasi --}}
         @if (Auth::check())
-            @php
-                $roleGroup = Auth::user()->role->role_group ?? '';
-            @endphp
-            @if ($roleGroup === 'admin')
-                @include('layouts.navigation-admin')
-            @elseif ($roleGroup === 'magang')
-                @include('layouts.navigation-magang')
-            @elseif ($roleGroup === 'kepalabagian')
-                @include('layouts.navigation-kepalabagian')
-            @else
-                @include('layouts.navigation-default')
-            @endif
+        @php
+        $roleGroup = Auth::user()->role->role_group ?? '';
+        @endphp
+
+        @if ($roleGroup === 'admin')
+        @include('layouts.navigation-admin')
+        @elseif ($roleGroup === 'magang')
+        @include('layouts.navigation-magang')
+        @elseif ($roleGroup === 'kepalabagian')
+        @include('layouts.navigation-kepalabagian')
+         @elseif ($roleGroup === 'pegawai')
+        @include('layouts.navigation-pegawai')
+        @else
+        @include('layouts.navigation-default')
+        @endif
         @endif
 
         {{-- Konten Utama --}}

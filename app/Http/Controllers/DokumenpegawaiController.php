@@ -1,16 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Dokumen;
 use App\Models\KategoriDokumen;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
 use Exception;
-class DokumenmagangController extends Controller
+use Illuminate\Http\Request;
+
+class DokumenpegawaiController extends Controller
 {
-    public function index(Request $request)
+     public function index(Request $request)
     {
         $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
             ->where('pengguna_id', auth()->id());
@@ -23,7 +23,7 @@ class DokumenmagangController extends Controller
 
         $dokumen = $dokumenQuery->latest()->get();
 
-        return view('magang.dokumen.index', compact('dokumen'));
+        return view('pegawai.dokumen.index', compact('dokumen'));
     }
 
     public function create()
@@ -36,7 +36,7 @@ class DokumenmagangController extends Controller
             })
             ->get();
 
-        return view('magang.dokumen.create', compact('kategori'));
+        return view('pegawai.dokumen.create', compact('kategori'));
     }
 
  public function store(Request $request)
@@ -70,7 +70,7 @@ class DokumenmagangController extends Controller
 
     Dokumen::create($validated);
 
-    return redirect()->route('magang.manajemendokumen.index')
+    return redirect()->route('pegawai.manajemendokumen.index')
                      ->with('success', 'Dokumen berhasil ditambahkan.');
 }
 
@@ -78,7 +78,7 @@ public function show($id)
 {
     $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
-    return view('magang.dokumen.show', compact('dokumen'));
+    return view('pegawai.dokumen.show', compact('dokumen'));
 }
 
     public function edit(Dokumen $manajemendokuman)
@@ -87,7 +87,7 @@ public function show($id)
 
         $kategori = KategoriDokumen::all();
 
-        return view('magang.dokumen.edit', compact('manajemendokuman', 'kategori'));
+        return view('pegawai.dokumen.edit', compact('manajemendokuman', 'kategori'));
     }
 
 public function update(Request $request, $id)
@@ -117,7 +117,7 @@ public function update(Request $request, $id)
 
     $dokumen->update($validated);
 
-    return redirect()->route('magang.manajemendokumen.index')
+    return redirect()->route('pegawai.manajemendokumen.index')
         ->with('success', 'Dokumen berhasil diperbarui.');
 }
 
@@ -137,17 +137,12 @@ public function destroy($id)
         // Soft delete dokumen
         $dokumen->delete();
 
-        return redirect()->route('magang.manajemendokumen.index')
+        return redirect()->route('pegawai.manajemendokumen.index')
             ->with('success', 'Dokumen berhasil dihapus (soft delete).');
     } catch (\Exception $e) {
-        return redirect()->route('magang.manajemendokumen.index')
+        return redirect()->route('pegawai.manajemendokumen.index')
             ->with('error', 'Gagal menghapus dokumen: ' . $e->getMessage());
     }
 }
-
-
-
-
-
-  
+ 
 }
