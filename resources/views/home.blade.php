@@ -7,40 +7,127 @@
     <title>Knowledge Management System</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+
     {{-- Font Awesome untuk ikon di sidebar --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-figtree bg-gray-100" style="background-image: url('{{ asset('assets/img/body-bg-pattern.png') }}');">
-
+<body class="font-figtree bg-gray-100" style="background-image: url('{{ asset('img/body-bg-pattern.png') }}');">
     {{-- HEADER --}}
     <header class="bg-white shadow-md sticky top-0 z-20">
         <div class="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-3">
             <a href="/">
                 <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" alt="KMS DISKOMINFOTIK" class="h-9">
             </a>
-            {{-- Navigasi untuk Desktop --}}
+
             <nav class="hidden md:flex items-center gap-8">
-                <a href="{{ route('home') }}" class="text-blue-700 text-sm font-semibold transition">Beranda</a>
-                <a href="{{ route('about') }}" class="text-gray-600 text-sm hover:text-blue-700 transition">Tentang Kami</a>
+                <a href="{{ route('home') }}"
+                    class="{{ request()->routeIs('home') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    Beranda
+                </a>
+                <a href="{{ route('about') }}"
+                    class="{{ request()->routeIs('about') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    Tentang Kami
+                </a>
                 <a href="{{ route('pengetahuan') }}"
-                    class="text-gray-600 text-sm hover:text-blue-700 transition">Pengetahuan</a>
+                    class="{{ request()->routeIs('pengetahuan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    Pengetahuan
+                </a>
                 <a href="{{ route('dokumen') }}"
-                    class="text-gray-600 text-sm hover:text-blue-700 transition">Dokumen</a>
+                    class="{{ request()->routeIs('dokumen') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    Dokumen
+                </a>
             </nav>
-            {{-- Tombol Masuk --}}
-            <a href="{{ route('login') }}"
-                class="bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow hover:bg-blue-800 transition">
-                Masuk
-            </a>
-            {{-- Tambahkan tombol menu untuk mobile jika diperlukan --}}
+
+
+            {{-- Logika untuk Tombol Login & Dashboard --}}
+            <div class="flex items-center">
+                @auth
+                {{-- Jika pengguna sudah login --}}
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open"
+                        class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-200 transition">
+                        <span>{{ Auth::user()->name }}</span>
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+
+                    {{-- Menu Dropdown disesuaikan dengan role_group --}}
+                    <div x-show="open" @click.away="open = false"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
+                        style="display: none;">
+                        <div class="py-1">
+                            @php
+                            $dashboardRoute = '#';
+
+                            switch(Auth::user()->role->role_group) {
+                            case 'admin':
+                            $dashboardRoute = route('admin.dashboard');
+                            break;
+                            case 'kepalabagian':
+                            $dashboardRoute = route('kepalabagian.dashboard');
+                            break;
+                            case 'pegawai':
+                            $dashboardRoute = route('pegawai.dashboard');
+                            break;
+                            case 'magang':
+                            $dashboardRoute = route('magang.dashboard');
+                            break;
+                            case 'kasubbidang':
+                            $dashboardRoute = route('kasubbidang.dashboard');
+                            break;
+                            case 'sekretaris':
+                            $dashboardRoute = route('sekretaris.dashboard');
+                            break;
+                            case 'Kadis':
+                            $dashboardRoute = route('kadis.dashboard');
+                            break;
+                            default:
+                            $dashboardRoute = route('home');
+                            break;
+                            }
+                            @endphp
+
+                            <a href="{{ $dashboardRoute }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Dashboard
+                            </a>
+
+                            <a href="{{ route('profile.edit') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Profile
+                            </a>
+
+                            <div class="border-t border-gray-100"></div>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    Log Out
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @else
+                {{-- Jika pengguna belum login --}}
+                <a href="{{ route('login') }}"
+                    class="bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow hover:bg-blue-800 transition">
+                    Masuk
+                </a>
+                @endauth
+            </div>
         </div>
     </header>
 
     {{-- HERO SECTION --}}
     <section class="relative py-20 bg-cover bg-center text-white"
         style="background-image: url('{{ asset('assets/img/Background-line-landing-page.png') }}');">
+
         {{-- Overlay --}}
         <div class="absolute inset-0 bg-black/40"></div>
         <div class="max-w-[1200px] mx-auto w-full flex justify-between items-center relative z-10 px-6">
@@ -149,7 +236,7 @@
                             </a>
                         </div>
 
-                        {{-- Kolom Teks (Dibuat menjadi flex column) --}}
+                        {{-- Kolom Teks --}}
                         <div class="flex-grow flex flex-col w-full">
                             {{-- Bagian Atas (Judul & List) --}}
                             <div class="flex-grow">
@@ -164,7 +251,6 @@
                                 </ol>
                             </div>
 
-                            {{-- Bagian Bawah (Tombol Download) --}}
                             <div class="mt-4">
                                 <a href="#"
                                     class="inline-block bg-blue-600 text-white text-sm font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">

@@ -10,35 +10,124 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-[#f8fafc] font-figtree">
-
+<body class="font-figtree bg-gray-100" style="background-image: url('{{ asset('img/body-bg-pattern.png') }}');">
     {{-- HEADER --}}
-    <header class="bg-white shadow-sm sticky top-0 z-20">
-        <div class="max-w-[1400px] mx-auto flex items-center justify-between px-6 py-3">
-            <div class="flex items-center gap-2">
-                <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" alt="KMS DISKOMINFOTIK" class="h-7">
-            </div>
-            <nav class="flex gap-8">
-                <a href="{{ route('home') }}" class="text-gray-600 text-sm hover:text-blue-700 transition">Beranda</a>
-                <a href="{{ route('about') }}" class="text-gray-600 text-sm hover:text-blue-700 transition">Tentang
-                    Kami</a>
+    <header class="bg-white shadow-md sticky top-0 z-20">
+        <div class="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-3">
+            <a href="/">
+                <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" alt="KMS DISKOMINFOTIK" class="h-9">
+            </a>
+
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="{{ route('home') }}"
+                    class="{{ request()->routeIs('home') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    Beranda
+                </a>
+                <a href="{{ route('about') }}"
+                    class="{{ request()->routeIs('about') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    Tentang Kami
+                </a>
                 <a href="{{ route('pengetahuan') }}"
-                    class="text-blue-700 text-sm font-semibold transition">Pengetahuan</a>
+                    class="{{ request()->routeIs('pengetahuan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    Pengetahuan
+                </a>
                 <a href="{{ route('dokumen') }}"
-                    class="text-gray-600 text-sm hover:text-blue-700 transition">Dokumen</a>
+                    class="{{ request()->routeIs('dokumen') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    Dokumen
+                </a>
             </nav>
-            <a href="{{ route('login') }}"
-                class="bg-blue-900 text-white text-sm font-semibold px-6 py-2 rounded-xl shadow hover:bg-blue-700 transition">Masuk</a>
+
+
+            {{-- Logika untuk Tombol Login & Dashboard --}}
+            <div class="flex items-center">
+                @auth
+                {{-- Jika pengguna sudah login --}}
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open"
+                        class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-200 transition">
+                        <span>{{ Auth::user()->name }}</span>
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+
+                    {{-- Menu Dropdown disesuaikan dengan role_group --}}
+                    <div x-show="open" @click.away="open = false"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
+                        style="display: none;">
+                        <div class="py-1">
+                            @php
+                            $dashboardRoute = '#';
+
+                            switch(Auth::user()->role->role_group) {
+                            case 'admin':
+                            $dashboardRoute = route('admin.dashboard');
+                            break;
+                            case 'kepalabagian':
+                            $dashboardRoute = route('kepalabagian.dashboard');
+                            break;
+                            case 'pegawai':
+                            $dashboardRoute = route('pegawai.dashboard');
+                            break;
+                            case 'magang':
+                            $dashboardRoute = route('magang.dashboard');
+                            break;
+                            case 'kasubbidang':
+                            $dashboardRoute = route('kasubbidang.dashboard');
+                            break;
+                            case 'sekretaris':
+                            $dashboardRoute = route('sekretaris.dashboard');
+                            break;
+                            case 'Kadis':
+                            $dashboardRoute = route('kadis.dashboard');
+                            break;
+                            default:
+                            $dashboardRoute = route('home');
+                            break;
+                            }
+                            @endphp
+
+                            <a href="{{ $dashboardRoute }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Dashboard
+                            </a>
+
+                            <a href="{{ route('profile.edit') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Profile
+                            </a>
+
+                            <div class="border-t border-gray-100"></div>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    Log Out
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @else
+                {{-- Jika pengguna belum login --}}
+                <a href="{{ route('login') }}"
+                    class="bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow hover:bg-blue-800 transition">
+                    Masuk
+                </a>
+                @endauth
+            </div>
         </div>
     </header>
 
     {{-- HERO SECTION --}}
-    <section class="relative min-h-[320px] flex items-center"
-        style="background: url('{{ asset('assets/img/Background-line-landing-page.png') }}') center/cover no-repeat;">
-        <div class="absolute inset-0 bg-black/60"></div>
-        <div class="max-w-[900px] mx-auto w-full relative z-10 text-center flex flex-col items-center">
-            <h1 class="text-4xl md:text-5xl font-bold text-white drop-shadow mt-16 mb-3">Tentang Kami</h1>
-            <div class="bg-white/90 rounded-lg shadow-lg px-6 py-4 text-black text-base font-medium w-full max-w-3xl">
+    <section class="relative flex items-center justify-center min-h-[320px] md:min-h-[420px] bg-cover bg-center"
+        style="background-image: url('{{ asset('assets/img/about_figure.png') }}');">
+        <div class="absolute inset-0 bg-black/50"></div>
+        <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
+            <h1 class="text-3xl md:text-5xl font-bold text-white drop-shadow-lg mb-6">Tentang Kami</h1>
+            <div class="inline-block rounded-xl shadow-lg p-6 text-gray-200 text-sm md:text-base max-w-3xl mx-auto">
                 Dinas Komunikasi, Informatika dan Statistik Pemerintah Provinsi Lampung merupakan penyelenggara urusan
                 pemerintahan dan mempunyai tugas di bidang Komunikasi dan Informatika, Statistik dan Persandian. Dinas
                 Komunikasi, Informatika dan Statistik Pemerintah Provinsi Lampung dipimpin oleh seorang Kepala Dinas
@@ -97,70 +186,10 @@
     </section>
 
     {{-- BIDANG --}}
-    <section class="w-full bg-[#254759] bg-opacity-95 py-12 relative"
-        style="background: url('{{ asset('assets/img/background_bidang.png') }}') center/cover no-repeat;">
-        <div class="max-w-6xl mx-auto text-center relative z-10">
-            <h2 class="font-bold text-xl text-white mb-8 tracking-wide">BIDANG</h2>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-6 justify-items-center">
-                <div class="flex flex-col items-center">
-                    <div class="bg-pink-500/90 rounded-full p-5 shadow mb-2">
-                        {{-- Icon Bullhorn --}}
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path fill="white"
-                                d="M6.5 7.5V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-2.5" />
-                            <path stroke="white"
-                                d="M6.5 17.5V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-2.5" />
-                        </svg>
-                    </div>
-                    <p class="text-white text-xs font-semibold">Pengelolaan dan<br>Layanan Informasi Publik</p>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="bg-orange-400 rounded-full p-5 shadow mb-2">
-                        {{-- Icon Shield --}}
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path fill="white" d="M12 2l7 5v6.5c0 5.5-5 8.5-7 9-2-0.5-7-3.5-7-9V7l7-5z" />
-                        </svg>
-                    </div>
-                    <p class="text-white text-xs font-semibold">Persandian dan<br>Statistik</p>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="bg-blue-500 rounded-full p-5 shadow mb-2">
-                        {{-- Icon Globe --}}
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
-                            <path stroke="white" d="M2 12h20" />
-                            <path stroke="white" d="M12 2a15.3 15.3 0 0 1 0 20" />
-                            <path stroke="white" d="M12 2a15.3 15.3 0 0 0 0 20" />
-                        </svg>
-                    </div>
-                    <p class="text-white text-xs font-semibold">Pengelolaan<br>Komunikasi Publik</p>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="bg-red-400 rounded-full p-5 shadow mb-2">
-                        {{-- Icon Cloud --}}
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path fill="white"
-                                d="M17 16a4 4 0 1 0-7.33-2.67A5 5 0 1 0 6 20h11a4 4 0 0 0 0-8h-1a4 4 0 0 0 1 8z" />
-                        </svg>
-                    </div>
-                    <p class="text-white text-xs font-semibold">Tata Kelola Pemerintahan<br>Berbasis Elektronik</p>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="bg-green-500 rounded-full p-5 shadow mb-2">
-                        {{-- Icon Laptop Code --}}
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <rect x="2" y="6" width="20" height="14" rx="2" fill="white" />
-                            <path stroke="white" d="M8 12h8M8 16h8" />
-                        </svg>
-                    </div>
-                    <p class="text-white text-xs font-semibold">Teknologi Informasi<br>dan Komunikasi</p>
-                </div>
-            </div>
+    <section class="w-full py-12 bg-[#2b6cb0]">
+        <div class="w-full text-center px-0">
+            <img src="{{ asset('assets/img/group_bidang.png') }}" alt="Bidang"
+                class="w-full h-auto object-cover mx-auto">
         </div>
     </section>
 
@@ -185,32 +214,59 @@
     </section>
 
     {{-- FOOTER --}}
-    <footer class="bg-blue-900 text-white pt-8 pb-6 mt-8">
-        <div class="container mx-auto grid md:grid-cols-3 gap-8 px-6">
-            <div>
-                <img src="{{ asset('assets/img/logo_diskominfotik_lampung.png') }}" alt="Logo Diskominfo"
-                    class="h-8 mb-2">
-                <p class="text-xs font-semibold">Dinas Komunikasi, Informatika dan Statistik Provinsi Lampung</p>
-                <p class="text-xs">Jl. WR Monginsidi No.69 Bandar Lampung<br>Telepon: (0721) 481007<br>Facebook:
-                    /diskominfo.lpg<br>Instagram: /diskominfotiklampung</p>
+    <footer class="bg-[#0B3C6A] text-white pt-12 pb-10 mt-8">
+        <div class="max-w-[1200px] mx-auto px-6 flex flex-col items-center">
+
+            {{-- Logo Tengah Atas --}}
+            <div class="mb-8">
+                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Logo Diskominfo Footer"
+                    class="h-16">
             </div>
-            <div>
-                <h4 class="font-bold mb-3">Menu</h4>
-                <ul class="space-y-1 text-sm">
-                    <li><a href="{{ url('/') }}" class="hover:underline">Home</a></li>
-                    <li><a href="{{ route('about') }}" class="hover:underline font-bold">Tentang Kami</a></li>
-                    <li><a href="#" class="hover:underline">Kegiatan</a></li>
-                    <li><a href="#" class="hover:underline">Dokumen</a></li>
-                    <li><a href="#" class="hover:underline">Kontak</a></li>
-                </ul>
-            </div>
-            <div class="flex items-center gap-4 mt-5 md:mt-0">
-                <a class="bg-white/20 rounded-full p-2 hover:bg-white/30 transition" href="#"><img
-                        src="{{ asset('img/instagram.svg') }}" alt="IG" class="h-7"></a>
-                <a class="bg-white/20 rounded-full p-2 hover:bg-white/30 transition" href="#"><img
-                        src="{{ asset('img/facebook.svg') }}" alt="FB" class="h-7"></a>
-                <a class="bg-white/20 rounded-full p-2 hover:bg-white/30 transition" href="#"><img
-                        src="{{ asset('img/youtube.svg') }}" alt="YT" class="h-7"></a>
+
+            {{-- Konten Tiga Kolom --}}
+            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+
+                {{-- Informasi Kontak --}}
+                <div class="space-y-2 text-sm text-white/80 leading-relaxed">
+                    <p class="font-bold text-white text-base">Dinas Komunikasi, Informatika dan Statistik Provinsi
+                        Lampung</p>
+                    <p>Alamat : Jl. WR Monginsidi No.69 Bandar Lampung</p>
+                    <p>Telepon : (0721) 481107</p>
+                    <p>Facebook : www.facebook.com/diskominfo.lpg</p>
+                    <p>Instagram : www.instagram.com/diskominfotiklampung</p>
+                </div>
+
+                {{-- Menu Navigasi --}}
+                <div class="md:mx-auto">
+                    <h4 class="font-bold text-white text-base mb-4">Menu</h4>
+                    <ul class="space-y-2 text-sm text-white/80">
+                        <li><a href="/" class="hover:underline hover:text-white">Home</a></li>
+                        <li><a href="#" class="hover:underline hover:text-white">Tentang Kami</a></li>
+                        <li><a href="#" class="hover:underline hover:text-white">Kegiatan</a></li>
+                        <li><a href="#" class="hover:underline hover:text-white">Dokumen</a></li>
+                        <li><a href="#" class="hover:underline hover:text-white">Kontak</a></li>
+                    </ul>
+                </div>
+
+                {{-- Media Sosial --}}
+                <div class="md:ml-auto md:text-right">
+                    <h4 class="font-bold text-white text-base mb-4">Ikuti Kami</h4>
+                    <div class="flex items-center justify-center md:justify-end gap-3">
+                        {{-- Menggunakan Font Awesome untuk ikon yang lebih user-friendly --}}
+                        <a href="#"
+                            class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+                            <i class="fab fa-facebook-f text-white"></i>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+                            <i class="fab fa-instagram text-white"></i>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+                            <i class="fab fa-youtube text-white"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
