@@ -18,7 +18,7 @@ class DashboardController extends Controller
 
     public function kasubbidang()
     {
-        return view('dashboard.kasubbidang');
+        return view('kasubbidang.dashboard');
     }
 
     public function pegawai()

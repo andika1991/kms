@@ -8,7 +8,7 @@
     <div class="py-6 max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
             <div class="mb-4">
-                <a href="{{ route('magang.forum.create') }}"
+                <a href="{{ route('pegawai.forum.create') }}"
                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                     + Tambah Forum
                 </a>
@@ -32,15 +32,15 @@
             <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $grupchat->deskripsi }}</td>
             <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $grupchat->grup_role }}</td>
             <td class="px-4 py-2 text-gray-700 dark:text-gray-300">
-                <a href="{{ route('magang.forum.show', $grupchat->id) }}"
+                <a href="{{ route('pegawai.forum.show', $grupchat->id) }}"
                    class="text-blue-600 hover:underline">Lihat</a>
 
                 @if($grupchat->pengguna_id == auth()->id())
                     |
-                    <a href="{{ route('magang.forum.edit', $grupchat->id) }}"
+                    <a href="{{ route('pegawai.forum.edit', $grupchat->id) }}"
                        class="text-yellow-600 hover:underline">Edit</a>
                     |
-                    <form action="{{ route('magang.forum.destroy', $grupchat->id) }}"
+                    <form action="{{ route('pegawai.forum.destroy', $grupchat->id) }}"
                           method="POST" style="display:inline;"
                           onsubmit="return confirm('Yakin ingin menghapus?')">
                         @csrf

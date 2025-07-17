@@ -21,6 +21,7 @@ class GrupChat extends Model
         'is_private',
         'is_active',
         'bidang_id',
+        'pengguna_id',
     ];
 
     /**

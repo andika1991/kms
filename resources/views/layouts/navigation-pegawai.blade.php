@@ -25,7 +25,7 @@
     Manajemen dokumen
 </x-nav-link>
 
-<x-nav-link :href="route('magang.forum.index')" :active="request()->routeIs('magang.forum.*')">
+<x-nav-link :href="route('pegawai.forum.index')" :active="request()->routeIs('pegawai.forum.*')">
     Forum Diskusi
 </x-nav-link>
 
@@ -94,7 +94,7 @@
     <x-responsive-nav-link :href="route('pegawai.manajemendokumen.index')" :active="request()->routeIs('pegawai.manajemendokumen.index')">
     Manajemen dokumen
 </x-responsive-nav-link>
-<x-responsive-nav-link :href="route('magang.forum.index')" :active="request()->routeIs('magang.forum.*')">
+<x-responsive-nav-link :href="route('pegawai.forum.index')" :active="request()->routeIs('pegawai.forum.*')">
     Forum Diskusi
 </x-responsive-nav-link>
         </div>
