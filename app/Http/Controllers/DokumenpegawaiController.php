@@ -28,11 +28,11 @@ class DokumenpegawaiController extends Controller
 
     public function create()
     {
-        $bidangId = auth()->user()->role->bidang_id ?? null;
+        $subbidangId = auth()->user()->role->subbidang_id ?? null;
 
         $kategori = KategoriDokumen::with('subbidang')
-            ->when($bidangId, function ($query) use ($bidangId) {
-                $query->where('bidang_id', $bidangId);
+            ->when($subbidangId, function ($query) use ($subbidangId) {
+                $query->where('subbidang_id', $subbidangId);
             })
             ->get();
 
@@ -73,13 +73,33 @@ class DokumenpegawaiController extends Controller
     return redirect()->route('pegawai.manajemendokumen.index')
                      ->with('success', 'Dokumen berhasil ditambahkan.');
 }
-
-public function show($id)
+public function show(Request $request, $id)
 {
     $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
+    // Cek apakah dokumen ini Rahasia
+    $isRahasia = $dokumen->kategoriDokumen 
+        && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
+
+    if ($isRahasia) {
+        // Cek apakah user sudah mengirimkan encrypted_key
+        $inputKey = $request->encrypted_key;
+
+        if (!$inputKey) {
+            return redirect()->route('pegawai.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
+        }
+
+  
+        if ($inputKey !== $dokumen->encrypted_key) {
+            return redirect()->route('pegawai.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
+    }
+
     return view('pegawai.dokumen.show', compact('dokumen'));
 }
+
 
     public function edit(Dokumen $manajemendokuman)
     {
