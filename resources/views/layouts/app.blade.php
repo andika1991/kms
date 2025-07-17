@@ -6,7 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>
+        @hasSection('title')
+            @yield('title') | KMS Diskominfotik Lampung
+        @else
+            KMS Diskominfotik Lampung
+        @endif
+    </title>
+
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
@@ -65,6 +72,11 @@
             <main>
                 {{ $slot }}
             </main>
+
+            <footer>
+                {{ $footer ?? '' }}
+            </footer>
+            
         </div>
     </div>
     @stack('scripts')

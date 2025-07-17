@@ -5,8 +5,9 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'Artikel Pengetahuan')
+
 <x-app-layout>
-    {{-- MAIN CONTENT WRAPPER --}}
     <div class="w-full min-h-screen bg-[#eaf5ff]">
         {{-- HEADER KONTEN --}}
         <div class="p-6 md:p-8 border-b border-gray-200">
@@ -58,7 +59,6 @@ $tanggal = $carbon->format('l, d F Y');
 
         {{-- BODY KONTEN GRID --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
-
             {{-- KOLOM KIRI (GRID ARTIKEL) --}}
             <section class="xl:col-span-8 w-full">
                 @if($artikels->count())
@@ -118,49 +118,46 @@ $tanggal = $carbon->format('l, d F Y');
                 {{-- Kartu Role --}}
                 <div
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
-               
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
-              
                     <div>
-                        <p class="text-sm opacity-80">Role anda sebagai</p>
                         <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
                     </div>
                 </div>
 
                 {{-- Kartu Aksi --}}
-                <div class="bg-white rounded-2xl shadow-lg p-7 space-y-3">
-                    <a href="{{ route('kepalabagian.artikelpengetahuan.create') }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Tambah Artikel</span>
-                    </a>
-                    <a href="{{ route('kepalabagian.kategoripengetahuan.create') }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-folder-plus"></i>
-                        <span>Tambah Kategori</span>
-                    </a>
-                </div>
+                <a href="{{ route('kepalabagian.artikelpengetahuan.create') }}"
+                    class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Artikel</span>
+                </a>
+                <a href="{{ route('kepalabagian.kategoripengetahuan.create') }}"
+                    class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base">
+                    <i class="fa-solid fa-folder-plus"></i>
+                    <span>Tambah Kategori</span>
+                </a>
+
 
                 {{-- Kartu Kategori --}}
                 <div class="bg-white rounded-2xl shadow-lg p-7">
                     <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Kategori</h3>
                     <ul class="list-disc list-inside text-sm text-gray-600 leading-relaxed space-y-1">
-                        <li>Standar Operasional Prosedur (SOP)</li>
-                        <li>Panduan Kerja Harian</li>
-                        <li>Kebijakan Internal</li>
-                        <li>Tata Tertib & Etika</li>
                         <li>Surat Edaran</li>
                         <li>Formulir & Template</li>
                         <li>Laporan Bulanan</li>
                         <li>Notulen Rapat</li>
                         <li>Laporan Proyek</li>
-                        <li>Studi Kasus</li>
-                        <li>Best Practice</li>
-                        <li>Lesson Learned</li>
-                        <li>.......</li>
                     </ul>
                 </div>
             </aside>
         </div>
     </div>
+    
+    <x-slot name="footer">
+        <footer class="bg-[#2b6cb0] py-4 mt-8">
+            <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
+                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
+                    class="h-10 object-contain">
+            </div>
+        </footer>
+    </x-slot>
 </x-app-layout>
