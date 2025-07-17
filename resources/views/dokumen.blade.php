@@ -123,19 +123,23 @@
     </header>
 
     {{-- TITLE & SEARCH BAR SECTION --}}
-    <section class="bg-white py-6 border-b border-gray-200">
-        <div class="max-w-[1100px] mx-auto flex justify-between items-center px-6">
-            <h1 class="text-2xl font-bold text-gray-800">Dokumen</h1>
-            <div class="relative w-full max-w-sm">
-                <input type="text" placeholder="Cari Dokumen"
-                    class="w-full py-2 pl-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
-                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                    </svg>
-                </button>
+    <section class="py-6">
+        <div class="max-w-[1100px] mx-auto px-6">
+            <div
+                class="bg-[#2b6cb0] shadow-lg rounded-lg flex flex-col md:flex-row items-center justify-between py-2 px-4">
+                <h1 class="text-white text-lg font-bold py-2 px-4">Dokumen</h1>
+                <div class="relative w-full md:w-auto">
+                    <input type="text" placeholder="Cari Dokumen"
+                        class="bg-transparent placeholder-white text-white border-b-2 border-white py-2 pl-2 pr-8 outline-none focus:border-white transition">
+                    <button
+                        class="absolute right-0 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-200 transition">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </section>
@@ -240,7 +244,7 @@
             {{-- Konten Tiga Kolom --}}
             <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
 
-                {{-- Kolom 1: Informasi Kontak --}}
+                {{-- Informasi Kontak --}}
                 <div class="space-y-2 text-sm text-white/80 leading-relaxed">
                     <p class="font-bold text-white text-base">Dinas Komunikasi, Informatika dan Statistik Provinsi
                         Lampung</p>
@@ -250,7 +254,7 @@
                     <p>Instagram : www.instagram.com/diskominfotiklampung</p>
                 </div>
 
-                {{-- Kolom 2: Menu Navigasi --}}
+                {{-- Menu Navigasi --}}
                 <div class="md:mx-auto">
                     <h4 class="font-bold text-white text-base mb-4">Menu</h4>
                     <ul class="space-y-2 text-sm text-white/80">
@@ -262,7 +266,7 @@
                     </ul>
                 </div>
 
-                {{-- Kolom 3: Media Sosial --}}
+                {{-- Media Sosial --}}
                 <div class="md:ml-auto md:text-right">
                     <h4 class="font-bold text-white text-base mb-4">Ikuti Kami</h4>
                     <div class="flex items-center justify-center md:justify-end gap-3">
@@ -281,7 +285,6 @@
                         </a>
                     </div>
                 </div>
-
             </div>
         </div>
     </footer>

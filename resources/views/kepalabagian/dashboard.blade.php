@@ -5,8 +5,9 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'Dashboard')
+
 <x-app-layout>
-    {{-- Wrapper untuk seluruh konten di sebelah kanan sidebar --}}
     <div class="w-full min-h-screen bg-[#eaf5ff]">
         {{-- HEADER KONTEN --}}
         <div class="p-6 md:p-8 border-b border-gray-200">
@@ -97,71 +98,92 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </div>
 
-            {{-- MAIN GRID (Charts, Lists, etc) --}}
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {{-- Kolom Kiri (Lebih besar) --}}
-                <div class="lg:col-span-2 flex flex-col gap-8">
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perbandingan Dokumen</h3>
-                        <div class="w-full h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                            <span class="text-gray-400 text-sm">[Grafik/Chart Area]</span>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Knowledge Management System</h3>
-                        <p class="text-sm text-gray-700 leading-relaxed">
-                            Dashboard Manajemen Pengetahuan Diskominfotik ini dirancang untuk menjadi pusat integrasi
-                            informasi dan dokumentasi strategis bagi seluruh pegawai di lingkungan instansi. Melalui
-                            tampilan yang intuitif, dashboard ini memuat statistik real-time.
-                        </p>
-                        <p class="text-sm text-gray-600 leading-relaxed mt-4">
-                            Seperti total dokumen resmi yang tersimpan (1.238 dokumen), artikel pengetahuan yang
-                            dipublikasikan (312 artikel), serta permintaan akses terbaru dari pengguna internal. Setiap
-                            dokumen dikelompokkan berdasarkan kategori seperti Regulasi, Pedoman.
-                        </p>
+            {{-- GROUP: Perbandingan Dokumen & Dokumen Teratas --}}
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 flex flex-col lg:flex-row gap-8">
+                {{-- Chart Area --}}
+                <div class="lg:w-7/12 w-full">
+                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Perbandingan Dokumen</h3>
+                    <div class="w-full h-60 flex items-center justify-center bg-gray-50 rounded-lg">
+                        <span class="text-gray-400 text-sm">[Grafik/Chart Area]</span>
                     </div>
                 </div>
-                {{-- Kolom Kanan (Lebih kecil) --}}
-                <div class="lg:col-span-1 flex flex-col gap-8">
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Dokumen Teratas</h3>
-                        <ul class="space-y-3">
-                            <li class="flex justify-between items-center text-sm text-gray-700">
-                                <span>Renja Diskominfotik 2025</span>
-                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">56 <i
-                                        class="fa-solid fa-eye text-xs"></i></span>
-                            </li>
-                            <li class="flex justify-between items-center text-sm text-gray-700">
-                                <span>LKJ Diskominfotik 2025</span>
-                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">23 <i
-                                        class="fa-solid fa-eye text-xs"></i></span>
-                            </li>
-                            <li class="flex justify-between items-center text-sm text-gray-700">
-                                <span>Renstra Diskominfotik 2025</span>
-                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">19 <i
-                                        class="fa-solid fa-eye text-xs"></i></span>
-                            </li>
-                            <li class="flex justify-between items-center text-sm text-gray-700">
-                                <span>Rencana Aksi Diskominfotik 2025</span>
-                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">12 <i
-                                        class="fa-solid fa-eye text-xs"></i></span>
-                            </li>
-                        </ul>
+                {{-- Dokumen Teratas --}}
+                <div class="lg:w-5/12 w-full flex flex-col justify-center">
+                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4 text-center lg:text-left">Dokumen
+                        Teratas</h3>
+                    <ul class="space-y-3">
+                        <li
+                            class="flex justify-between items-center text-sm text-gray-700 bg-[#f3f7fb] rounded-md px-3 py-2">
+                            <span>Renja Diskominfotik 2025</span>
+                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">56 <i
+                                    class="fa-solid fa-eye text-xs"></i></span>
+                        </li>
+                        <li class="flex justify-between items-center text-sm text-gray-700 px-3 py-2">
+                            <span>LKJ Diskominfotik 2025</span>
+                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">23 <i
+                                    class="fa-solid fa-eye text-xs"></i></span>
+                        </li>
+                        <li
+                            class="flex justify-between items-center text-sm text-gray-700 bg-[#f3f7fb] rounded-md px-3 py-2">
+                            <span>Renstra Diskominfotik 2025</span>
+                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">19 <i
+                                    class="fa-solid fa-eye text-xs"></i></span>
+                        </li>
+                        <li class="flex justify-between items-center text-sm text-gray-700 px-3 py-2">
+                            <span>Rencana Aksi Diskominfotik 2025</span>
+                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">12 <i
+                                    class="fa-solid fa-eye text-xs"></i></span>
+                        </li>
+                        <li
+                            class="flex justify-between items-center text-sm text-gray-700 bg-[#f3f7fb] rounded-md px-3 py-2">
+                            <span>Renstra Diskominfotik 2025</span>
+                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">19 <i
+                                    class="fa-solid fa-eye text-xs"></i></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            {{-- GROUP: 3 Kolom KMS + Chart --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {{-- KMS --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between">
+                    <h3 class="font-bold text-base sm:text-lg text-[#2171b8] mb-2">Knowledge Management System</h3>
+                    <p class="text-sm text-gray-700 leading-relaxed mb-2">
+                        Dashboard Manajemen Pengetahuan Diskominfotik ini dirancang untuk menjadi pusat integrasi
+                        informasi dan dokumentasi strategis bagi seluruh pegawai di lingkungan instansi. Melalui
+                        tampilan yang intuitif, dashboard ini memuat statistik real-time tampilan yang intuitif,
+                        dashboard ini memuat statistik real-time.
+                    </p>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        Seperti total dokumen resmi yang tersimpan (1.238 dokumen), artikel pengetahuan yang
+                        dipublikasikan (312 artikel), serta permintaan akses terbaru dari pengguna internal. Setiap
+                        dokumen dikelompokkan berdasarkan kategori seperti Regulasi, Pedoman.
+                    </p>
+                </div>
+                {{-- Chart 1 --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between">
+                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Perkembangan Pengetahuan</h3>
+                    <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
+                        <span class="text-gray-400 text-sm">[Bar Chart]</span>
                     </div>
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Pengetahuan</h3>
-                        <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                            <span class="text-gray-400 text-sm">[Bar Chart]</span>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Artikel</h3>
-                        <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                            <span class="text-gray-400 text-sm">[Bar Chart]</span>
-                        </div>
+                </div>
+                {{-- Chart 2 --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between">
+                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Perkembangan Artikel</h3>
+                    <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
+                        <span class="text-gray-400 text-sm">[Bar Chart]</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <x-slot name="footer">
+            <footer class="bg-[#2b6cb0] py-4 mt-8">
+                <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
+                    <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
+                        class="h-10 object-contain">
+                </div>
+            </footer>
+        </x-slot>
 </x-app-layout>

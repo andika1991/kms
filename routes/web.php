@@ -29,6 +29,7 @@ Route::middleware(['auth', 'role_group:kepalabagian'])
         Route::get('/', [DashboardController::class, 'kepalabagian'])->name('dashboard');
         Route::resource('kategoripengetahuan', KategoriPengetahuanController::class);
         Route::resource('artikelpengetahuan', ArtikelPengetahuanController::class);
+        Route::resource('kategoridokumen', \App\Http\Controllers\Kepalabagian\KategoriDokumenController::class);
 Route::resource('manajemendokumen', ManajemenDokumenController::class)
     ->parameters(['manajemendokumen' => 'dokumen']);
 Route::resource('forum', \App\Http\Controllers\Kepalabagian\ForumController::class);
@@ -41,10 +42,6 @@ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 's
     ->name('grupchat.pesan.store');
 
     });
-
-
-
-
 
 Route::prefix('magang')
     ->as('magang.')
