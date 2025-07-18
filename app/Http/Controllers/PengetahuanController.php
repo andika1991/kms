@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 class PengetahuanController extends Controller
 {
- public function index(Request $request)
+public function index(Request $request)
 {
     $query = ArtikelPengetahuan::query();
     $query->where('pengguna_id', auth()->id());
@@ -19,12 +19,27 @@ class PengetahuanController extends Controller
 
     $artikels = $query->latest()->get();
 
-    return view('magang.berbagipengetahuan', compact('artikels'));
+    // Ambil semua kategori (atau bisa juga filter sesuai bidang user)
+    $user = auth()->user();
+    $role = $user->role;
+    $bidangId = $role->bidang_id ?? null;
+    $subbidangId = $role->subbidang_id ?? null;
+
+    $kategoriQuery = KategoriPengetahuan::query();
+    if ($bidangId) {
+        $kategoriQuery->where('bidang_id', $bidangId);
+    }
+    if ($subbidangId) {
+        $kategoriQuery->where('subbidang_id', $subbidangId);
+    }
+    $kategori = $kategoriQuery->get();
+
+    return view('magang.berbagipengetahuan', compact('artikels', 'kategori'));
 }
 
 
  
-    public function create()
+public function create()
 {
     $user = auth()->user();
 
@@ -48,7 +63,7 @@ class PengetahuanController extends Controller
     return view('magang.artikelpengetahuan-create', compact('kategori'));
 }
 
-    public function store(Request $request)
+public function store(Request $request)
     {
         $validated = $request->validate([
             'judul' => ['required', 'string', 'max:255'],
@@ -93,15 +108,15 @@ class PengetahuanController extends Controller
     /**
      * Tampilkan form edit artikel.
      */
- public function edit($id)
+public function edit($id)
 {
     $userId = auth()->id();
 
     $artikelpengetahuan = ArtikelPengetahuan::where('id', $id)
         ->where('pengguna_id', $userId)
         ->firstOrFail();
-$user = auth()->user();
- $role = $user->role;
+    $user = auth()->user();
+    $role = $user->role;
 
     $bidangId = $role->bidang_id ?? null;
     $subbidangId = $role->subbidang_id ?? null;
@@ -122,7 +137,7 @@ $user = auth()->user();
 }
 
 
- public function update(Request $request, $id)
+public function update(Request $request, $id)
 {
     $userId = auth()->id();
 
@@ -170,7 +185,7 @@ $user = auth()->user();
     /**
      * Hapus artikel.
      */
-   public function destroy($id)
+public function destroy($id)
 {
     $userId = auth()->id();
 

@@ -1,5 +1,4 @@
 <aside class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex-col hidden lg:flex">
-    
     {{-- Logo --}}
     <div class="flex items-center justify-center h-20 px-6 flex-shrink-0 border-b border-gray-200">
         <a href="/">

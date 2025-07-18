@@ -37,6 +37,8 @@ Route::middleware(['auth', 'role_group:kepalabagian'])
         Route::get('/', [DashboardController::class, 'kepalabagian'])->name('dashboard');
         Route::resource('kategoripengetahuan', KategoriPengetahuanController::class);
         Route::resource('artikelpengetahuan', ArtikelPengetahuanController::class);
+        Route::delete('artikelpengetahuan/{artikelpengetahuan}/delete-thumbnail', [ArtikelPengetahuanController::class, 'deleteThumbnail'])
+            ->name('artikelpengetahuan.deleteThumbnail');
         Route::resource('kategoridokumen', \App\Http\Controllers\Kepalabagian\KategoriDokumenController::class);
 Route::resource('manajemendokumen', ManajemenDokumenController::class)
     ->parameters(['manajemendokumen' => 'dokumen']);
@@ -59,10 +61,11 @@ Route::get('/', [DashboardController::class, 'magang'])->name('dashboard');
 Route::resource('kegiatan', KegiatanController::class);
 Route::resource('berbagipengetahuan', PengetahuanController::class);
 Route::resource('manajemendokumen', DokumenmagangController::class);
+Route::resource('kategoripengetahuan', KategoriPengetahuanController::class);
 Route::delete('/magang/kegiatan/foto/{foto}', [FotoKegiatanController::class, 'destroy'])
     ->name('kegiatan.foto.delete');
- Route::resource('forum', ForumMagangController::class);
- Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+Route::resource('forum', ForumMagangController::class);
+Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
     });
 
