@@ -1,0 +1,124 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\AgendaPimpinan;
+use App\Models\User;
+use Illuminate\Support\Facades\Crypt;
+
+class ManajemenAgendaController extends Controller
+{
+    /**
+     * Tampilkan daftar agenda.
+     */
+    public function index()
+    {
+        $agendas = AgendaPimpinan::with('pengguna.role')->latest()->get();
+        return view('sekretaris.agenda.index', compact('agendas'));
+    }
+
+    /**
+     * Tampilkan form untuk membuat agenda baru.
+     */
+
+
+public function create()
+{
+    // Ambil user yang role_group-nya "Kadis" atau "Kepala Bagian"
+    $users = User::whereHas('role', function ($query) {
+        $query->whereIn('role_group', ['Kadis', 'kepalabagian']);
+    })->get()->map(function ($user) {
+        try {
+            $user->decrypted_name = Crypt::decryptString($user->getRawOriginal('name'));
+        } catch (\Exception $e) {
+            $user->decrypted_name = '[nama terenkripsi]';
+        }
+        return $user;
+    });
+
+    return view('sekretaris.agenda.create', compact('users'));
+}
+
+    /**
+     * Simpan agenda ke database.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama_agenda'   => 'required|string|max:255',
+            'date_agenda'   => 'required|date',
+            'waktu_agenda'  => 'required|date_format:H:i',
+            'waktu_selesai' => 'nullable|date_format:H:i',
+            'id_pengguna'   => 'required|exists:pengguna,id',
+        ]);
+
+        AgendaPimpinan::create([
+            'nama_agenda'   => $request->nama_agenda,
+            'date_agenda'   => $request->date_agenda,
+            'waktu_agenda'  => $request->waktu_agenda,
+            'waktu_selesai' => $request->waktu_selesai,
+            'id_pengguna'   => $request->id_pengguna,
+        ]);
+
+        return redirect()->route('sekretaris.agenda.index')->with('success', 'Agenda berhasil ditambahkan.');
+    }
+
+    /**
+     * Tampilkan form edit agenda.
+     */
+    public function edit($id)
+    {
+        $agenda = AgendaPimpinan::findOrFail($id);
+
+        // Ambil user dengan role "Kadis" atau "Kepala Bagian"
+        $users = User::whereHas('role', function ($q) {
+            $q->whereIn('nama_role', ['Kadis', 'Kepala Bagian']);
+        })->get()->map(function ($user) {
+            try {
+                $user->decrypted_name = Crypt::decryptString($user->getRawOriginal('name'));
+            } catch (\Exception $e) {
+                $user->decrypted_name = '[nama terenkripsi]';
+            }
+            return $user;
+        });
+
+        return view('agenda.edit', compact('agenda', 'users'));
+    }
+
+    /**
+     * Update data agenda.
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nama_agenda'   => 'required|string|max:255',
+            'date_agenda'   => 'required|date',
+            'waktu_agenda'  => 'required|date_format:H:i',
+            'waktu_selesai' => 'nullable|date_format:H:i',
+            'id_pengguna'   => 'required|exists:pengguna,id',
+        ]);
+
+        $agenda = AgendaPimpinan::findOrFail($id);
+        $agenda->update([
+            'nama_agenda'   => $request->nama_agenda,
+            'date_agenda'   => $request->date_agenda,
+            'waktu_agenda'  => $request->waktu_agenda,
+            'waktu_selesai' => $request->waktu_selesai,
+            'id_pengguna'   => $request->id_pengguna,
+        ]);
+
+        return redirect()->route('sekretaris.agenda.index')->with('success', 'Agenda berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus agenda.
+     */
+    public function destroy($id)
+    {
+        $agenda = AgendaPimpinan::findOrFail($id);
+        $agenda->delete();
+
+        return redirect()->route('sekretaris.agenda.index')->with('success', 'Agenda berhasil dihapus.');
+    }
+}

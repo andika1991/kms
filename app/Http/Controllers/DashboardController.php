@@ -33,7 +33,7 @@ class DashboardController extends Controller
 
     public function sekretaris()
     {
-        return view('dashboard.sekretaris');
+        return view('sekretaris.dashboard');
     }
 
     public function kadis()
