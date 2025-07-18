@@ -6,10 +6,8 @@ $tanggal = $carbon->format('l, d F Y');
 @endphp
 
 <x-app-layout>
-    {{-- Wrapper utama untuk semua konten di kanan sidebar --}}
-    <div class="w-full bg-[#eaf5ff]">
-
-        {{-- HEADER KONTEN --}}
+    <div class="w-full min-h-screen bg-[#eaf5ff]">
+        {{-- HEADER --}}
         <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -51,67 +49,71 @@ $tanggal = $carbon->format('l, d F Y');
             </div>
         </div>
 
-        {{-- BODY KONTEN GRID --}}
+        {{-- FORM TAMBAH ARTIKEL --}}
         <form method="POST" action="{{ route('kepalabagian.artikelpengetahuan.store') }}" enctype="multipart/form-data"
             class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
             @csrf
 
-            {{-- KOLOM KIRI (FORM INPUT) --}}
+            {{-- KOLOM KIRI FORM --}}
             <div class="xl:col-span-8 w-full flex flex-col gap-8">
-                {{-- Card Thumbnail --}}
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6">
-                    <h3 class="font-bold text-lg text-gray-800 mb-4">Thumbnail</h3>
+
+                {{-- Thumbnail --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <label for="thumbnail" class="block font-semibold text-gray-800 mb-2">Thumbnail</label>
                     <label for="thumbnail"
-                        class="w-full h-64 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition">
+                        class="w-full h-48 md:h-56 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition">
                         <i class="fa-solid fa-cloud-arrow-up text-4xl text-gray-400"></i>
                         <span class="mt-2 text-sm text-gray-500">Tambahkan foto</span>
                         <input type="file" name="thumbnail" id="thumbnail" class="hidden">
                     </label>
                 </div>
 
-                {{-- Card Judul, Slug, Kategori --}}
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6 space-y-6">
-                    <div>
-                        <label for="judul" class="block font-semibold text-gray-800 mb-1">Judul Artikel</label>
-                        <input type="text" id="judul" name="judul" value="{{ old('judul') }}" required
+                {{-- Judul Artikel --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <label for="judul" class="block font-semibold text-gray-800 mb-1">Judul Artikel</label>
+                    <input type="text" id="judul" name="judul" value="{{ old('judul') }}" required
+                        class="w-full rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Masukkan Judul">
+                </div>
+
+                {{-- Kategori & Slug --}}
+                <div class="flex flex-col md:flex-row gap-6">
+                    {{-- Kategori --}}
+                    <div class="bg-white rounded-2xl shadow-lg p-6 w-full">
+                        <label for="kategori_pengetahuan_id" class="block font-semibold text-gray-800 mb-1">Kategori</label>
+                        <select name="kategori_pengetahuan_id"
                             class="w-full rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Masukkan Judul">
+                            required>
+                            <option value="">Pilih Kategori</option>
+                            @foreach($kategori as $kat)
+                                <option value="{{ $kat->id }}"
+                                    {{ old('kategori_pengetahuan_id') == $kat->id ? 'selected' : '' }}>
+                                    {{ $kat->nama_kategoripengetahuan }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div>
+                    {{-- Slug --}}
+                    <div class="bg-white rounded-2xl shadow-lg p-6 w-full">
                         <label for="slug" class="block font-semibold text-gray-800 mb-1">Slug</label>
                         <input type="text" id="slug" name="slug" value="{{ old('slug') }}" required
                             class="w-full rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Masukkan Slug">
                     </div>
-                    <div>
-                        <label for="kategori_pengetahuan_id"
-                            class="block font-semibold text-gray-800 mb-1">Kategori</label>
-                        <select name="kategori_pengetahuan_id"
-                            class="w-full rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required>
-                            <option value="">-- Pilih Kategori --</option>
-                            @foreach($kategori as $kat)
-                            <option value="{{ $kat->id }}"
-                                {{ old('kategori_pengetahuan_id') == $kat->id ? 'selected' : '' }}>
-                                {{ $kat->nama_kategoripengetahuan }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
                 </div>
 
-                {{-- Card Isi Artikel --}}
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6">
+                {{-- Isi Artikel --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
                     <label for="isi" class="block font-semibold text-gray-800 mb-2">Isi Artikel</label>
                     <textarea id="isi" name="isi" rows="10"
                         class="w-full rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('isi') }}</textarea>
                 </div>
 
-                {{-- Card Dokumen --}}
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6">
-                    <h3 class="font-bold text-lg text-gray-800 mb-4">Dokumen</h3>
+                {{-- Dokumen Tambahan --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <label for="filedok" class="block font-semibold text-gray-800 mb-2">Dokumen</label>
                     <label for="filedok"
-                        class="w-full h-40 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition">
+                        class="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition">
                         <i class="fa-solid fa-file-arrow-up text-4xl text-gray-400"></i>
                         <span class="mt-2 text-sm text-gray-500">Tambah dokumen</span>
                         <input type="file" name="filedok" id="filedok" class="hidden">
@@ -119,31 +121,23 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </div>
 
-            {{-- KOLOM KANAN (SIDEBAR AKSI) --}}
+            {{-- KOLOM KANAN SIDEBAR --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                {{-- Kartu Role --}}
-                <div
-                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
-
-                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-18 w-18 mb-4">
-
+                {{-- Card Role --}}
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
+                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="text-base opacity-90">Role anda sebagai</p>
-                        <p class="font-bold text-xl leading-tight mt-1">{{ Auth::user()->role->nama_role ?? 'User' }}
-                        </p>
+                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
                     </div>
                 </div>
 
-                {{-- Kartu Aksi --}}
-
+                {{-- Tombol Aksi --}}
                 <div class="flex items-center gap-4">
-                    {{-- Tombol Simpan --}}
                     <button type="submit"
                         class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-save"></i>
                         <span>Simpan</span>
                     </button>
-                    {{-- Tombol Batalkan --}}
                     <a href="{{ url()->previous() }}"
                         class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-times"></i>
@@ -151,28 +145,25 @@ $tanggal = $carbon->format('l, d F Y');
                     </a>
                 </div>
             </aside>
-
         </form>
     </div>
 
     {{-- TinyMCE & Script Slug --}}
     @push('scripts')
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/xrupfgu8f5pudjwsjb06juo0bowil9b3qsjg9st7gz8fbcku/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
-    tinymce.init({
-        selector: '#isi',
-        height: 400,
-        plugins: 'lists link image preview code fullscreen',
-        toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link image | preview code fullscreen',
-        menubar: false,
-    });
-
-    document.getElementById('judul').addEventListener('keyup', function() {
-        let judul = this.value;
-        let slug = judul.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g,
-            '-');
-        document.getElementById('slug').value = slug;
-    });
+        tinymce.init({
+            selector: '#isi',
+            height: 400,
+            plugins: 'lists link image preview code fullscreen',
+            toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link image | preview code fullscreen',
+            menubar: false,
+        });
+        document.getElementById('judul').addEventListener('keyup', function() {
+            let judul = this.value;
+            let slug = judul.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+            document.getElementById('slug').value = slug;
+        });
     </script>
     @endpush
 </x-app-layout>

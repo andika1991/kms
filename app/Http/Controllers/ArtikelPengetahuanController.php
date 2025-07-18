@@ -22,7 +22,9 @@ class ArtikelPengetahuanController extends Controller
 
         $artikels = $query->latest()->get();
 
-        return view('kepalabagian.artikelpengetahuan', compact('artikels'));
+        $kategori = KategoriPengetahuan::all();
+
+        return view('kepalabagian.artikelpengetahuan', compact('artikels', 'kategori'));
     }
 
     /**

@@ -141,17 +141,15 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="bg-white rounded-2xl shadow-lg p-7">
                     <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Kategori</h3>
                     <ul class="list-disc list-inside text-sm text-gray-600 leading-relaxed space-y-1">
-                        <li>Surat Edaran</li>
-                        <li>Formulir & Template</li>
-                        <li>Laporan Bulanan</li>
-                        <li>Notulen Rapat</li>
-                        <li>Laporan Proyek</li>
+                        @foreach ($kategori as $kat)
+                        <li>{{ $kat->nama_kategoripengetahuan }}</li>
+                        @endforeach
                     </ul>
                 </div>
             </aside>
         </div>
     </div>
-    
+
     <x-slot name="footer">
         <footer class="bg-[#2b6cb0] py-4 mt-8">
             <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">

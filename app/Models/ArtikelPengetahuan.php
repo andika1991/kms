@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class ArtikelPengetahuan extends Model
 {
@@ -41,6 +42,6 @@ class ArtikelPengetahuan extends Model
      */
     public function pengguna()
     {
-        return $this->belongsTo(Pengguna::class, 'pengguna_id');
+        return $this->belongsTo(User::class, 'pengguna_id');
     }
 }
