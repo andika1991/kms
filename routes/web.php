@@ -16,6 +16,7 @@ use App\Http\Controllers\ForumMagangController;
 use App\Http\Controllers\PengetahuanpegawaiController;
 use App\Http\Controllers\KegiatanpegawaiController;
 use App\Http\Controllers\DokumenpegawaiController;
+use App\Http\Controllers\ForumPegawaiController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
 
 
@@ -69,6 +70,18 @@ Route::get('/', [DashboardController::class, 'pegawai'])->name('dashboard');
 Route::resource('berbagipengetahuan', PengetahuanpegawaiController::class);
 Route::resource('kegiatan', KegiatanpegawaiController::class);
 Route::resource('manajemendokumen', DokumenpegawaiController::class);
+Route::resource('forum', ForumPegawaiController::class);
+ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
+    });
+
+
+    Route::prefix('kasubbidang')
+    ->as('kasubbidang.')
+    ->middleware(['auth', 'role_group:kasubbidang'])
+    ->group(function () {
+Route::get('/', [DashboardController::class, 'kasubbidang'])->name('dashboard');
+
  Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
     });
