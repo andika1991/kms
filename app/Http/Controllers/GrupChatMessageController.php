@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Crypt;
 class GrupChatMessageController extends Controller
 {
     /**
@@ -27,7 +27,7 @@ class GrupChatMessageController extends Controller
 
         // Simpan pesan ke database
         Message::create([
-            'message' => $request->message,
+            'message' => Crypt::encryptString($request->input('message')),
             'file' => $filePath,
             'grupchat_id' => $grupchat_id,
             'pengguna_id' => Auth::id(),

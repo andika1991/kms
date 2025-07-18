@@ -46,6 +46,8 @@
         @include('layouts.navigation-pegawai')
            @elseif ($roleGroup === 'kasubbidang')
         @include('layouts.navigation-kasubbidang')
+             @elseif ($roleGroup === 'sekretaris')
+        @include('layouts.navigation-sekretaris')
         @else
         @include('layouts.navigation-default')
         @endif

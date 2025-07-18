@@ -48,10 +48,10 @@ class AuthenticatedSessionController extends Controller
     $redirectRoutes = [
         'admin'         => 'dashboard.admin.index',
         'kepalabagian'  => 'kepalabagian.dashboard',
-        'kasubbidang'   => 'dashboard.kasubbidang',
+        'kasubbidang'   => 'kasubbidang.dashboard',
         'pegawai'       => 'pegawai.dashboard',
         'magang'        => 'magang.dashboard',
-        'sekretaris'    => 'dashboard.sekretaris',
+        'sekretaris'    => 'sekretaris.dashboard',
         'kadis'         => 'dashboard.kadis',
     ];
 

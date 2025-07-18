@@ -11,7 +11,7 @@
     <nav class="flex-1 px-4 py-4 space-y-2">
         
         {{-- Link Dashboard --}}
-        <a href="{{ route('kasubbidang.dashboard') }}"
+        <a href="{{ route('sekretaris.dashboard') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition 
                   {{ request()->routeIs('kasubbidang.dashboard') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
             <i class="fa-solid fa-house w-6 text-center {{ request()->routeIs('kepalabagian.dashboard') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
@@ -20,7 +20,7 @@
 
         
         {{-- Link Artikel Pengetahuan --}}
-        <a href="{{ route('kasubbidang.berbagipengetahuan.index') }}"
+        <a href="{{ route('sekretaris.berbagipengetahuan.index') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
                   {{ request()->routeIs('kasubbidang.berbagipengetahuan.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
             <i class="fa-solid fa-file-alt w-6 text-center {{ request()->routeIs('kepalabagian.artikelpengetahuan.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
@@ -28,13 +28,7 @@
         </a>
 
         
-        {{-- Link  Kegiatan --}}
-        <a href="{{ route('kasubbidang.kegiatan.index') }}"
-           class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
-                  {{ request()->routeIs('kasubbidang.kegiatan.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
-            <i class="fa-solid fa-file-alt w-6 text-center {{ request()->routeIs('kepalabagian.artikelpengetahuan.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
-            <span>Kegiatan</span>
-        </a>
+ 
         
         {{-- Link Manajemen Dokumen --}}
         <a href="{{ route('kasubbidang.manajemendokumen.index') }}"
@@ -57,11 +51,11 @@
 
 
 
-       <a href="{{ route('kasubbidang.manajemenpengguna.index') }}"
+       <a href="{{ route('sekretaris.agenda.index') }}"
    class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
-          {{ request()->routeIs('kasubbidang.manajemenpengguna.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
+          {{ request()->routeIs('sekretaris.agenda.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
     <i class="fa-solid fa-users-gear w-6 text-center {{ request()->routeIs('manajemenpengguna.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
-    <span>Manajemen Pengguna</span>
+    <span>Manajemen Agenda</span>
 </a>
 
     </nav>

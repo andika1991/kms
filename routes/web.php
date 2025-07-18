@@ -17,9 +17,16 @@ use App\Http\Controllers\PengetahuanpegawaiController;
 use App\Http\Controllers\KegiatanpegawaiController;
 use App\Http\Controllers\DokumenpegawaiController;
 use App\Http\Controllers\ForumPegawaiController;
+use App\Http\Controllers\PengetahuankasubbidangController;
+use App\Http\Controllers\KategoriPengetahuankasubbidangController;
+use App\Http\Controllers\KegiatankasubidangController;
+use App\Http\Controllers\DokumenkasubbidangController;
+use App\Http\Controllers\KategoriDokumenController;
+use App\Http\Controllers\ManajemenPenggunaKaSubbidangController;
+use App\Http\Controllers\ForumKasubbidangController;
+use App\Http\Controllers\ManajemenAgendaController;
+
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
-
-
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
 
@@ -78,8 +85,36 @@ Route::resource('forum', ForumPegawaiController::class);
     ->middleware(['auth', 'role_group:kasubbidang'])
     ->group(function () {
 Route::get('/', [DashboardController::class, 'kasubbidang'])->name('dashboard');
-
+ Route::resource('kategoripengetahuan', KategoriPengetahuankasubbidangController::class);
+Route::resource('berbagipengetahuan', PengetahuankasubbidangController::class);
+Route::resource('manajemendokumen', DokumenkasubbidangController::class);
+ Route::resource('kegiatan', KegiatankasubidangController::class);
+Route::resource('manajemenpengguna', ManajemenPenggunaKaSubbidangController::class);
+Route::patch('manajemenpengguna/{id}/verifikasi', [ManajemenPenggunaKaSubbidangController::class, 'verifikasi'])
+    ->name('manajemenpengguna.verifikasi');
+    Route::resource('kategori-dokumen', KategoriDokumenController::class)->except(['index', 'create', 'show']);
+Route::resource('forum', ForumKasubbidangController::class);
  Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
+Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
+    });
+
+        Route::prefix('sekretaris')
+    ->as('sekretaris.')
+    ->middleware(['auth', 'role_group:sekretaris'])
+    ->group(function () {
+Route::get('/', [DashboardController::class, 'sekretaris'])->name('dashboard');
+ Route::resource('kategoripengetahuan', KategoriPengetahuankasubbidangController::class);
+Route::resource('berbagipengetahuan', PengetahuankasubbidangController::class);
+Route::resource('manajemendokumen', DokumenkasubbidangController::class);
+ Route::resource('kegiatan', KegiatankasubidangController::class);
+ Route::resource('agenda', ManajemenAgendaController::class);
+    
+Route::resource('forum', ForumKasubbidangController::class);
+ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
+Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
     });
 
