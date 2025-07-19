@@ -22,7 +22,7 @@
         {{-- Link Artikel Pengetahuan --}}
         <a href="{{ route('sekretaris.berbagipengetahuan.index') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
-                  {{ request()->routeIs('kasubbidang.berbagipengetahuan.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
+                  {{ request()->routeIs('sekretaris.berbagipengetahuan.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
             <i class="fa-solid fa-file-alt w-6 text-center {{ request()->routeIs('kepalabagian.artikelpengetahuan.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
             <span>Artikel Pengetahuan</span>
         </a>
@@ -31,20 +31,18 @@
  
         
         {{-- Link Manajemen Dokumen --}}
-        <a href="{{ route('kasubbidang.manajemendokumen.index') }}"
+        <a href="{{ route('sekretaris.manajemendokumen.index') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
-                  {{ request()->routeIs('kasubbidang.manajemendokumen.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
-            
-            {{-- PERBAIKAN: Operator ternary diperbaiki di baris ini --}}
-            <i class="fa-solid fa-folder-open w-6 text-center {{ request()->routeIs('kepalabagian.manajemendokumen.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
+                  {{ request()->routeIs('sekretaris.manajemendokumen.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
+            <i class="fa-solid fa-folder-open w-6 text-center {{ request()->routeIs('sekretaris.manajemendokumen.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
             
             <span>Manajemen Dokumen</span>
         </a>
 
         {{-- Link Forum Diskusi --}}
-        <a href="{{ route('kasubbidang.forum.index') }}"
+        <a href="{{ route('sekretaris.forum.index') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
-                  {{ request()->routeIs('kasubbidang.forum.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
+                  {{ request()->routeIs('sekretaris.forum.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
             <i class="fa-solid fa-comments w-6 text-center {{ request()->routeIs('kepalabagian.forum.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
             <span>Forum Diskusi</span>
         </a>

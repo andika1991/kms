@@ -13,8 +13,8 @@ class KategoriPengetahuan extends Model
 
     protected $fillable = [
         'nama_kategoripengetahuan',
-        'subbidang_id',   'bidang_id'
-        ,
+        'subbidang_id',
+        'bidang_id',
     ];
 
     /**
@@ -23,5 +23,13 @@ class KategoriPengetahuan extends Model
     public function subbidang()
     {
         return $this->belongsTo(Subbidang::class);
+    }
+
+    /**
+     * Relasi ke Bidang.
+     */
+    public function bidang()
+    {
+        return $this->belongsTo(Bidang::class);
     }
 }
