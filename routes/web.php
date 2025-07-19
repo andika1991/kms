@@ -25,7 +25,11 @@ use App\Http\Controllers\KategoriDokumenController;
 use App\Http\Controllers\ManajemenPenggunaKaSubbidangController;
 use App\Http\Controllers\ForumKasubbidangController;
 use App\Http\Controllers\ManajemenAgendaController;
-
+use App\Http\Controllers\KategoriPengetahuankasekretarisController;
+use App\Http\Controllers\PengetahuansekretarisController;
+use App\Http\Controllers\DokumensekretarisController;
+use App\Http\Controllers\KategoriDokumensekreController;
+use App\Http\Controllers\ForumsekreController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
@@ -108,13 +112,15 @@ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 's
     ->middleware(['auth', 'role_group:sekretaris'])
     ->group(function () {
 Route::get('/', [DashboardController::class, 'sekretaris'])->name('dashboard');
- Route::resource('kategoripengetahuan', KategoriPengetahuankasubbidangController::class);
-Route::resource('berbagipengetahuan', PengetahuankasubbidangController::class);
-Route::resource('manajemendokumen', DokumenkasubbidangController::class);
+ Route::resource('kategoripengetahuan', KategoriPengetahuankasekretarisController::class);
+Route::resource('berbagipengetahuan', PengetahuansekretarisController::class);
+Route::resource('manajemendokumen', DokumensekretarisController::class);
  Route::resource('kegiatan', KegiatankasubidangController::class);
+ Route::get('/agenda/all-users', [ManajemenAgendaController::class, 'showAllUsersWithAgenda'])
+->name('all_users');
  Route::resource('agenda', ManajemenAgendaController::class);
-    
-Route::resource('forum', ForumKasubbidangController::class);
+ Route::resource('kategori-dokumen', KategoriDokumensekreController::class)->except(['index', 'create', 'show']);
+Route::resource('forum', ForumsekreController::class);
  Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
 Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])

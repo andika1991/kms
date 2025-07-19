@@ -14,6 +14,10 @@
 
             <div class="mb-4">
                 <a href="{{ route('sekretaris.agenda.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">+ Tambah Agenda</a>
+         
+           <a href="{{ route('sekretaris.all_users') }}" class="bg-green-500 text-white px-4 py-2 rounded">
+        Lihat Semua Pimpinan & Agenda Hari Ini
+    </a>
             </div>
 
             <div class="bg-white p-6 rounded shadow">
@@ -35,7 +39,7 @@
                                 <td class="border px-4 py-2">{{ $agenda->nama_agenda }}</td>
                                 <td class="border px-4 py-2">{{ $agenda->date_agenda }}</td>
                                 <td class="border px-4 py-2">{{ $agenda->waktu_agenda }} - {{ $agenda->waktu_selesai }}</td>
-                                <td class="border px-4 py-2">{{ $agenda->pengguna->name ?? '-' }}</td>
+                                <td class="border px-4 py-2">{{ $agenda->pengguna->name ?? '-' }}({{ $agenda->pengguna->role->nama_role }})</td>
                                 <td class="border px-4 py-2">
                                     <a href="{{ route('sekretaris.agenda.edit', $agenda->id) }}" class="text-blue-500">Edit</a>
                                 </td>
