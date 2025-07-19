@@ -23,7 +23,9 @@ class DokumenmagangController extends Controller
 
         $dokumen = $dokumenQuery->latest()->get();
 
-        return view('magang.dokumen.index', compact('dokumen'));
+        $kategori = KategoriDokumen::all();
+
+        return view('magang.dokumen.index', compact('dokumen', 'kategori'));
     }
 
     public function create()

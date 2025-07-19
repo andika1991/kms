@@ -1,76 +1,153 @@
+@php
+use Carbon\Carbon;
+$carbon = Carbon::now()->locale('id');
+$carbon->settings(['formatFunction' => 'translatedFormat']);
+$tanggal = $carbon->format('l, d F Y');
+@endphp
+
+@section('title', 'Tambah Artikel Pegawai')
+
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Tambah Artikel Pengetahuan
-        </h2>
-    </x-slot>
-
-    <div class="py-6 max-w-5xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
-            <form method="POST" action="{{ route('pegawai.berbagipengetahuan.store') }}" enctype="multipart/form-data">
-                @csrf
-
-                {{-- JUDUL --}}
-                <div class="mb-4">
-                    <label class="block font-medium text-gray-700 dark:text-gray-200">Judul</label>
-                    <input type="text" 
-                           id="judul" 
-                           name="judul" 
-                           class="w-full rounded border-gray-300 dark:bg-gray-700 dark:text-gray-200" 
-                           required 
-                           value="{{ old('judul') }}">
+    <div class="w-full min-h-screen bg-[#eaf5ff]">
+        {{-- HEADER --}}
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Artikel Pengetahuan</h2>
+                    <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
-
-                {{-- SLUG --}}
-                <div class="mb-4">
-                    <label class="block font-medium text-gray-700 dark:text-gray-200">Slug</label>
-                    <input type="text" 
-                           id="slug" 
-                           name="slug" 
-                           class="w-full rounded border-gray-300 dark:bg-gray-700 dark:text-gray-200" 
-                           required 
-                           value="{{ old('slug') }}">
+                <div class="flex items-center gap-4 w-full sm:w-auto">
+                    {{-- Search Bar --}}
+                    <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                        <input type="text" placeholder="Cari..."
+                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i class="fa fa-search"></i>
+                        </span>
+                    </div>
+                    {{-- Dropdown Profile --}}
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
+                            title="Profile">
+                            <i class="fa-solid fa-user"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
+                            style="display: none;">
+                            <div class="py-1">
+                                <a href="{{ route('profile.edit') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                        Out</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                {{-- KATEGORI --}}
-                <div class="mb-4">
-                    <label class="block font-medium text-gray-700 dark:text-gray-200">Kategori Pengetahuan</label>
-                    <select name="kategori_pengetahuan_id" 
-                            class="w-full rounded border-gray-300 dark:bg-gray-700 dark:text-gray-200" 
-                            required>
-                        <option value="">-- Pilih Kategori --</option>
-                        @foreach($kategori as $kat)
-                            <option value="{{ $kat->id }}" {{ old('kategori_pengetahuan_id') == $kat->id ? 'selected' : '' }}>
-                                {{ $kat->nama_kategoripengetahuan }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- THUMBNAIL --}}
-                <div class="mb-4">
-                    <label class="block font-medium text-gray-700 dark:text-gray-200">Thumbnail</label>
-                    <input type="file" name="thumbnail" class="w-full text-gray-700 dark:text-gray-200">
-                </div>
-
-                {{-- FILE DOKUMEN --}}
-                <div class="mb-4">
-                    <label class="block font-medium text-gray-700 dark:text-gray-200">File Dokumen</label>
-                    <input type="file" name="filedok" class="w-full text-gray-700 dark:text-gray-200">
-                </div>
-
-                {{-- ISI ARTIKEL --}}
-                <div class="mb-4">
-                    <label class="block font-medium text-gray-700 dark:text-gray-200">Isi Artikel</label>
-                    <textarea id="isi" name="isi" rows="10" 
-                              class="w-full rounded border-gray-300 dark:bg-gray-700 dark:text-gray-200">{{ old('isi') }}</textarea>
-                </div>
-
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    Simpan
-                </button>
-            </form>
+            </div>
         </div>
+
+        {{-- FORM TAMBAH ARTIKEL --}}
+        <form method="POST" action="{{ route('pegawai.berbagipengetahuan.store') }}" enctype="multipart/form-data"
+            class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
+            @csrf
+
+            {{-- KOLOM KIRI FORM --}}
+            <div class="xl:col-span-8 w-full flex flex-col gap-8">
+
+                {{-- Thumbnail --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <label for="thumbnail" class="block font-semibold text-gray-800 mb-2">Thumbnail</label>
+                    <label for="thumbnail"
+                        class="w-full h-48 md:h-56 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition">
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-gray-400"></i>
+                        <span class="mt-2 text-sm text-gray-500">Tambahkan foto</span>
+                        <input type="file" name="thumbnail" id="thumbnail" class="hidden">
+                    </label>
+                </div>
+
+                {{-- Judul Artikel --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <label for="judul" class="block font-semibold text-gray-800 mb-1">Judul Artikel</label>
+                    <input type="text" id="judul" name="judul" value="{{ old('judul') }}" required
+                        class="w-full rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Masukkan Judul">
+                </div>
+
+                {{-- Kategori & Slug --}}
+                <div class="flex flex-col md:flex-row gap-6">
+                    {{-- Kategori --}}
+                    <div class="bg-white rounded-2xl shadow-lg p-6 w-full">
+                        <label for="kategori_pengetahuan_id" class="block font-semibold text-gray-800 mb-1">Kategori</label>
+                        <select name="kategori_pengetahuan_id"
+                            class="w-full rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
+                            <option value="">Pilih Kategori</option>
+                            @foreach($kategori as $kat)
+                                <option value="{{ $kat->id }}"
+                                    {{ old('kategori_pengetahuan_id') == $kat->id ? 'selected' : '' }}>
+                                    {{ $kat->nama_kategoripengetahuan }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    {{-- Slug --}}
+                    <div class="bg-white rounded-2xl shadow-lg p-6 w-full">
+                        <label for="slug" class="block font-semibold text-gray-800 mb-1">Slug</label>
+                        <input type="text" id="slug" name="slug" value="{{ old('slug') }}" required
+                            class="w-full rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Masukkan Slug">
+                    </div>
+                </div>
+
+                {{-- Isi Artikel --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <label for="isi" class="block font-semibold text-gray-800 mb-2">Isi Artikel</label>
+                    <textarea id="isi" name="isi" rows="10"
+                        class="w-full rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('isi') }}</textarea>
+                </div>
+
+                {{-- Dokumen Tambahan --}}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <label for="filedok" class="block font-semibold text-gray-800 mb-2">Dokumen</label>
+                    <label for="filedok"
+                        class="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition">
+                        <i class="fa-solid fa-file-arrow-up text-4xl text-gray-400"></i>
+                        <span class="mt-2 text-sm text-gray-500">Tambah dokumen</span>
+                        <input type="file" name="filedok" id="filedok" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            {{-- KOLOM KANAN SIDEBAR --}}
+            <aside class="xl:col-span-4 w-full flex flex-col gap-8">
+                {{-- Card Role --}}
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
+                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
+                    <div>
+                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
+                    </div>
+                </div>
+
+                {{-- Tombol Aksi --}}
+                <div class="flex items-center gap-4">
+                    <button type="submit"
+                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                        <i class="fa-solid fa-save"></i>
+                        <span>Simpan</span>
+                    </button>
+                    <a href="{{ url()->previous() }}"
+                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
+                        <i class="fa-solid fa-times"></i>
+                        <span>Batalkan</span>
+                    </a>
+                </div>
+            </aside>
+        </form>
     </div>
 
     {{-- TinyMCE CDN --}}

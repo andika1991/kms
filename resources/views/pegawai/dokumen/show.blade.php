@@ -27,22 +27,20 @@
             <p class="mb-4">
                 <strong>File Dokumen:</strong><br>
 
-           @if ($dokumen->path_dokumen && \Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->path_dokumen))
-    <iframe 
-        src="{{ asset('storage/' . $dokumen->path_dokumen, true) }}" 
-        width="100%" 
-        height="700px"
-        style="border:none;">
-    </iframe>
-@else
-    <p>Dokumen tidak ditemukan.</p>
-@endif
+                @if ($dokumen->path_dokumen &&
+                \Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->path_dokumen))
+                <iframe src="{{ asset('storage/' . $dokumen->path_dokumen, true) }}" width="100%" height="700px"
+                    style="border:none;">
+                </iframe>
+                @else
+            <p>Dokumen tidak ditemukan.</p>
+            @endif
 
             </p>
 
             <div class="mt-6">
                 <a href="{{ route('magang.manajemendokumen.index') }}"
-                   class="inline-block bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
+                    class="inline-block bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
                     Kembali ke daftar dokumen
                 </a>
             </div>
