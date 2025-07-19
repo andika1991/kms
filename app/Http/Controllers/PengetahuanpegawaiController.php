@@ -20,7 +20,17 @@ class PengetahuanpegawaiController extends Controller
 
     $artikels = $query->latest()->get();
 
-    return view('pegawai.berbagipengetahuan.index', compact('artikels'));
+    $user = auth()->user();
+    $role = $user->role;
+    $bidangId = $role->bidang_id ?? null;
+    $subbidangId = $role->subbidang_id ?? null;
+
+    $kategoriQuery = KategoriPengetahuan::query();
+    if ($bidangId) $kategoriQuery->where('bidang_id', $bidangId);
+    if ($subbidangId) $kategoriQuery->where('subbidang_id', $subbidangId);
+    $kategori = $kategoriQuery->get();
+
+    return view('pegawai.berbagipengetahuan.index', compact('artikels', 'kategori'));
 }
 
  public function create()

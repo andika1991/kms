@@ -1,89 +1,144 @@
+@php
+use Carbon\Carbon;
+$carbon = Carbon::now()->locale('id');
+$carbon->settings(['formatFunction' => 'translatedFormat']);
+$tanggal = $carbon->format('l, d F Y');
+@endphp
+
+@section('title', 'Manajemen Dokumen Magang')
+
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Manajemen Dokumen
-        </h2>
-    </x-slot>
-
-    <div class="py-6 max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-        {{-- Tombol Tambah + Search --}}
-        <div class="flex justify-between mb-6">
-            <form action="{{ route('magang.manajemendokumen.index') }}" method="GET" class="flex w-full max-w-md">
-                <input 
-                    type="text" 
-                    name="search" 
-                    value="{{ request('search') }}"
-                    placeholder="Cari nama dokumen..." 
-                    class="w-full rounded-l border-gray-300 dark:bg-gray-700 dark:text-gray-200 focus:ring focus:ring-blue-500"
-                >
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r">
-                    Cari
-                </button>
-            </form>
-
-            <a href="{{ route('magang.manajemendokumen.create') }}"
-               class="ml-4 inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                + Tambah Dokumen
-            </a>
-        </div>
-
-        @if(session('success'))
-            <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if($dokumen->count())
-            <div class="grid grid-cols-1 gap-4">
-                @foreach($dokumen as $item)
-                    <div class="bg-white dark:bg-gray-800 p-4 rounded shadow flex flex-col sm:flex-row">
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">
-                                {{ $item->nama_dokumen }}
-                            </h3>
-
-                            <p class="text-gray-600 dark:text-gray-300 text-sm">
-                                Kategori: <span class="font-semibold">
-                                    {{ $item->kategoriDokumen->nama_kategoridokumen ?? '-' }}
-                                </span>
-                            </p>
-
-                            <p class="text-gray-700 dark:text-gray-300 mt-2">
-                                {{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 100) }}
-                            </p>
-                        </div>
-
-                        <div class="flex gap-2 mt-4 sm:mt-0 sm:ml-4">
-                            <a href="{{ route('magang.manajemendokumen.show', $item->id) }}"
-                               class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded">
-                                Lihat
-                            </a>
-
-                            <a href="{{ route('magang.manajemendokumen.edit', $item->id) }}"
-                               class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 text-sm rounded">
-                                Edit
-                            </a>
-
-                            <form action="{{ route('magang.manajemendokumen.destroy', $item->id) }}"
-                                  method="POST"
-                                  onsubmit="return confirm('Hapus dokumen ini?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-sm rounded">
-                                    Hapus
-                                </button>
-                            </form>
+    <div class="w-full min-h-screen bg-[#eaf5ff]">
+        {{-- HEADER --}}
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen Magang</h2>
+                    <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
+                </div>
+                <div class="flex items-center gap-4 w-full sm:w-auto">
+                    {{-- Search Bar --}}
+                    <form method="GET" action="{{ route('magang.manajemendokumen.index') }}" class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari nama dokumen..."
+                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i class="fa fa-search"></i>
+                        </span>
+                    </form>
+                    {{-- Profile Dropdown --}}
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
+                            title="Profile">
+                            <i class="fa-solid fa-user"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
+                            style="display: none;">
+                            <div class="py-1">
+                                <a href="{{ route('profile.edit') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                @endforeach
+                </div>
             </div>
-        @else
-            <p class="text-gray-700 dark:text-gray-300">
-                Belum ada dokumen yang tersedia.
-            </p>
-        @endif
+        </div>
 
+        {{-- BODY GRID --}}
+        <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 max-w-[1400px] mx-auto">
+            {{-- KOLOM UTAMA (DAFTAR DOKUMEN) --}}
+            <section class="xl:col-span-8 w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="font-bold text-lg text-[#2171b8]">Daftar Dokumen Magang</span>
+                    <a href="{{ route('magang.manajemendokumen.create') }}"
+                        class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Tambah Dokumen</span>
+                    </a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white rounded-2xl shadow border mb-2">
+                        <thead>
+                            <tr class="text-left bg-gray-100">
+                                <th class="px-6 py-4 text-base font-semibold">Nama Dokumen</th>
+                                <th class="px-6 py-4 text-base font-semibold">Kategori</th>
+                                <th class="px-6 py-4 text-base font-semibold text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @forelse($dokumen as $item)
+                            <tr class="@if($loop->even) bg-[#eaf3fa] @endif border-b border-gray-100">
+                                <td class="flex items-center gap-4 px-6 py-4">
+                                    {{-- Thumbnail --}}
+                                    <div class="w-20 h-14 flex items-center justify-center rounded-md overflow-hidden bg-gray-100 border">
+                                        @if($item->thumbnail)
+                                            <img src="{{ asset('storage/'.$item->thumbnail) }}" alt="{{ $item->nama_dokumen }}" class="object-cover w-full h-full" />
+                                        @else
+                                            <img src="{{ asset('assets/img/default-file.svg') }}" alt="No Image" class="object-contain w-10 h-10 opacity-60" />
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">{{ $item->nama_dokumen }}</div>
+                                        <div class="text-xs text-gray-500 mt-1 line-clamp-1">{{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 48) }}</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-block rounded-lg px-3 py-1 bg-[#f3f3f3] text-gray-700 text-sm">
+                                        {{ $item->kategoriDokumen->nama_kategoridokumen ?? '-' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 flex items-center gap-2 justify-center">
+                                    <a href="{{ route('magang.manajemendokumen.show', $item->id) }}"
+                                       class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition text-sm">Lihat</a>
+                                    <a href="{{ route('magang.manajemendokumen.edit', $item->id) }}"
+                                       class="px-4 py-1.5 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold transition text-sm">Edit</a>
+                                    <form action="{{ route('magang.manajemendokumen.destroy', $item->id) }}"
+                                          method="POST" onsubmit="return confirm('Hapus dokumen ini?');" class="inline-block">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                            class="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold transition text-sm">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-gray-500 text-center py-12">Belum ada dokumen yang tersedia.</td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                {{-- PAGINATION --}}
+                <div class="mt-4">
+                    {{-- {{ $dokumen->links() }} --}}
+                </div>
+            </section>
+
+            {{-- KOLOM SIDEBAR --}}
+            <aside class="xl:col-span-4 w-full flex flex-col gap-8">
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
+                    <div>
+                        <p class="font-bold text-lg leading-tight mb-2">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
+                        <p class="text-xs">Upload, simpan, dan kelola dokumen magang kamu di sini.</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <x-slot name="footer">
+            <footer class="bg-[#2b6cb0] py-4 mt-8">
+                <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
+                    <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
+                        class="h-10 object-contain">
+                </div>
+            </footer>
+        </x-slot>
     </div>
 </x-app-layout>

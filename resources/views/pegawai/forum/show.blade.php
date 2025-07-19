@@ -1,92 +1,86 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Grup Chat: {{ $grupChat->nama_grup }}
+            Forum Diskusi: {{ $grupChat->nama_grup }}
         </h2>
     </x-slot>
 
-    <div class="py-6 max-w-5xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded shadow flex flex-col h-[600px]">
+    <div class="w-full bg-[#eaf5ff] min-h-screen py-6">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 flex flex-col h-[600px] border border-gray-200 dark:border-gray-700">
 
-            {{-- Anggota Grup --}}
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Anggota Grup:</h3>
-                <div class="flex flex-wrap gap-2">
-                    @forelse($anggota as $user)
-                        <span class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-2 py-1 rounded text-sm">
-                            {{ $user->name }}
-                        </span>
+                {{-- Anggota Grup --}}
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">Anggota Grup</h3>
+                    <div class="flex flex-wrap gap-2">
+                        @forelse($anggota as $user)
+                            <span class="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 text-sm">
+                                {{ $user->name }}
+                            </span>
+                        @empty
+                            <span class="text-gray-500 dark:text-gray-400">Belum ada anggota.</span>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- Chat Window --}}
+                <div id="chat-messages"
+                    class="flex-1 overflow-y-auto p-4 space-y-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 mb-6">
+                    @forelse($messages as $message)
+                        <div class="flex {{ $message->pengguna_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
+                            <div class="max-w-xs md:max-w-md px-4 py-2 rounded-2xl shadow 
+                                {{ $message->pengguna_id === auth()->id() 
+                                    ? 'bg-blue-600 text-white' 
+                                    : 'bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100' }}">
+                                <div class="text-xs font-semibold mb-1 flex items-center gap-2">
+                                    <span>{{ $message->pengguna?->name ?? 'User tidak ditemukan' }}</span>
+                                    <span class="text-[10px] opacity-60">{{ $message->created_at->format('d M Y H:i') }}</span>
+                                </div>
+                                <div class="text-base break-words">{{ $message->message }}</div>
+                                @if($message->file)
+                                    <div class="mt-2">
+                                        <a href="{{ asset('storage/' . $message->file) }}"
+                                           class="underline text-white dark:text-gray-200 text-xs"
+                                           target="_blank">📎 Lihat Lampiran</a>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                     @empty
-                        <span class="text-gray-500 dark:text-gray-400">Belum ada anggota.</span>
+                        <p class="text-gray-500 dark:text-gray-400">Belum ada pesan di grup ini.</p>
                     @endforelse
                 </div>
-            </div>
 
-            {{-- Chat Window --}}
-            <div id="chat-messages"
-                 class="flex-1 overflow-y-auto p-4 space-y-3 border border-gray-200 dark:border-gray-700 rounded bg-gray-50 dark:bg-gray-900">
-                @forelse($messages as $message)
-                    <div class="max-w-lg 
-                        {{ $message->pengguna_id === auth()->id() ? 'ml-auto text-right' : 'mr-auto text-left' }}">
-                        <div class="inline-block px-4 py-2 rounded 
-                            {{ $message->pengguna_id === auth()->id() 
-                                ? 'bg-blue-600 text-white' 
-                                : 'bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100' }}">
-                            <p class="text-sm font-semibold mb-1">
-                                {{ $message->pengguna?->name ?? 'User tidak ditemukan' }}
-                                <span class="text-xs text-gray-200 dark:text-gray-400 block">
-                                    {{ $message->created_at->format('d M Y H:i') }}
-                                </span>
-                            </p>
-                            <p class="text-base">
-                                {{ $message->message }}
-                            </p>
+                {{-- Chat Input --}}
+                <form method="POST"
+                      action="{{ route('pegawai.grupchat.pesan.store', $grupChat->id) }}"
+                      enctype="multipart/form-data"
+                      class="flex flex-col sm:flex-row items-end gap-2 mt-2">
+                    @csrf
 
-                            @if($message->file)
-                                <div class="mt-2">
-                                    <a href="{{ asset('storage/' . $message->file) }}"
-                                       class="underline text-white dark:text-gray-200"
-                                       target="_blank">📎 Lihat Lampiran</a>
-                                </div>
-                            @endif
+                    <div class="flex-1 flex flex-col sm:flex-row gap-2">
+                        <div class="relative flex-1">
+                            <input type="text" name="message"
+                                class="w-full rounded-full border border-gray-300 dark:bg-gray-700 dark:text-gray-200 px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                                placeholder="Tulis pesan..." autocomplete="off">
+                            <input type="file" name="file" class="hidden" id="file-input">
+                            <button type="button"
+                                onclick="document.getElementById('file-input').click()"
+                                class="absolute top-1/2 right-4 -translate-y-1/2 text-gray-400 hover:text-blue-700 focus:outline-none">
+                                📎
+                            </button>
                         </div>
                     </div>
-                @empty
-                    <p class="text-gray-500 dark:text-gray-400">Belum ada pesan di grup ini.</p>
-                @endforelse
+
+                    <div class="flex flex-col gap-1 w-full sm:w-auto">
+                        <span id="file-name" class="text-xs text-gray-600 dark:text-gray-400 mb-1"></span>
+                        <button type="submit"
+                            class="w-full sm:w-auto px-6 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition">
+                            Kirim
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            {{-- Chat Input --}}
-            <form method="POST"
-                  action="{{ route('pegawai.grupchat.pesan.store', $grupChat->id) }}"
-                  enctype="multipart/form-data"
-                  class="mt-4 flex flex-col sm:flex-row gap-2">
-                @csrf
-
-                <div class="flex-1 flex flex-col sm:flex-row gap-2">
-                    <input type="text" name="message"
-                           class="flex-1 rounded border-gray-300 dark:bg-gray-700 dark:text-gray-200"
-                           placeholder="Tulis pesan...">
-
-                    <input type="file" name="file" class="hidden" id="file-input">
-
-                    <button type="button"
-                            onclick="document.getElementById('file-input').click()"
-                            class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded">
-                        📎
-                    </button>
-                </div>
-
-                {{-- Tampilkan nama file yang dipilih --}}
-                <p id="file-name" class="text-sm text-gray-600 dark:text-gray-400 mt-1 ml-1"></p>
-
-                <div class="mt-2 sm:mt-0">
-                    <button type="submit"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full sm:w-auto">
-                        Kirim
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
