@@ -148,31 +148,23 @@
     <main class="max-w-[1100px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 py-10">
 
         {{-- Sidebar Bidang --}}
-        <aside class="lg:col-span-1 bg-white shadow-xl rounded-2xl p-6 h-fit">
-            <h3 class="font-bold text-lg mb-6 text-gray-800 border-b pb-3">Bidang</h3>
-            <ul class="flex flex-col gap-5">
-                @php
-                $bidangs = [
-                ['nama' => 'Sekretariat', 'icon' => 'fa-building-user'],
-                ['nama' => 'PLIP', 'icon' => 'fa-landmark'],
-                ['nama' => 'PKP', 'icon' => 'fa-people-group'],
-                ['nama' => 'TIK', 'icon' => 'fa-laptop-code'],
-                ['nama' => 'SanStik', 'icon' => 'fa-chart-simple']
-                ];
-                @endphp
-                @foreach ($bidangs as $bidang)
-                <li
-                    class="flex items-center gap-4 cursor-pointer group p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                    <span
-                        class="bg-[#F49A24] flex items-center justify-center rounded-full w-10 h-10 shadow transition-transform group-hover:scale-110">
-                        <i class="fas {{ $bidang['icon'] }} text-white text-lg"></i>
-                    </span>
-                    <span
-                        class="font-medium text-base text-gray-700 group-hover:text-blue-700">{{ $bidang['nama'] }}</span>
-                </li>
-                @endforeach
-            </ul>
-        </aside>
+{{-- Sidebar Bidang --}}
+<aside class="lg:col-span-1 bg-white shadow-xl rounded-2xl p-6 h-fit">
+    <h3 class="font-bold text-lg mb-6 text-gray-800 border-b pb-3">Bidang</h3>
+    <ul class="flex flex-col gap-5">
+   @foreach ($bidangs as $bidang)
+<li class="flex items-center gap-4 cursor-pointer group p-2 rounded-lg hover:bg-gray-100 transition-colors bidang-item"
+    data-id="{{ $bidang->id }}">
+    <span class="bg-[#F49A24] flex items-center justify-center rounded-full w-10 h-10 shadow transition-transform group-hover:scale-110">
+        <i class="fas fa-building text-white text-lg"></i>
+    </span>
+    <span class="font-medium text-base text-gray-700 group-hover:text-blue-700">{{ $bidang->nama }}</span>
+</li>
+@endforeach
+
+    </ul>
+</aside>
+
 
         {{-- Konten Kanan (Pengetahuan & Dokumen) --}}
         <div class="lg:col-span-2 space-y-8">
@@ -323,7 +315,143 @@
             </div>
         </div>
     </footer>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const bidangItems = document.querySelectorAll('.bidang-item');
+
+    bidangItems.forEach(item => {
+        item.addEventListener('click', function () {
+            const bidangId = this.dataset.id;
+
+            fetch(/pengetahuan/bidang/${bidangId})
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('pengetahuan-list');
+                    container.innerHTML = ''; // Kosongkan dulu
+
+                    if (data.length === 0) {
+                        container.innerHTML = '<p class="text-gray-600">Tidak ada data pengetahuan untuk bidang ini.</p>';
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const html = 
+                        <div class="border border-gray-200 rounded-xl overflow-hidden flex flex-col group transition-shadow hover:shadow-lg">
+                            <img src="/storage/${item.thumbnail}" class="w-full h-44 object-cover" alt="Gambar">
+                            <div class="p-5 flex flex-col flex-grow">
+                                <h3 class="font-semibold text-base leading-tight text-gray-800 flex-grow mb-4">
+                                    ${item.judul}
+                                </h3>
+                                <a href="/pengetahuan/${item.id}" class="text-blue-700 text-sm font-semibold self-start group-hover:underline">Lihat Detail</a>
+                            </div>
+                        </div>;
+                        container.innerHTML += html;
+                    });
+                })
+                .catch(error => {
+                    console.error('Gagal memuat data:', error);
+                });
+        });
+    });
+});
+</script>
+
 
 </body>
 
-</html>
+</html>  perbaiki ini agar dkik meuncul data artikelpengetahuannya
+
+
+ChatGPT said:
+Untuk memastikan klik pada bidang menampilkan artikel pengetahuan yang sesuai, beberapa hal penting perlu dipastikan dan diperbaiki dalam kode kamu:
+
+✅ Checklist & Perbaikan:
+1. Tambahkan ID pengetahuan-list pada kontainer artikel
+Saat ini <div> tempat artikel ditampilkan tidak memiliki ID pengetahuan-list, sehingga document.getElementById('pengetahuan-list') tidak akan menemukan apa-apa.
+
+👉 Tambahkan ID ini:
+
+html
+Copy
+Edit
+<section class="bg-white shadow-xl rounded-2xl p-6">
+    <h2 class="font-bold text-xl mb-6 text-gray-800 border-b pb-3">Pengetahuan</h2>
+    <div id="pengetahuan-list" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {{-- Isi awal (bisa kosong jika ingin langsung dinamis) --}}
+    </div>
+</section>
+2. Pastikan Route Laravel /pengetahuan/bidang/{id} mengembalikan JSON
+Di controller Laravel-mu, pastikan route tersebut mengembalikan data JSON seperti ini:
+
+php
+Copy
+Edit
+// Misalnya di PengetahuanController.php
+public function byBidang($id)
+{
+    $data = Pengetahuan::where('bidang_id', $id)->get();
+
+    return response()->json($data);
+}
+Pastikan Pengetahuan punya field thumbnail, judul, dan id.
+
+3. Pastikan route di web.php ada
+php
+Copy
+Edit
+Route::get('/pengetahuan/bidang/{id}', [PengetahuanController::class, 'byBidang']);
+4. Tambahkan loader jika ingin user feedback (opsional)
+Kamu bisa tambahkan indikator loading agar lebih UX-friendly.
+
+✅ Hasil Setelah Diperbaiki:
+blade
+Copy
+Edit
+<div id="pengetahuan-list" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    {{-- Artikel pengetahuan akan dimuat di sini saat bidang diklik --}}
+</div>
+js
+Copy
+Edit
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const bidangItems = document.querySelectorAll('.bidang-item');
+
+    bidangItems.forEach(item => {
+        item.addEventListener('click', function () {
+            const bidangId = this.dataset.id;
+            const container = document.getElementById('pengetahuan-list');
+            container.innerHTML = '<p class="text-gray-500">Memuat data...</p>';
+
+            fetch(`/pengetahuan/bidang/${bidangId}`)
+                .then(response => response.json())
+                .then(data => {
+                    container.innerHTML = ''; // Kosongkan sebelum menampilkan data
+
+                    if (data.length === 0) {
+                        container.innerHTML = '<p class="text-gray-600">Tidak ada data pengetahuan untuk bidang ini.</p>';
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const html = `
+                        <div class="border border-gray-200 rounded-xl overflow-hidden flex flex-col group transition-shadow hover:shadow-lg">
+                            <img src="/storage/${item.thumbnail}" class="w-full h-44 object-cover" alt="Gambar">
+                            <div class="p-5 flex flex-col flex-grow">
+                                <h3 class="font-semibold text-base leading-tight text-gray-800 flex-grow mb-4">
+                                    ${item.judul}
+                                </h3>
+                                <a href="/pengetahuan/${item.id}" class="text-blue-700 text-sm font-semibold self-start group-hover:underline">Lihat Detail</a>
+                            </div>
+                        </div>`;
+                        container.innerHTML += html;
+                    });
+                })
+                .catch(error => {
+                    console.error('Gagal memuat data:', error);
+                    container.innerHTML = '<p class="text-red-500">Terjadi kesalahan saat mengambil data.</p>';
+                });
+        });
+    });
+});
+</script>

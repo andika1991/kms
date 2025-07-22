@@ -38,7 +38,7 @@ class DashboardController extends Controller
 
     public function kadis()
     {
-        return view('dashboard.kadis');
+        return view('kadis.dashboard');
     }
 
     public function index()

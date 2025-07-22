@@ -30,6 +30,9 @@ use App\Http\Controllers\PengetahuansekretarisController;
 use App\Http\Controllers\DokumensekretarisController;
 use App\Http\Controllers\KategoriDokumensekreController;
 use App\Http\Controllers\ForumsekreController;
+use App\Http\Controllers\PengetahuankadisController;
+use App\Http\Controllers\KategoriPengetahuankadisController;
+use App\Http\Controllers\ForumKadisController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
@@ -86,8 +89,7 @@ Route::resource('forum', ForumPegawaiController::class);
     ->name('grupchat.pesan.store');
     });
 
-
-    Route::prefix('kasubbidang')
+ Route::prefix('kasubbidang')
     ->as('kasubbidang.')
     ->middleware(['auth', 'role_group:kasubbidang'])
     ->group(function () {
@@ -101,7 +103,7 @@ Route::patch('manajemenpengguna/{id}/verifikasi', [ManajemenPenggunaKaSubbidangC
     ->name('manajemenpengguna.verifikasi');
     Route::resource('kategori-dokumen', KategoriDokumenController::class)->except(['index', 'create', 'show']);
 Route::resource('forum', ForumKasubbidangController::class);
- Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
 Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
@@ -127,6 +129,19 @@ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 's
     ->name('grupchat.pesan.store');
     });
 
+
+    Route::prefix('kadis')
+    ->as('kadis.')
+    ->middleware(['auth', 'role_group:Kadis'])
+    ->group(function () {
+Route::get('/', [DashboardController::class, 'kadis'])->name('dashboard');
+Route::resource('berbagipengetahuan', PengetahuankadisController::class);
+Route::resource('forum', ForumKadisController::class);
+Route::resource('kategoripengetahuan', KategoriPengetahuankadisController::class);
+Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -139,14 +154,14 @@ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 's
 */
 
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\HomeController;
 
 Route::get('/registers', [RegisterController::class, 'showRegistrationForm'])->middleware('guest')->name('register');
 
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
-
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/subbidang/{bidang_id}', [HomeController::class, 'getSubbidang']);
+Route::get('/artikel/subbidang/{subbidang_id}', [HomeController::class, 'getArtikelBySubbidang']);
 Route::get('/about', function () {
     return view('about');
 })->name('about');

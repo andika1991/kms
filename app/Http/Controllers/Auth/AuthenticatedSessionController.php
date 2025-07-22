@@ -52,7 +52,7 @@ class AuthenticatedSessionController extends Controller
         'pegawai'       => 'pegawai.dashboard',
         'magang'        => 'magang.dashboard',
         'sekretaris'    => 'sekretaris.dashboard',
-        'kadis'         => 'dashboard.kadis',
+        'Kadis'  => 'kadis.dashboard',
     ];
 
     if (isset($redirectRoutes[$roleGroup])) {
