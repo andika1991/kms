@@ -96,8 +96,7 @@ Route::prefix('kasubbidang')
         Route::resource('kategoripengetahuan', KategoriPengetahuankasubbidangController::class);
         Route::resource('berbagipengetahuan', PengetahuankasubbidangController::class);
         Route::resource('manajemendokumen', DokumenkasubbidangController::class);
-        Route::get('manajemendokumen/preview/{id}', [DokumenkasubbidangController::class, 'preview'])
-            ->name('manajemendokumen.preview');
+   
         Route::resource('kegiatan', KegiatankasubidangController::class);
         Route::resource('manajemenpengguna', ManajemenPenggunaKaSubbidangController::class);
         Route::patch('manajemenpengguna/{id}/verifikasi', [ManajemenPenggunaKaSubbidangController::class, 'verifikasi'])
