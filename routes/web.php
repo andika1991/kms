@@ -30,6 +30,9 @@ use App\Http\Controllers\PengetahuansekretarisController;
 use App\Http\Controllers\DokumensekretarisController;
 use App\Http\Controllers\KategoriDokumensekreController;
 use App\Http\Controllers\ForumsekreController;
+use App\Http\Controllers\PengetahuankadisController;
+use App\Http\Controllers\KategoriPengetahuankadisController;
+use App\Http\Controllers\ForumKadisController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
@@ -82,52 +85,62 @@ Route::resource('berbagipengetahuan', PengetahuanpegawaiController::class);
 Route::resource('kegiatan', KegiatanpegawaiController::class);
 Route::resource('manajemendokumen', DokumenpegawaiController::class);
 Route::resource('forum', ForumPegawaiController::class);
+ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
+    });
+
+ Route::prefix('kasubbidang')
+    ->as('kasubbidang.')
+    ->middleware(['auth', 'role_group:kasubbidang'])
+    ->group(function () {
+Route::get('/', [DashboardController::class, 'kasubbidang'])->name('dashboard');
+ Route::resource('kategoripengetahuan', KategoriPengetahuankasubbidangController::class);
+Route::resource('berbagipengetahuan', PengetahuankasubbidangController::class);
+Route::resource('manajemendokumen', DokumenkasubbidangController::class);
+ Route::resource('kegiatan', KegiatankasubidangController::class);
+Route::resource('manajemenpengguna', ManajemenPenggunaKaSubbidangController::class);
+Route::patch('manajemenpengguna/{id}/verifikasi', [ManajemenPenggunaKaSubbidangController::class, 'verifikasi'])
+    ->name('manajemenpengguna.verifikasi');
+    Route::resource('kategori-dokumen', KategoriDokumenController::class)->except(['index', 'create', 'show']);
+Route::resource('forum', ForumKasubbidangController::class);
+Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
 Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
     });
 
-
-Route::prefix('kasubbidang')
-    ->as('kasubbidang.')
-    ->middleware(['auth', 'role_group:kasubbidang'])
-    ->group(function () {
-        Route::resource('berbagipengetahuan', PengetahuankasubbidangController::class);
-        Route::get('/', [DashboardController::class, 'kasubbidang'])->name('dashboard');
-        Route::resource('kategoripengetahuan', KategoriPengetahuankasubbidangController::class);
-        Route::resource('berbagipengetahuan', PengetahuankasubbidangController::class);
-        Route::resource('manajemendokumen', DokumenkasubbidangController::class);
-   
-        Route::resource('kegiatan', KegiatankasubidangController::class);
-        Route::resource('manajemenpengguna', ManajemenPenggunaKaSubbidangController::class);
-        Route::patch('manajemenpengguna/{id}/verifikasi', [ManajemenPenggunaKaSubbidangController::class, 'verifikasi'])
-            ->name('manajemenpengguna.verifikasi');
-        Route::resource('kategori-dokumen', KategoriDokumenController::class)->except(['index', 'create', 'show']);
-        Route::resource('forum', ForumKasubbidangController::class);
-        Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
-            ->name('grupchat.pesan.store');
-        Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
-            ->name('grupchat.pesan.store');
-            });
-
-Route::prefix('sekretaris')
+        Route::prefix('sekretaris')
     ->as('sekretaris.')
     ->middleware(['auth', 'role_group:sekretaris'])
     ->group(function () {
 Route::get('/', [DashboardController::class, 'sekretaris'])->name('dashboard');
-Route::resource('kategoripengetahuan', KategoriPengetahuankasekretarisController::class);
+ Route::resource('kategoripengetahuan', KategoriPengetahuankasekretarisController::class);
 Route::resource('berbagipengetahuan', PengetahuansekretarisController::class);
 Route::resource('manajemendokumen', DokumensekretarisController::class);
-Route::resource('kegiatan', KegiatankasubidangController::class);
-Route::get('/agenda/all-users', [ManajemenAgendaController::class, 'showAllUsersWithAgenda'])
+ Route::resource('kegiatan', KegiatankasubidangController::class);
+ Route::get('/agenda/all-users', [ManajemenAgendaController::class, 'showAllUsersWithAgenda'])
 ->name('all_users');
-Route::resource('agenda', ManajemenAgendaController::class);
-Route::resource('kategori-dokumen', KategoriDokumensekreController::class)->except(['index', 'create', 'show']);
+ Route::resource('agenda', ManajemenAgendaController::class);
+ Route::resource('kategori-dokumen', KategoriDokumensekreController::class)->except(['index', 'create', 'show']);
 Route::resource('forum', ForumsekreController::class);
-Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
 Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
     });
+
+
+    Route::prefix('kadis')
+    ->as('kadis.')
+    ->middleware(['auth', 'role_group:Kadis'])
+    ->group(function () {
+Route::get('/', [DashboardController::class, 'kadis'])->name('dashboard');
+Route::resource('berbagipengetahuan', PengetahuankadisController::class);
+Route::resource('forum', ForumKadisController::class);
+Route::resource('kategoripengetahuan', KategoriPengetahuankadisController::class);
+Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+    ->name('grupchat.pesan.store');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -141,14 +154,14 @@ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 's
 */
 
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\HomeController;
 
 Route::get('/registers', [RegisterController::class, 'showRegistrationForm'])->middleware('guest')->name('register');
 
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
-
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/subbidang/{bidang_id}', [HomeController::class, 'getSubbidang']);
+Route::get('/artikel/subbidang/{subbidang_id}', [HomeController::class, 'getArtikelBySubbidang']);
 Route::get('/about', function () {
     return view('about');
 })->name('about');
