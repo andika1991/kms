@@ -178,4 +178,17 @@ class PengetahuankasubbidangController extends Controller
             ->route('kasubbidang.berbagipengetahuan.index')
             ->with('success', 'Artikel berhasil dihapus.');
     }
+
+    public function show($id)
+    {
+        $userId = auth()->id();
+
+        // Ambil artikel sesuai id dan user yang login (hanya artikel milik user)
+        $artikel = ArtikelPengetahuan::where('id', $id)
+            ->where('pengguna_id', $userId)
+            ->firstOrFail();
+
+        return view('kasubbidang.berbagipengetahuan.show', compact('artikel'));
+    }
+
 }
