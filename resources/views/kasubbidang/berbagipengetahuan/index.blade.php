@@ -7,6 +7,32 @@ $tanggal = $carbon->format('l, d F Y');
 
 @section('title', 'Artikel Pengetahuan Kasubbidang')
 
+@if(session('success'))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'success',
+                title: '{{ session("success") }}',
+                showConfirmButton: false,
+                timer: 2200,
+                background: '#f0fff4',
+                customClass: {
+                    popup: 'rounded-xl shadow-xl mt-6 max-w-xs md:max-w-sm border border-green-300',
+                    title: 'font-bold text-base md:text-lg text-green-800',
+                    icon: 'text-green-500'
+                },
+                didOpen: (toast) => {
+                    toast.style.marginTop = window.innerWidth < 640 ? '0.75rem' : '2rem';
+                }
+            });
+        });
+    </script>
+@endif
+
+
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff]">
         {{-- HEADER KONTEN --}}
@@ -115,60 +141,108 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </section>
 
-            {{-- KOLOM KANAN (SIDEBAR) --}}
+            {{-- KOLOM KANAN (SIDEBAR) + MODAL DELETE --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                {{-- Kartu Role --}}
-                <div
-                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
-                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
-                    <div>
-                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}
-                        </p>
+                <div x-data="{ showDeleteModal: false, deleteAction: '', deleteName: '' }" class="relative">
+                    {{-- Kartu Role --}}
+                    <div
+                        class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
+                        <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon"
+                            class="h-16 w-16 mb-4">
+                        <div>
+                            <p class="font-bold text-lg leading-tight">
+                                {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+                        </div>
                     </div>
-                </div>
 
-                {{-- Kartu Aksi --}}
-                <a href="{{ route('kasubbidang.berbagipengetahuan.create') }}"
-                    class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Tambah Artikel</span>
-                </a>
-                <a href="{{ route('kasubbidang.kategoripengetahuan.create') }}"
-                    class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base">
-                    <i class="fa-solid fa-folder-plus"></i>
-                    <span>Tambah Kategori Pengetahuan</span>
-                </a>
+                    {{-- Kartu Aksi --}}
+                    <div class="flex flex-col gap-3 mt-6 mb-2">
+                        <a href="{{ route('kasubbidang.berbagipengetahuan.create') }}"
+                            class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Tambah Artikel</span>
+                        </a>
+                        <a href="{{ route('kasubbidang.kategoripengetahuan.create') }}"
+                            class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base">
+                            <i class="fa-solid fa-folder-plus"></i>
+                            <span>Tambah Kategori Pengetahuan</span>
+                        </a>
+                    </div>
 
-                {{-- Kartu Kategori --}}
-                <div class="bg-white rounded-2xl shadow-lg p-7">
-                    <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Kategori Pengetahuan</h3>
-                    <ul class="space-y-2">
-                        @foreach ($kategoriPengetahuans as $kat)
-                        <li class="flex items-center justify-between group">
-                            <span class="text-sm text-gray-700">{{ $kat->nama_kategoripengetahuan }}</span>
-                            <span class="flex gap-1 opacity-70 group-hover:opacity-100 transition">
-                                <a href="{{ route('kasubbidang.kategoripengetahuan.edit', $kat->id) }}"
-                                    class="inline-flex items-center justify-center w-7 h-7 rounded hover:bg-blue-100 text-blue-600"
-                                    title="Edit Kategori">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                                <form action="{{ route('kasubbidang.kategoripengetahuan.destroy', $kat->id) }}"
-                                    method="POST" onsubmit="return confirm('Yakin ingin menghapus kategori ini?')"
-                                    class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
+                    {{-- Kartu Kategori --}}
+                    <div class="bg-white rounded-2xl shadow-lg p-7 mt-4">
+                        <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Kategori Pengetahuan</h3>
+                        <ul class="space-y-2">
+                            @foreach ($kategoriPengetahuans as $kat)
+                            <li class="flex items-center justify-between group">
+                                <span class="text-sm text-gray-700">{{ $kat->nama_kategoripengetahuan }}</span>
+                                <span class="flex gap-1 opacity-70 group-hover:opacity-100 transition">
+                                    <a href="{{ route('kasubbidang.kategoripengetahuan.edit', $kat->id) }}"
+                                        class="inline-flex items-center justify-center w-7 h-7 rounded hover:bg-blue-100 text-blue-600"
+                                        title="Edit Kategori">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    {{-- Trigger Modal Delete --}}
+                                    <button type="button"
+                                        @click="showDeleteModal=true; deleteAction='{{ route('kasubbidang.kategoripengetahuan.destroy', $kat->id) }}'; deleteName='{{ $kat->nama_kategoripengetahuan }}';"
                                         class="inline-flex items-center justify-center w-7 h-7 rounded hover:bg-red-100 text-red-600"
                                         title="Hapus Kategori">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
-                                </form>
-                            </span>
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
+                                </span>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
 
+                    {{-- Modal Hapus Kategori --}}
+                    <div x-show="showDeleteModal"
+                        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+                        style="display: none">
+                        <div
+                            class="bg-white rounded-2xl shadow-xl max-w-xs w-full mx-2 p-6 text-center animate-fade-in">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 mb-2" fill="none" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="22" fill="#fffbe6" stroke="#ffb800" stroke-width="3" />
+                                    <path d="M24 14v12m0 6h.01" stroke="#ffb800" stroke-width="3"
+                                        stroke-linecap="round" />
+                                </svg>
+                                <h2 class="font-bold text-lg text-gray-900 mb-1">Apakah Anda Yakin</h2>
+                                <p class="text-gray-600 text-sm mb-6">data <span class="font-semibold"
+                                        x-text="deleteName"></span> akan dihapus</p>
+                            </div>
+                            <form :action="deleteAction" method="POST" class="flex gap-2 justify-center">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="bg-[#a44d3a] hover:bg-[#943b2b] text-white px-6 py-2 rounded-lg font-semibold w-1/2">
+                                    Hapus
+                                </button>
+                                <button type="button" @click="showDeleteModal=false"
+                                    class="bg-[#3971a6] hover:bg-[#295985] text-white px-6 py-2 rounded-lg font-semibold w-1/2">
+                                    Batalkan
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <style>
+                    @keyframes fade-in {
+                        from {
+                            opacity: 0;
+                            transform: scale(0.98);
+                        }
+
+                        to {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                    }
+
+                    .animate-fade-in {
+                        animation: fade-in 0.20s cubic-bezier(0.4, 0, 0.2, 1) both;
+                    }
+                    </style>
+                </div>
             </aside>
         </div>
     </div>

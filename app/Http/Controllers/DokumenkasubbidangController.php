@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Spatie\PdfToImage\Pdf;
 use App\Models\Dokumen;
 use App\Models\KategoriDokumen;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 
@@ -63,7 +65,28 @@ class DokumenkasubbidangController extends Controller
         }
 
         if ($request->hasFile('path_dokumen')) {
+            $file = $request->file('path_dokumen');
             $validated['path_dokumen'] = $request->file('path_dokumen')->store('dokumen', 'public');
+            $extension = strtolower($request->file('path_dokumen')->getClientOriginalExtension());
+            $thumbnailPath = null;
+
+            if (in_array($extension, ['jpg','jpeg','png','webp','bmp','gif'])) {
+                // Untuk gambar, copy saja jadi thumbnail
+                $thumbnailPath = 'dokumen/thumbnails/' . uniqid() . '.' . $extension;
+                Storage::disk('public')->copy($validated['path_dokumen'], $thumbnailPath);
+            } elseif ($extension === 'pdf') {
+                try {
+                    $pdf = new \Spatie\PdfToImage\Pdf(storage_path('app/public/' . $validated['path_dokumen']));
+                    $thumbnailName = uniqid() . '.jpg';
+                    $thumbDir = storage_path('app/public/dokumen/thumbnails');
+                    if (!file_exists($thumbDir)) mkdir($thumbDir, 0777, true);
+                    $thumbnailPath = 'dokumen/thumbnails/' . $thumbnailName;
+                } catch (\Exception $e) {
+                    $thumbnailPath = null;
+                }
+            }
+            
+            $validated['thumbnail'] = $thumbnailPath;                                                                                                                                                                                                                                                
         } else {
             return back()->withErrors(['path_dokumen' => 'File dokumen wajib diunggah.']);
         }
@@ -73,7 +96,7 @@ class DokumenkasubbidangController extends Controller
         Dokumen::create($validated);
 
         return redirect()->route('kasubbidang.manajemendokumen.index')
-                         ->with('success', 'Dokumen berhasil ditambahkan.');
+             ->with('success', 'Dokumen berhasil ditambahkan.');
     }
 
     public function show(Request $request, $id)

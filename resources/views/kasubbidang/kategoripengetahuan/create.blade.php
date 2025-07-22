@@ -1,33 +1,59 @@
 <x-app-layout>
-
-     
-    <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-            <h1 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+    {{-- Overlay Modal Style --}}
+    <div class="fixed inset-0 z-40 bg-black/10 backdrop-blur-sm flex items-center justify-center min-h-screen">
+        {{-- Modal/Card --}}
+        <div class="relative bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md flex flex-col items-center border border-gray-200 animate-fade-in">
+            {{-- Icon Folder Plus --}}
+            <img src="{{ asset('assets/img/folder-blue.png') }}" alt="Plus Icon" class="w-20 h-20 mb-3 drop-shadow" />
+            {{-- Judul --}}
+            <h1 class="text-xl font-bold text-center mb-6 text-gray-800">
                 Tambah Kategori Pengetahuan
             </h1>
-
-            <form action="{{ route('kasubbidang.kategoripengetahuan.store') }}" method="POST">
+            {{-- Form --}}
+            <form action="{{ route('kasubbidang.kategoripengetahuan.store') }}" method="POST" class="w-full space-y-5">
                 @csrf
+                <input
+                    type="text"
+                    name="nama_kategoripengetahuan"
+                    placeholder="Masukkan Kategori"
+                    value="{{ old('nama_kategoripengetahuan') }}"
+                    required autofocus
+                    class="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow transition placeholder-gray-400 text-base"
+                >
+                @error('nama_kategoripengetahuan')
+                    <div class="text-red-500 text-sm">{{ $message }}</div>
+                @enderror
 
-                <div class="mb-4">
-                    <x-input-label for="nama_kategoripengetahuan" :value="'Nama Kategori'" />
-                    <x-text-input id="nama_kategoripengetahuan" class="block mt-1 w-full" type="text" name="nama_kategoripengetahuan" value="{{ old('nama_kategoripengetahuan') }}" required autofocus />
-                    <x-input-error :messages="$errors->get('nama_kategoripengetahuan')" class="mt-2" />
-                </div>
+                <textarea
+                    name="deskripsi"
+                    placeholder="Deskripsi kategori (opsional)"
+                    rows="2"
+                    class="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow transition placeholder-gray-400 text-base"
+                >{{ old('deskripsi') }}</textarea>
+                @error('deskripsi')
+                    <div class="text-red-500 text-sm">{{ $message }}</div>
+                @enderror
 
-                <div class="mb-4">
-                    <x-input-label for="deskripsi" :value="'Deskripsi'" />
-                    <textarea name="deskripsi" id="deskripsi" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600">{{ old('deskripsi') }}</textarea>
-                    <x-input-error :messages="$errors->get('deskripsi')" class="mt-2" />
-                </div>
-
-                <div class="flex justify-end">
-                    <x-primary-button>
+                <div class="flex justify-end pt-2">
+                    <button
+                        type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-2 rounded-xl shadow transition"
+                    >
                         Simpan
-                    </x-primary-button>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+
+    {{-- Tambahan animasi modal sederhana --}}
+    <style>
+        @keyframes fade-in {
+            from { opacity: 0; transform: scale(0.95);}
+            to { opacity: 1; transform: scale(1);}
+        }
+        .animate-fade-in {
+            animation: fade-in 0.25s cubic-bezier(0.4,0,0.2,1) both;
+        }
+    </style>
 </x-app-layout>

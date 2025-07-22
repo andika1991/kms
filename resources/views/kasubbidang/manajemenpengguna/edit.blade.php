@@ -1,66 +1,97 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Edit Pengguna
-        </h2>
-    </x-slot>
+@php
+use Carbon\Carbon;
+$carbon = Carbon::now()->locale('id');
+$carbon->settings(['formatFunction' => 'translatedFormat']);
+$tanggal = $carbon->format('l, d F Y');
+@endphp
 
-    <div class="py-6 max-w-3xl mx-auto sm:px-6 lg:px-8">
-        {{-- Flash Message --}}
-        @if(session('success'))
-            <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
+@section('title', 'Edit Manajemen Pengguna')
+
+<x-app-layout>
+    <div class="w-full min-h-screen bg-[#eaf5ff] flex flex-col">
+        <!-- HEADER -->
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Edit Pengguna Kasubbidang</h2>
+                    <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLASH MESSAGES -->
+        <div class="max-w-2xl mx-auto w-full mt-4 px-4">
+            @if(session('success'))
+            <div class="rounded-xl bg-green-100 border border-green-400 text-green-800 p-4 text-center text-sm font-semibold shadow mb-4">
                 {{ session('success') }}
             </div>
-        @endif
-
-        @if($errors->any())
-            <div class="mb-4 p-4 bg-red-100 text-red-800 rounded">
-                <ul class="list-disc list-inside">
+            @endif
+            @if($errors->any())
+            <div class="rounded-xl bg-red-100 border border-red-400 text-red-800 p-4 text-center text-sm font-semibold shadow mb-4">
+                <ul class="list-disc list-inside text-left">
                     @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+                    <li>{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
-        @endif
+            @endif
+        </div>
 
-        <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
-            <form action="{{ route('kasubbidang.manajemenpengguna.update', $pengguna->id) }}" method="POST">
+        <!-- FORM CONTENT -->
+        <div class="w-full px-2 md:px-10 py-10">
+            <form action="{{ route('kasubbidang.manajemenpengguna.update', $pengguna->id) }}" method="POST" autocomplete="off"
+                  class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-5xl mx-auto flex flex-col gap-6">
                 @csrf
                 @method('PUT')
-
-                <div class="mb-4">
-                    <label for="name" class="block text-gray-700 dark:text-gray-200 mb-1 font-semibold">Nama</label>
-                    <input type="text" name="name" id="name" value="{{ old('name', $pengguna->name) }}"
-                           class="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-gray-200"
-                           required>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Nama -->
+                    <div class="flex flex-col gap-2">
+                        <label for="name" class="font-semibold text-gray-800">Nama</label>
+                        <input type="text" name="name" id="name" value="{{ old('name', $pengguna->name) }}"
+                            class="rounded-xl border border-gray-300 px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-500 transition"
+                            required>
+                    </div>
+                    <!-- Email -->
+                    <div class="flex flex-col gap-2">
+                        <label for="email" class="font-semibold text-gray-800">Email</label>
+                        <input type="email" name="email" id="email" value="{{ old('email', $pengguna->email) }}"
+                            class="rounded-xl border border-gray-300 px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-500 transition"
+                            required>
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700 dark:text-gray-200 mb-1 font-semibold">Email</label>
-                    <input type="email" name="email" id="email" value="{{ old('email', $pengguna->email) }}"
-                           class="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-gray-200"
-                           required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="password" class="block text-gray-700 dark:text-gray-200 mb-1 font-semibold">
-                        Password <small class="text-gray-500">(Kosongkan jika tidak ingin diubah Kata Sandinya)</small>
+                <!-- Password -->
+                <div class="flex flex-col gap-2 md:w-2/3">
+                    <label for="password" class="font-semibold text-gray-800">
+                        Password <span class="text-gray-500 text-xs font-normal">(Kosongkan jika tidak ingin diubah)</span>
                     </label>
                     <input type="password" name="password" id="password"
-                           class="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-gray-200"
-                           placeholder="Masukkan password baru jika ingin mengganti">
+                        class="rounded-xl border border-gray-300 px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-500 transition"
+                        placeholder="Masukkan password baru jika ingin mengganti">
                 </div>
 
-                <div class="flex justify-end gap-2">
+                <!-- Tombol Aksi -->
+                <div class="flex flex-col md:flex-row md:justify-end gap-3 pt-4">
                     <a href="{{ route('kasubbidang.manajemenpengguna.index') }}"
-                       class="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500">
+                        class="px-6 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold transition text-base text-center">
                         Batal
                     </a>
-                    <button type="submit" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white">
+                    <button type="submit"
+                        class="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition text-base text-center">
                         Simpan Perubahan
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- FOOTER -->
+    <x-slot name="footer">
+        <footer class="bg-[#2b6cb0] py-4 mt-8">
+            <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
+                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
+                    class="h-10 object-contain">
+            </div>
+        </footer>
+    </x-slot>
 </x-app-layout>

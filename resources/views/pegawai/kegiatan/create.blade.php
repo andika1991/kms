@@ -5,6 +5,8 @@
     $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'Tambah Kegiatan Pegawai')
+
 <x-app-layout>
     {{-- HEADER --}}
     <div class="p-6 md:p-8 border-b border-gray-200 bg-white">

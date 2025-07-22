@@ -19,6 +19,7 @@ class Dokumen extends Model
         'id',
         'nama_dokumen',
         'path_dokumen',
+        'thumbnail',
         'encrypted_key',
         'deskripsi',
         'kategori_dokumen_id',
