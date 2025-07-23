@@ -268,20 +268,6 @@ $tanggal = $carbon->format('l, d F Y');
 
         <script>
         function openEditKategoriModal(id) {
-            fetch(`/sekretaris/kategori-dokumen/${id}/edit`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('edit_nama_kategori').value = data.nama_kategoridokumen;
-                    const form = document.getElementById('editKategoriForm');
-                    form.action = `/sekretaris/kategori-dokumen/${id}`;
-                    document.getElementById('editKategoriModal').classList.remove('hidden');
-                })
-                .catch(error => {
-                    alert('Gagal mengambil data kategori.');
-                    console.error(error);
-                });
-        }
-
         function showKeyModal(button) {
             const id = button.dataset.id;
             const nama = button.dataset.nama;
