@@ -244,7 +244,7 @@
             .then(data => {
                 document.getElementById('edit_nama_kategori').value = data.nama_kategoridokumen;
                 const form = document.getElementById('editKategoriForm');
-                form.action = `/kasubbidang/kategori-dokumen/${id}`;
+                form.action = `/sekretaris/kategori-dokumen/${id}`;
                 document.getElementById('editKategoriModal').classList.remove('hidden');
             })
             .catch(error => {

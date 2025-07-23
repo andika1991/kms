@@ -162,20 +162,22 @@ Route::get('/registers', [RegisterController::class, 'showRegistrationForm'])->m
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/subbidang/{bidang_id}', [HomeController::class, 'getSubbidang']);
 Route::get('/artikel/subbidang/{subbidang_id}', [HomeController::class, 'getArtikelBySubbidang']);
+Route::get('/artikel/bidang/{bidang_id}', [HomeController::class, 'getArtikelByBidang']);
+Route::get('/artikel/{slug}', [HomeController::class, 'showArtikelBySlug'])->name('artikel.show');
 Route::get('/about', function () {
     return view('about');
 })->name('about');
 
 // Route untuk Halaman Pengetahuan
-Route::get('/pengetahuan', function () {
-    return view('pengetahuan'); 
-})->name('pengetahuan');
+Route::get('/pengetahuan', [HomeController::class, 'pengetahuan'])->name('pengetahuan');
+Route::get('/pengetahuan/search', [HomeController::class, 'search'])->name('artikel.search');
 
 // Route untuk Halaman Dokumen
 Route::get('/dokumen', function () { 
     return view('dokumen');
 })->name('dokumen');
 
+Route::get('/dokumen', [HomeController::class, 'dokumen'])->name('dokumen');
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

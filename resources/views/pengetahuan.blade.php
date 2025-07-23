@@ -1,286 +1,164 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('home.app')
+@section('title', 'Pengetahuan Knowledge Management System')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pengetahuan - KMS Diskominfo Lampung</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600,700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+@section('content')
+<section class="py-6">
+    <div class="max-w-[1100px] mx-auto px-6">
+        <div class="bg-[#2b6cb0] shadow-lg rounded-lg flex flex-col md:flex-row items-center justify-between py-2 px-4">
+            <h1 class="text-white text-lg font-bold py-2 px-4">Pengetahuan</h1>
 
-<body class="font-figtree bg-gray-100" style="background-image: url('{{ asset('img/body-bg-pattern.png') }}');">
-    {{-- HEADER --}}
-    <header class="bg-white shadow-md sticky top-0 z-20">
-        <div class="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-3">
-            <a href="/">
-                <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" alt="KMS DISKOMINFOTIK" class="h-9">
-            </a>
+            <!-- FORM PENCARIAN -->
+            <form action="{{ route('artikel.search') }}" method="GET" class="relative w-full md:w-1/2 mx-auto mb-4" id="searchForm">
+                <input name="q" id="searchArtikel" type="text" placeholder="Cari Pengetahuan"
+                    class="w-full bg-transparent placeholder-white text-white border-b-2 border-white py-2 pl-2 pr-10 outline-none focus:border-white transition" autocomplete="off" />
 
-            <nav class="hidden md:flex items-center gap-8">
-                <a href="{{ route('home') }}"
-                    class="{{ request()->routeIs('home') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
-                    Beranda
-                </a>
-                <a href="{{ route('about') }}"
-                    class="{{ request()->routeIs('about') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
-                    Tentang Kami
-                </a>
-                <a href="{{ route('pengetahuan') }}"
-                    class="{{ request()->routeIs('pengetahuan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
-                    Pengetahuan
-                </a>
-                <a href="{{ route('dokumen') }}"
-                    class="{{ request()->routeIs('dokumen') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
-                    Dokumen
-                </a>
-            </nav>
-
-
-            {{-- Logika untuk Tombol Login & Dashboard --}}
-            <div class="flex items-center">
-                @auth
-                {{-- Jika pengguna sudah login --}}
-                <div x-data="{ open: false }" class="relative">
-                    <button @click="open = !open"
-                        class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-200 transition">
-                        <span>{{ Auth::user()->name }}</span>
-                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-
-                    {{-- Menu Dropdown disesuaikan dengan role_group --}}
-                    <div x-show="open" @click.away="open = false"
-                        class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
-                        style="display: none;">
-                        <div class="py-1">
-                            @php
-                            $dashboardRoute = '#';
-
-                            switch(Auth::user()->role->role_group) {
-                            case 'admin':
-                            $dashboardRoute = route('admin.dashboard');
-                            break;
-                            case 'kepalabagian':
-                            $dashboardRoute = route('kepalabagian.dashboard');
-                            break;
-                            case 'pegawai':
-                            $dashboardRoute = route('pegawai.dashboard');
-                            break;
-                            case 'magang':
-                            $dashboardRoute = route('magang.dashboard');
-                            break;
-                            case 'kasubbidang':
-                            $dashboardRoute = route('kasubbidang.dashboard');
-                            break;
-                            case 'sekretaris':
-                            $dashboardRoute = route('sekretaris.dashboard');
-                            break;
-                            case 'Kadis':
-                            $dashboardRoute = route('kadis.dashboard');
-                            break;
-                            default:
-                            $dashboardRoute = route('home');
-                            break;
-                            }
-                            @endphp
-
-                            <a href="{{ $dashboardRoute }}"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Dashboard
-                            </a>
-
-                            <a href="{{ route('profile.edit') }}"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Profile
-                            </a>
-
-                            <div class="border-t border-gray-100"></div>
-
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit"
-                                    class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    Log Out
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                @else
-                {{-- Jika pengguna belum login --}}
-                <a href="{{ route('login') }}"
-                    class="bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg shadow hover:bg-blue-800 transition">
-                    Masuk
-                </a>
-                @endauth
-            </div>
+                <button type="submit"
+                    class="absolute right-2 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-200 transition" aria-label="Search">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                </button>
+            </form>
         </div>
-    </header>
+    </div>
+</section>
 
-    {{-- TITLE & SEARCH BAR SECTION --}}
-    <section class="py-6">
-        <div class="max-w-[1100px] mx-auto px-6">
-            <div
-                class="bg-[#2b6cb0] shadow-lg rounded-lg flex flex-col md:flex-row items-center justify-between py-2 px-4">
-                <h1 class="text-white text-lg font-bold py-2 px-4">Pengetahuan</h1>
-                <div class="relative w-full md:w-auto">
-                    <input type="text" placeholder="Cari Pengetahuan"
-                        class="bg-transparent placeholder-white text-white border-b-2 border-white py-2 pl-2 pr-8 outline-none focus:border-white transition">
-                    <button
-                        class="absolute right-0 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-200 transition">
-                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
+<main class="max-w-[1100px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 py-10">
+    {{-- Sidebar Bidang --}}
+    <aside class="lg:col-span-1 bg-white shadow-xl rounded-2xl p-6 h-fit">
+        <h3 class="font-bold text-lg mb-6 text-gray-800 border-b pb-3">Bidang</h3>
+        <ul class="flex flex-col gap-5" id="listBidang">
+            @foreach ($bidangs as $bidang)
+            <li class="bidang-item flex items-center gap-4 cursor-pointer group p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                data-id="{{ $bidang->id }}">
+                <span
+                    class="bg-[#F49A24] flex items-center justify-center rounded-full w-10 h-10 shadow transition-transform group-hover:scale-110">
+                    <i class="fas fa-layer-group text-white text-lg"></i>
+                </span>
+                <span class="font-medium text-base text-gray-700 group-hover:text-blue-700">
+                    {{ $bidang->nama }}
+                </span>
+            </li>
+            @endforeach
+        </ul>
+    </aside>
+
+    {{-- Artikel Section --}}
+    <section class="lg:col-span-2 bg-white shadow-xl rounded-2xl p-6" id="artikelContainer">
+        <h3 class="font-bold text-lg mb-4 text-gray-800 border-b pb-3">Artikel</h3>
+
+        <div id="subbidangWrapperKanan" class="mb-4 hidden">
+            <h4 class="font-semibold text-gray-700 mb-2">Subbidang</h4>
+            <div id="listSubbidangKanan" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div id="listArtikel" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <p class="text-gray-500 col-span-full">Silakan pilih bidang atau cari untuk melihat artikel.</p>
         </div>
     </section>
+</main>
+@endsection
 
-    {{-- MAIN CONTENT --}}
-    <main class="max-w-[1100px] mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8 px-6 py-10">
-        {{-- Sidebar Bidang --}}
-        <aside class="lg:col-span-1 bg-white shadow-lg rounded-2xl p-6 h-fit">
-            <h3 class="font-bold text-lg mb-6 text-gray-800">Bidang</h3>
-            <ul class="flex flex-col gap-5">
-                @php
-                $bidangs = [
-                ['nama' => 'Sekretariat', 'icon' => 'fa-building-user'],
-                ['nama' => 'PLIP', 'icon' => 'fa-landmark'],
-                ['nama' => 'PKP', 'icon' => 'fa-people-group'],
-                ['nama' => 'TIK', 'icon' => 'fa-laptop-code'],
-                ['nama' => 'SanStik', 'icon' => 'fa-chart-simple']
-                ];
-                @endphp
-                @foreach ($bidangs as $bidang)
-                <li class="flex items-center gap-4 cursor-pointer group">
-                    <span
-                        class="bg-[#F49A24] flex items-center justify-center rounded-full w-10 h-10 shadow transition-transform group-hover:scale-110">
-                        {{-- Menggunakan Font Awesome untuk ikon --}}
-                        <i class="fas {{ $bidang['icon'] }} text-white text-lg"></i>
-                    </span>
-                    <span
-                        class="font-medium text-base text-gray-700 group-hover:text-blue-700">{{ $bidang['nama'] }}</span>
-                </li>
-                @endforeach
-            </ul>
-        </aside>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const listArtikel = document.getElementById('listArtikel');
+    const searchInput = document.getElementById('searchArtikel');
+    const listBidang = document.querySelectorAll('.bidang-item');
+    const listSubbidangKanan = document.getElementById('listSubbidangKanan');
+    const subbidangWrapperKanan = document.getElementById('subbidangWrapperKanan');
 
-        {{-- Grid Pengetahuan --}}
-        <section class="lg:col-span-3">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @php
-                $pengetahuan = [
-                ['img' => 'assets/img/pengetahuan_1.png', 'title' => 'Matriks Renstra Dinas Kominfotik Provinsi Lampung
-                Tahun 2015-2019'],
-                ['img' => 'assets/img/pengetahuan_2.png', 'title' => 'PK Dinas Kominfotik Provinsi Lampung Tahun 2017
-                Download'],
-                ['img' => 'assets/img/pengetahuan_3.png', 'title' => 'Matriks Renstra Dinas Kominfotik Provinsi Lampung
-                Tahun 2015-2019'],
-                ['img' => 'assets/img/pengetahuan_4.png', 'title' => 'PK Dinas Kominfotik Provinsi Lampung Tahun 2017
-                Download']
-                ];
-                @endphp
-                @foreach ($pengetahuan as $item)
-                <div
-                    class="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col group shadow hover:shadow-lg transition-shadow">
-                    <img src="{{ asset($item['img']) }}" class="w-full h-44 object-cover" alt="Foto Pengetahuan">
-                    <div class="p-5 flex flex-col flex-grow">
-                        <h3 class="font-semibold text-base leading-tight text-gray-800 flex-grow">{{ $item['title'] }}
-                        </h3>
-                        <a href="#"
-                            class="text-blue-700 text-sm font-semibold mt-4 self-start group-hover:underline">Download</a>
-                    </div>
-                </div>
-                @endforeach
-            </div>
+    let searchTimeout = null;
 
-            {{-- Pagination --}}
-            <nav class="flex items-center justify-center gap-2 mt-10">
-                <a href="#"
-                    class="flex items-center justify-center w-9 h-9 rounded-full text-gray-500 hover:bg-gray-200"><i
-                        class="fas fa-chevron-left"></i></a>
-                <a href="#"
-                    class="flex items-center justify-center w-9 h-9 rounded-full bg-blue-700 text-white font-bold">1</a>
-                <a href="#"
-                    class="flex items-center justify-center w-9 h-9 rounded-full text-gray-700 hover:bg-gray-200">2</a>
-                <a href="#"
-                    class="flex items-center justify-center w-9 h-9 rounded-full text-gray-700 hover:bg-gray-200">3</a>
-                <span class="text-gray-500">...</span>
-                <a href="#"
-                    class="flex items-center justify-center w-9 h-9 rounded-full text-gray-700 hover:bg-gray-200">20</a>
-                <a href="#"
-                    class="flex items-center justify-center w-9 h-9 rounded-full text-gray-500 hover:bg-gray-200"><i
-                        class="fas fa-chevron-right"></i></a>
-            </nav>
-        </section>
-    </main>
+    function renderArtikels(data) {
+        listArtikel.innerHTML = '';
 
-    {{-- FOOTER --}}
-    <footer class="bg-[#0B3C6A] text-white pt-12 pb-10 mt-8">
-        <div class="max-w-[1200px] mx-auto px-6 flex flex-col items-center">
+        if (!Array.isArray(data) || data.length === 0) {
+            listArtikel.innerHTML = '<p class="text-gray-500 col-span-full">Maaf, artikel tidak ditemukan.</p>';
+            return;
+        }
 
-            {{-- Logo Tengah Atas --}}
-            <div class="mb-8">
-                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Logo Diskominfo Footer"
-                    class="h-16">
-            </div>
+        data.forEach(artikel => {
+            const card = document.createElement('div');
+            card.className = 'border rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col';
+            card.innerHTML = `
+                <img src="/storage/${artikel.thumbnail}" class="w-full h-44 object-cover" alt="${artikel.judul}">
+                <div class="p-4 flex flex-col flex-grow">
+                    <h4 class="font-semibold text-base text-gray-800 mb-1">${artikel.judul}</h4>
+                    <p class="text-sm text-gray-500 mb-2">Oleh: ${artikel.pengguna?.name || '-'}</p>
+                    <p class="text-gray-700 text-sm flex-grow">${artikel.isi.substring(0, 100)}...</p>
+                    <a href="/artikel/${artikel.slug}" class="mt-3 text-blue-600 text-sm hover:underline font-semibold">Baca Selengkapnya</a>
+                </div>`;
+            listArtikel.appendChild(card);
+        });
+    }
 
-            {{-- Konten Tiga Kolom --}}
-            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+    // Event listener untuk pencarian live
 
-                {{-- Informasi Kontak --}}
-                <div class="space-y-2 text-sm text-white/80 leading-relaxed">
-                    <p class="font-bold text-white text-base">Dinas Komunikasi, Informatika dan Statistik Provinsi
-                        Lampung</p>
-                    <p>Alamat : Jl. WR Monginsidi No.69 Bandar Lampung</p>
-                    <p>Telepon : (0721) 481107</p>
-                    <p>Facebook : www.facebook.com/diskominfo.lpg</p>
-                    <p>Instagram : www.instagram.com/diskominfotiklampung</p>
-                </div>
 
-                {{-- Menu Navigasi --}}
-                <div class="md:mx-auto">
-                    <h4 class="font-bold text-white text-base mb-4">Menu</h4>
-                    <ul class="space-y-2 text-sm text-white/80">
-                        <li><a href="/" class="hover:underline hover:text-white">Home</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Tentang Kami</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Kegiatan</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Dokumen</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Kontak</a></li>
-                    </ul>
-                </div>
+    // Event listener untuk klik bidang
+    listBidang.forEach(item => {
+        item.addEventListener('click', function () {
+            const bidangId = this.dataset.id;
+            searchInput.value = '';
 
-                {{-- Media Sosial --}}
-                <div class="md:ml-auto md:text-right">
-                    <h4 class="font-bold text-white text-base mb-4">Ikuti Kami</h4>
-                    <div class="flex items-center justify-center md:justify-end gap-3">
-                        {{-- Menggunakan Font Awesome untuk ikon yang lebih user-friendly --}}
-                        <a href="#"
-                            class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-                            <i class="fab fa-facebook-f text-white"></i>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-                            <i class="fab fa-instagram text-white"></i>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-                            <i class="fab fa-youtube text-white"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
+            listArtikel.innerHTML = '<p class="text-gray-500 col-span-full">Memuat artikel...</p>';
+            listSubbidangKanan.innerHTML = '';
+            subbidangWrapperKanan.classList.add('hidden');
 
-</body>
+            fetch(`/artikel/bidang/${bidangId}`)
+                .then(res => res.json())
+                .then(data => renderArtikels(data))
+                .catch(() => {
+                    listArtikel.innerHTML = '<p class="text-red-500 col-span-full">Gagal memuat artikel bidang.</p>';
+                });
 
-</html>
+            fetch(`/subbidang/${bidangId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        subbidangWrapperKanan.classList.remove('hidden');
+                        listSubbidangKanan.innerHTML = '';
+                        data.forEach(sub => {
+                            const btn = document.createElement('button');
+                            btn.className = 'px-4 py-2 bg-blue-100 hover:bg-blue-200 text-sm rounded shadow text-blue-700';
+                            btn.textContent = sub.nama;
+                            btn.dataset.id = sub.id;
+
+                            btn.addEventListener('click', function () {
+                                listArtikel.innerHTML = '<p class="text-gray-500 col-span-full">Memuat artikel...</p>';
+                                fetch(`/artikel/subbidang/${sub.id}`)
+                                    .then(res => res.json())
+                                    .then(data => renderArtikels(data))
+                                    .catch(() => {
+                                        listArtikel.innerHTML = '<p class="text-red-500 col-span-full">Gagal memuat artikel subbidang.</p>';
+                                    });
+                            });
+
+                            listSubbidangKanan.appendChild(btn);
+                        });
+                    } else {
+                        subbidangWrapperKanan.classList.add('hidden');
+                    }
+                })
+                .catch(() => {
+                    subbidangWrapperKanan.classList.add('hidden');
+                });
+        });
+    });
+
+    // Tangani submit form search agar navigasi ke halaman pencarian dengan query
+    const searchForm = document.getElementById('searchForm');
+    searchForm.addEventListener('submit', function (e) {
+        const query = searchInput.value.trim();
+        if (query.length < 2) {
+            e.preventDefault();
+            alert('Masukkan minimal 2 huruf untuk mencari artikel.');
+        }
+        // Jika valid, submit form akan langsung navigasi ke /pengetahuan/search?q=...
+    });
+});
+</script>
+@endpush
