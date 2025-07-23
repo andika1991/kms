@@ -136,4 +136,17 @@ class PengetahuansekretarisController extends Controller
             ->route('sekretaris.berbagipengetahuan.index')
             ->with('success', 'Artikel berhasil dihapus.');
     }
+
+    public function show($id)
+    {
+        $userId = auth()->id();
+
+        // Ambil artikel sesuai id dan user yang login (hanya artikel milik user)
+        $artikel = ArtikelPengetahuan::where('id', $id)
+            ->where('pengguna_id', $userId)
+            ->firstOrFail();
+
+        return view('sekretaris.berbagipengetahuan.show', compact('artikel'));
+    }
+
 }

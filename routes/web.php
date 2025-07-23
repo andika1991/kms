@@ -109,12 +109,12 @@ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 's
     ->name('grupchat.pesan.store');
     });
 
-        Route::prefix('sekretaris')
+Route::prefix('sekretaris')
     ->as('sekretaris.')
     ->middleware(['auth', 'role_group:sekretaris'])
     ->group(function () {
 Route::get('/', [DashboardController::class, 'sekretaris'])->name('dashboard');
- Route::resource('kategoripengetahuan', KategoriPengetahuankasekretarisController::class);
+Route::resource('kategoripengetahuan', KategoriPengetahuankasekretarisController::class);
 Route::resource('berbagipengetahuan', PengetahuansekretarisController::class);
 Route::resource('manajemendokumen', DokumensekretarisController::class);
  Route::resource('kegiatan', KegiatankasubidangController::class);
