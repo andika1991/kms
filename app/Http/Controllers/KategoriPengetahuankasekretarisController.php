@@ -3,94 +3,102 @@
 namespace App\Http\Controllers;
 
 use App\Models\KategoriPengetahuan;
+use App\Models\ArtikelPengetahuan;
 use Illuminate\Http\Request;
 
 class KategoriPengetahuankasekretarisController extends Controller
 {
     /**
-     * Tampilkan seluruh kategori pengetahuan tanpa filter bidang.
+     * Tampilkan seluruh kategori pengetahuan sekretaris.
+     * Hanya kategori yang tidak terkait bidang dan subbidang.
      */
-  public function index()
-{
+    public function index()
+    {
+        $artikels = ArtikelPengetahuan::latest()->get();
+        $kategoriPengetahuans = KategoriPengetahuan::all();
+        // Ambil kategori yang bidang_id & subbidang_id NULL (khusus sekretaris)
+        $kategori = KategoriPengetahuan::with(['bidang', 'subbidang'])
+            ->whereNull('bidang_id')
+            ->whereNull('subbidang_id')
+            ->latest()
+            ->get();
 
-    $kategori = KategoriPengetahuan::with(['bidang', 'subbidang'])
-        ->whereNull('bidang_id')
-        ->whereNull('subbidang_id')
-        ->latest()
-        ->get();
-
-
-
-
-
-
-   return view('sekretaris.kategoripengetahuan.index', [
-    'kategoriPengetahuans' => $kategori
-]);
-}
-
+        // Kirim data kategori ke view index
+        return view('sekretaris.kategoripengetahuan.index', compact('artikels', 'kategoriPengetahuans'));
+    }
 
     /**
      * Tampilkan form tambah kategori pengetahuan.
      */
     public function create()
     {
+        // Cukup kembalikan view create
         return view('sekretaris.kategoripengetahuan.create');
     }
 
     /**
-     * Simpan kategori pengetahuan baru.
+     * Simpan kategori pengetahuan baru dari form create.
      */
     public function store(Request $request)
     {
+        // Validasi data, hanya nama_kategoripengetahuan yang wajib
         $request->validate([
             'nama_kategoripengetahuan' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string'],
-            'bidang_id' => ['required', 'exists:bidang,id'],
-         
         ]);
 
+        // Simpan kategori baru ke database
         KategoriPengetahuan::create([
             'nama_kategoripengetahuan' => $request->nama_kategoripengetahuan,
             'deskripsi' => $request->deskripsi,
-            'bidang_id' => $request->bidang_id,
-
         ]);
 
-        return redirect()->route('sekretaris.kategoripengetahuan.index')->with('success', 'Kategori berhasil ditambahkan.');
+        // Redirect ke index dengan pesan sukses
+        return redirect()->route('sekretaris.berbagipengetahuan.index')
+            ->with('success', 'Kategori berhasil ditambahkan.');
     }
 
-   
+    /**
+     * Tampilkan form edit untuk kategori tertentu.
+     */
     public function edit(KategoriPengetahuan $kategoripengetahuan)
     {
+        // Kirim data kategori ke view edit
         return view('sekretaris.kategoripengetahuan.edit', compact('kategoripengetahuan'));
     }
 
-  
+    /**
+     * Update data kategori pengetahuan yang diedit.
+     */
     public function update(Request $request, KategoriPengetahuan $kategoripengetahuan)
     {
+        // Validasi data, sama seperti create
         $request->validate([
             'nama_kategoripengetahuan' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'bidang_id' => ['required', 'exists:bidang,id'],
-            'subbidang_id' => ['nullable', 'exists:subbidang,id'],
         ]);
 
+        // Update data kategori di database
         $kategoripengetahuan->update([
             'nama_kategoripengetahuan' => $request->nama_kategoripengetahuan,
             'deskripsi' => $request->deskripsi,
-            'bidang_id' => $request->bidang_id,
-            'subbidang_id' => $request->subbidang_id,
         ]);
 
-        return redirect()->route('sekretaris.kategoripengetahuan.index')->with('success', 'Kategori berhasil diperbarui.');
+        // Redirect ke index dengan pesan sukses
+        return redirect()->route('sekretaris.berbagipengetahuan.index')
+            ->with('success', 'Kategori berhasil diperbarui.');
     }
 
-
+    /**
+     * Hapus kategori pengetahuan.
+     */
     public function destroy(KategoriPengetahuan $kategoripengetahuan)
     {
+        // Hapus kategori dari database
         $kategoripengetahuan->delete();
 
-        return redirect()->route('sekretaris.kategoripengetahuan.index')->with('success', 'Kategori berhasil dihapus.');
+        // Redirect ke index dengan pesan sukses
+        return redirect()->route('sekretaris.berbagipengetahuan.index')
+            ->with('success', 'Kategori berhasil dihapus.');
     }
 }

@@ -8,30 +8,29 @@ $tanggal = $carbon->format('l, d F Y');
 @section('title', 'Artikel Pengetahuan Kasubbidang')
 
 @if(session('success'))
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                toast: true,
-                position: 'top',
-                icon: 'success',
-                title: '{{ session("success") }}',
-                showConfirmButton: false,
-                timer: 2200,
-                background: '#f0fff4',
-                customClass: {
-                    popup: 'rounded-xl shadow-xl mt-6 max-w-xs md:max-w-sm border border-green-300',
-                    title: 'font-bold text-base md:text-lg text-green-800',
-                    icon: 'text-green-500'
-                },
-                didOpen: (toast) => {
-                    toast.style.marginTop = window.innerWidth < 640 ? '0.75rem' : '2rem';
-                }
-            });
-        });
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        toast: true,
+        position: 'top',
+        icon: 'success',
+        title: '{{ session("success") }}',
+        showConfirmButton: false,
+        timer: 2200,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-xl mt-6 max-w-xs md:max-w-sm border border-green-300',
+            title: 'font-bold text-base md:text-lg text-green-800',
+            icon: 'text-green-500'
+        },
+        didOpen: (toast) => {
+            toast.style.marginTop = window.innerWidth < 640 ? '0.75rem' : '2rem';
+        }
+    });
+});
+</script>
 @endif
-
 
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff]">

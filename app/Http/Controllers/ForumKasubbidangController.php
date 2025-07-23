@@ -140,8 +140,21 @@ public function create()
             }
             return $message;
         });
+    
+    // AMBIL LIST SEMUA FORUM YANG BOLEH DIAKSES (misal: semua forum user tsb)
+    $user = auth()->user();
+    $forumList = GrupChat::where(function ($query) use ($user) {
+        $query->whereHas('users', function ($q) use ($user) {
+            $q->where('pengguna_id', $user->id);
+        });
+    })->orWhere(function ($query) use ($user) {
+        if ($user->role && $user->role->bidang_id) {
+            $query->where('is_private', false)
+                  ->where('bidang_id', $user->role->bidang_id);
+        }
+    })->orderBy('created_at', 'desc')->get();
 
-    return view('kasubbidang.forum.show', compact('grupChat', 'anggota', 'messages'));
+    return view('kasubbidang.forum.show', compact('grupChat', 'anggota', 'messages', 'forumList'));
 }
 
 public function edit($id)

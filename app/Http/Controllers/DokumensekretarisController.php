@@ -29,14 +29,14 @@ class DokumensekretarisController extends Controller
         return view('sekretaris.dokumen.index', compact('dokumen', 'kategori'));
     }
 
-public function create()
-{
-    $kategori = KategoriDokumen::where('bidang_id', 9)
-        ->whereNull('subbidang_id') // jika tetap ingin subbidang_id-nya null
+    public function create()
+    {
+        $kategori = KategoriDokumen::whereNull('bidang_id')
+        ->whereNull('subbidang_id')
         ->get();
 
-    return view('sekretaris.dokumen.create', compact('kategori'));
-}
+        return view('sekretaris.dokumen.create', compact('kategori'));
+    }
 
 
     public function store(Request $request)
@@ -100,10 +100,12 @@ public function create()
 
     public function edit(Dokumen $manajemendokuman)
     {
-    $kategori = KategoriDokumen::where('bidang_id', 9)
-        ->whereNull('subbidang_id') // jika tetap ingin subbidang_id-nya null
+        $kategori = KategoriDokumen::whereNull('bidang_id')
+        ->whereNull('subbidang_id')
         ->get();
+    
         return view('sekretaris.dokumen.edit', compact('manajemendokuman', 'kategori'));
+    
     }
 
     public function update(Request $request, $id)
