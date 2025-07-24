@@ -111,7 +111,7 @@
 
                 <!-- Form hapus foto (HARUS di luar form utama) -->
                 @foreach($kegiatan->fotokegiatan as $foto)
-                    <form id="delete-foto-{{ $foto->id }}" action="{{ route('magang.kegiatan.foto.delete', $foto->id) }}" method="POST" style="display:none;">
+                    <form id="delete-foto-{{ $foto->id }}" action="{{ route('pegawai.kegiatan.foto.delete', $foto->id) }}" method="POST" style="display:none;">
                         @csrf
                         @method('DELETE')
                     </form>

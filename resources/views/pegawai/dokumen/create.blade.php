@@ -30,7 +30,7 @@ $tanggal = $carbon->format('l, d F Y');
         {{-- Form Grid --}}
         <div class="px-4 md:px-8 grid grid-cols-1 xl:grid-cols-12 gap-8 mt-6">
             <form method="POST" action="{{ route('pegawai.manajemendokumen.store') }}" enctype="multipart/form-data"
-                class="bg-white rounded-2xl shadow-lg p-8 xl:col-span-8 flex flex-col gap-7">
+                class="bg-white rounded-2xl shadow-lg p-8 xl:col-span-8 flex flex-col gap-7" id="manajemen-dokumen-form">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
@@ -44,6 +44,7 @@ $tanggal = $carbon->format('l, d F Y');
                                 <input type="file" name="path_dokumen" id="path_dokumen" class="hidden" required>
                             </div>
                         </label>
+                        <p id="file-name" class="mt-2 text-sm text-gray-600"></p>
                         @error('path_dokumen')
                         <span class="text-red-500 text-xs mt-2">{{ $message }}</span>
                         @enderror
@@ -147,5 +148,18 @@ $tanggal = $carbon->format('l, d F Y');
         kategoriSelect.addEventListener('change', toggleKeyField);
         toggleKeyField();
     });
+    document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('path_dokumen');
+    const fileNameDisplay = document.getElementById('file-name');
+
+    fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            fileNameDisplay.textContent = `Nama file: ${file.name}`;
+        } else {
+            fileNameDisplay.textContent = '';
+        }
+    });
+});
     </script>
 </x-app-layout>

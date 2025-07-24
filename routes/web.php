@@ -83,6 +83,8 @@ Route::prefix('pegawai')
 Route::get('/', [DashboardController::class, 'pegawai'])->name('dashboard');
 Route::resource('berbagipengetahuan', PengetahuanpegawaiController::class);
 Route::resource('kegiatan', KegiatanpegawaiController::class);
+Route::delete('/pegawai/kegiatan/foto/{foto}', [FotoKegiatanController::class, 'destroy'])
+    ->name('kegiatan.foto.delete');
 Route::resource('manajemendokumen', DokumenpegawaiController::class);
 Route::resource('forum', ForumPegawaiController::class);
  Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
@@ -171,13 +173,26 @@ Route::get('/about', function () {
 // Route untuk Halaman Pengetahuan
 Route::get('/pengetahuan', [HomeController::class, 'pengetahuan'])->name('pengetahuan');
 Route::get('/pengetahuan/search', [HomeController::class, 'search'])->name('artikel.search');
-
-// Route untuk Halaman Dokumen
+Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
+Route::get('/kegiatan/bidang/{bidang_id}', [KegiatanController::class, 'getByBidang'])->name('kegiatan.byBidang');
+Route::get('/kegiatan/subbidang/{subbidang_id}', [KegiatanController::class, 'getBySubbidang'])->name('kegiatan.bySubbidang');
 Route::get('/dokumen', function () { 
     return view('dokumen');
 })->name('dokumen');
 
 Route::get('/dokumen', [HomeController::class, 'dokumen'])->name('dokumen');
+Route::get('/dokumen/bidang/{bidangId}', [HomeController::class, 'getDokumenByBidang']);
+Route::get('/dokumen/subbidang/{subbidangId}', [HomeController::class, 'getDokumenBySubbidang']);
+Route::get('/dokumen/search', [HomeController::class, 'searchDokumen'])->name('dokumen.search');
+Route::get('/dokumen/detail/{id}', [HomeController::class, 'showDokumenById'])->name('dokumen.show');
+
+
+// Route utama untuk daftar kegiatan
+Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
+Route::get('/kegiatan/bidang/{bidang_id}', [HomeController::class, 'getByBidang']);
+Route::get('/kegiatan/subbidang/{subbidang_id}', [HomeController::class, 'getBySubbidang']);
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

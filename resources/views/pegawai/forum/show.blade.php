@@ -36,7 +36,7 @@
                                     <span>{{ $message->pengguna?->name ?? 'User tidak ditemukan' }}</span>
                                     <span class="text-[10px] opacity-60">{{ $message->created_at->format('d M Y H:i') }}</span>
                                 </div>
-                                <div class="text-base break-words">{{ $message->message }}</div>
+                                <div class="text-base break-words">{{ $message->decrypted_message }}</div>
                                 @if($message->file)
                                     <div class="mt-2">
                                         <a href="{{ asset('storage/' . $message->file) }}"
