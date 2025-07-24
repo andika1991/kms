@@ -1,56 +1,143 @@
+@php
+    use Carbon\Carbon;
+    $carbon = Carbon::now()->locale('id');
+    $carbon->settings(['formatFunction' => 'translatedFormat']);
+    $tanggal = $carbon->format('l, d F Y');
+@endphp
+
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight">
-            Manajemen Agenda Pimpinan
-        </h2>
-    </x-slot>
-
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            @if(session('success'))
-                <div class="mb-4 text-green-600">{{ session('success') }}</div>
-            @endif
-
-            <div class="mb-4">
-                <a href="{{ route('sekretaris.agenda.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">+ Tambah Agenda</a>
-         
-           <a href="{{ route('sekretaris.all_users') }}" class="bg-green-500 text-white px-4 py-2 rounded">
-        Lihat Semua Pimpinan & Agenda Hari Ini
-    </a>
-            </div>
-
-            <div class="bg-white p-6 rounded shadow">
-                <table class="min-w-full border">
-                    <thead>
-                        <tr>
-                            <th class="border px-4 py-2">#</th>
-                            <th class="border px-4 py-2">Nama Agenda</th>
-                            <th class="border px-4 py-2">Tanggal</th>
-                            <th class="border px-4 py-2">Waktu</th>
-                            <th class="border px-4 py-2">Pimpinan</th>
-                            <th class="border px-4 py-2">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($agendas as $agenda)
-                            <tr>
-                                <td class="border px-4 py-2">{{ $loop->iteration }}</td>
-                                <td class="border px-4 py-2">{{ $agenda->nama_agenda }}</td>
-                                <td class="border px-4 py-2">{{ $agenda->date_agenda }}</td>
-                                <td class="border px-4 py-2">{{ $agenda->waktu_agenda }} - {{ $agenda->waktu_selesai }}</td>
-                                <td class="border px-4 py-2">{{ $agenda->pengguna->name ?? '-' }}({{ $agenda->pengguna->role->nama_role }})</td>
-                                <td class="border px-4 py-2">
-                                    <a href="{{ route('sekretaris.agenda.edit', $agenda->id) }}" class="text-blue-500">Edit</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                        @if($agendas->isEmpty())
-                            <tr><td colspan="6" class="text-center py-4">Belum ada agenda.</td></tr>
-                        @endif
-                    </tbody>
-                </table>
+    <div class="bg-[#eaf5ff] min-h-screen w-full flex flex-col">
+        <!-- HEADER -->
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Agenda</h2>
+                    <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
+                </div>
+                <div class="flex items-center gap-4 w-full sm:w-auto">
+                    <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                        <input type="text" placeholder="Cari Agenda..."
+                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i class="fa fa-search"></i>
+                        </span>
+                    </div>
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
+                            title="Profile">
+                            <i class="fa-solid fa-user"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
+                            style="display: none;">
+                            <div class="py-1">
+                                <a href="{{ route('profile.edit') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- BODY -->
+        <div class="flex flex-col lg:flex-row gap-8 px-4 md:px-12 pt-8 pb-10 flex-1 w-full max-w-7xl mx-auto">
+            <!-- TABEL AGENDA -->
+            <div class="flex-1 bg-white rounded-2xl shadow-xl p-0 flex flex-col min-h-[600px] overflow-x-auto">
+                <div class="px-6 pt-6 pb-3">
+                    <h3 class="text-lg sm:text-xl font-bold text-blue-700 mb-2">Daftar Agenda</h3>
+                </div>
+                <div class="px-4 pb-6">
+                    <table class="w-full text-base text-left rounded-xl overflow-hidden shadow border mt-2">
+                        <thead>
+                            <tr class="bg-[#2563a9] text-white text-base">
+                                <th class="px-6 py-4 font-semibold">Tanggal dan Waktu</th>
+                                <th class="px-6 py-4 font-semibold">Nama Agenda</th>
+                                <th class="px-6 py-4 font-semibold">Pimpinan</th>
+                                <th class="px-6 py-4 font-semibold text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($agendas as $agenda)
+                                <tr class="even:bg-[#f5f7fa] odd:bg-white">
+                                    <td class="px-6 py-4 align-top whitespace-nowrap">
+                                        {{ \Carbon\Carbon::parse($agenda->date_agenda)->translatedFormat('l, d F Y') }}<br>
+                                        <span class="text-sm text-gray-500">Pukul {{ $agenda->waktu_agenda }} - {{ $agenda->waktu_selesai }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 align-top">{{ $agenda->nama_agenda }}</td>
+                                    <td class="px-6 py-4 align-top">
+                                        {{ $agenda->pengguna->name ?? '-' }}<br>
+                                        <span class="text-sm text-gray-500">({{ $agenda->pengguna->role->nama_role ?? '-' }})</span>
+                                    </td>
+                                    <td class="px-6 py-4 align-top flex gap-2 justify-center">
+                                        <a href="{{ route('sekretaris.agenda.edit', $agenda->id) }}"
+                                            class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-white shadow transition"
+                                            title="Edit">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <form action="{{ route('sekretaris.agenda.destroy', $agenda->id) }}" method="POST"
+                                            onsubmit="return confirm('Yakin ingin menghapus agenda ini?')" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-red-500 hover:bg-red-600 text-white shadow transition"
+                                                title="Hapus">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-6 text-center text-gray-500">Belum ada agenda.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SIDEBAR KANAN -->
+            <aside class="w-full lg:w-80 flex flex-col gap-6 mt-8 lg:mt-0">
+                <!-- Kartu Role/Info -->
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
+                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
+                    <div>
+                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Sekretaris' }}</p>
+                    </div>
+                </div>
+                <!-- Tombol di bawah kartu role -->
+                <a href="{{ route('sekretaris.agenda.create') }}"
+                    class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                    <i class="fa-solid fa-plus"></i>
+                    Tambah Agenda
+                </a>
+                <a href="{{ route('sekretaris.all_users') }}"
+                    class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#2563a9] hover:bg-[#1e4776] text-white font-semibold shadow-sm transition text-base">
+                    <i class="fa-solid fa-users"></i>
+                    Lihat Semua Pimpinan & Agenda Hari Ini
+                </a>
+                <!-- Deskripsi Agenda -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        Manajemen Agenda mempermudah pegawai dalam melihat, menambah, dan mengelola jadwal kegiatan pimpinan secara terstruktur & mudah diakses.
+                    </p>
+                </div>
+            </aside>
+        </div>
     </div>
+
+    <x-slot name="footer">
+        <footer class="bg-[#2b6cb0] py-4 mt-8">
+            <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
+                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik" class="h-10 object-contain">
+            </div>
+        </footer>
+    </x-slot>
 </x-app-layout>

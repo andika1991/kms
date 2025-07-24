@@ -7,6 +7,49 @@ $tanggal = $carbon->format('l, d F Y');
 
 @section('title', 'Manajemen Dokumen Sekretaris')
 
+{{-- ALERT Sukses --}}
+@if (session('success'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'success',
+        title: '{{ session("success") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5',
+            title: 'font-bold text-base md:text-lg text-green-800',
+            icon: 'text-green-500'
+        },
+        timer: 2200
+    });
+});
+</script>
+@endif
+
+@if (session('deleted'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'error',
+        title: '{{ session("deleted") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5 border border-red-200',
+            title: 'font-bold text-base md:text-lg text-red-800',
+            icon: 'text-red-600'
+        },
+        timer: 2500
+    });
+});
+</script>
+@endif
+
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff]">
         {{-- HEADER --}}
@@ -63,7 +106,7 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white rounded-2xl shadow border mb-2">
                         <thead>
-                            <tr class="text-left bg-gray-100">
+                            <tr class="text-left bg-[#2171b8]">
                                 <th class="px-6 py-4 text-base font-semibold">Preview</th>
                                 <th class="px-6 py-4 text-base font-semibold">Judul Dokumen</th>
                                 <th class="px-6 py-4 text-base font-semibold">Kategori</th>
@@ -78,9 +121,10 @@ $tanggal = $carbon->format('l, d F Y');
                             PATHINFO_EXTENSION)) : '';
                             $isImage = in_array($extension, ['jpg','jpeg','png','gif','bmp','webp']);
                             @endphp
-                            <tr class="border-b border-gray-100 hover:bg-[#f2f8ff] transition">
+                            <tr class="border-b border-gray-100 hover:bg-blue-100 cursor-pointer transition group"
+                                onclick="window.location='{{ route('sekretaris.manajemendokumen.show', $item->id) }}'">
                                 {{-- Preview/File --}}
-                                <td class="px-6 py-4">
+                                <td class="px-6 py-4 group-hover:bg-[#e3f0fd]">
                                     <div
                                         class="w-20 h-14 flex items-center justify-center rounded-md overflow-hidden bg-gray-100 border">
                                         @if($isImage)
@@ -102,32 +146,36 @@ $tanggal = $carbon->format('l, d F Y');
                                     </div>
                                 </td>
                                 {{-- Judul --}}
-                                <td class="px-6 py-4 align-top">
+                                <td class="px-6 py-4 align-top group-hover:bg-[#e3f0fd]">
                                     <div class="font-medium text-gray-900">{{ $item->nama_dokumen }}</div>
                                     <div class="text-xs text-gray-500 mt-1 line-clamp-1">
                                         {{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 48) }}
                                     </div>
                                 </td>
                                 {{-- Kategori --}}
-                                <td class="px-6 py-4 align-top">
+                                <td class="px-6 py-4 align-top group-hover:bg-[#e3f0fd]">
                                     <span class="inline-block rounded-lg px-3 py-1 bg-[#f3f3f3] text-gray-700 text-sm">
                                         {{ $item->kategoriDokumen->nama_kategoridokumen ?? '-' }}
                                     </span>
                                 </td>
                                 {{-- Aksi --}}
-                                <td class="px-6 py-4 flex items-center gap-2 justify-center align-top">
-                                    <a href="{{ route('sekretaris.manajemendokumen.show', $item->id) }}"
-                                        class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition text-sm">Lihat</a>
+                                <td class="px-6 py-4 flex items-center gap-2 justify-center align-top group-hover:bg-[#e3f0fd]"
+                                    onclick="event.stopPropagation();">
                                     <a href="{{ route('sekretaris.manajemendokumen.edit', $item->id) }}"
-                                        class="px-4 py-1.5 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold transition text-sm">Edit</a>
+                                        class="w-9 h-9 flex items-center justify-center rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition"
+                                        title="Edit">
+                                        <i class="fa-solid fa-pen-to-square text-lg"></i>
+                                    </a>
                                     <form action="{{ route('sekretaris.manajemendokumen.destroy', $item->id) }}"
                                         method="POST" class="inline-block"
                                         onsubmit="return confirm('Hapus dokumen ini?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
-                                            class="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold transition text-sm">
-                                            Hapus
+                                        <button type="button"
+                                            class="w-9 h-9 flex items-center justify-center rounded bg-red-100 hover:bg-red-200 text-red-600 transition"
+                                            title="Hapus"
+                                            onclick="hapusDokumen('{{ route('sekretaris.manajemendokumen.destroy', $item->id) }}')">
+                                            <i class="fa-solid fa-trash text-lg"></i>
                                         </button>
                                     </form>
                                 </td>
@@ -189,9 +237,10 @@ $tanggal = $carbon->format('l, d F Y');
                                     method="POST" class="inline" onsubmit="return confirm('Hapus kategori ini?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit"
+                                    <button type="button"
                                         class="inline-flex items-center justify-center w-7 h-7 rounded hover:bg-red-100 text-red-600"
-                                        title="Hapus">
+                                        title="Hapus"
+                                        onclick="hapusKategori('{{ route('sekretaris.kategori-dokumen.destroy', $kat->id) }}')">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -268,6 +317,20 @@ $tanggal = $carbon->format('l, d F Y');
 
         <script>
         function openEditKategoriModal(id) {
+            fetch(`/sekretaris/kategori-dokumen/${id}/edit`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('edit_nama_kategori').value = data.nama_kategoridokumen;
+                    const form = document.getElementById('editKategoriForm');
+                    form.action = `/sekretaris/kategori-dokumen/${id}`;
+                    document.getElementById('editKategoriModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    alert('Gagal mengambil data kategori.');
+                    console.error(error);
+                });
+        }
+
         function showKeyModal(button) {
             const id = button.dataset.id;
             const nama = button.dataset.nama;
@@ -299,4 +362,66 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </footer>
         </x-slot>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+        <script>
+        function hapusDokumen(url) {
+            Swal.fire({
+                title: 'Apakah Anda Yakin',
+                text: 'Dokumen akan dihapus permanen!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batalkan',
+                customClass: {
+                    popup: 'rounded-xl p-7',
+                    confirmButton: 'text-base font-semibold px-10 py-2 rounded-lg mr-2 bg-[#A44D3A] text-white hover:bg-[#8c3e2e] focus:ring-2 focus:ring-[#A44D3A] focus:ring-offset-2',
+                    cancelButton: 'text-base font-semibold px-10 py-2 rounded-lg bg-[#3971A6] text-white hover:bg-[#295480] focus:ring-2 focus:ring-[#3971A6] focus:ring-offset-2'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Kirim POST delete tanpa reload pakai form dinamis
+                    let form = document.createElement('form');
+                    form.action = url;
+                    form.method = 'POST';
+                    form.innerHTML = `
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="_method" value="DELETE">
+            `;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        function hapusKategori(url) {
+            Swal.fire({
+                title: 'Apakah Anda Yakin',
+                text: 'Kategori akan dihapus permanen!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batalkan',
+                customClass: {
+                    popup: 'rounded-xl p-7',
+                    confirmButton: 'text-base font-semibold px-10 py-2 rounded-lg mr-2 bg-[#A44D3A] text-white hover:bg-[#8c3e2e] focus:ring-2 focus:ring-[#A44D3A] focus:ring-offset-2',
+                    cancelButton: 'text-base font-semibold px-10 py-2 rounded-lg bg-[#3971A6] text-white hover:bg-[#295480] focus:ring-2 focus:ring-[#3971A6] focus:ring-offset-2'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let form = document.createElement('form');
+                    form.action = url;
+                    form.method = 'POST';
+                    form.innerHTML = `
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="_method" value="DELETE">
+            `;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+        </script>
 </x-app-layout>

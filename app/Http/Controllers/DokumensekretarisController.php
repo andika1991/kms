@@ -78,6 +78,22 @@ class DokumensekretarisController extends Controller
     {
         $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
+        // Log view
+        if (auth()->check()) {
+            $currentUser = \App\Models\User::find(auth()->id());
+            \App\Models\DocumentView::updateOrCreate(
+                [
+                    'dokumen_id' => $dokumen->id,
+                    'user_id' => auth()->id(),
+                ],
+                [
+                    'viewed_at' => now(),
+                ]
+            );
+        }
+
+        $viewers = \App\Models\DocumentView::where('dokumen_id', $dokumen->id)->with('pengguna')->latest('viewed_at')->get();
+
         $isRahasia = $dokumen->kategoriDokumen &&
             strtolower($dokumen->kategoriDokumen->nama_kategoridokumen) === 'rahasia';
 
@@ -95,7 +111,7 @@ class DokumensekretarisController extends Controller
             }
         }
 
-        return view('sekretaris.dokumen.show', compact('dokumen'));
+        return view('sekretaris.dokumen.show', compact('dokumen', 'viewers'));
     }
 
     public function edit(Dokumen $manajemendokuman)
@@ -151,7 +167,7 @@ class DokumensekretarisController extends Controller
             $dokumen->delete();
 
             return redirect()->route('sekretaris.manajemendokumen.index')
-                ->with('success', 'Dokumen berhasil dihapus.');
+                ->with('deleted', 'Dokumen berhasil dihapus.');
         } catch (\Exception $e) {
             return redirect()->route('sekretaris.manajemendokumen.index')
                 ->with('error', 'Gagal menghapus dokumen: ' . $e->getMessage());

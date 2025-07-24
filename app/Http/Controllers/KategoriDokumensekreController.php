@@ -34,7 +34,7 @@ class KategoriDokumensekreController extends Controller
         $kategori = KategoriDokumen::findOrFail($id);
         $kategori->delete();
 
-        return redirect()->route('sekretaris.manajemendokumen.index')->with('success', 'Kategori berhasil dihapus!');
+        return redirect()->route('sekretaris.manajemendokumen.index')->with('deleted', 'Kategori berhasil dihapus!');
     }
     
     public function store(Request $request)
