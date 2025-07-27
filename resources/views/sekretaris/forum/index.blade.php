@@ -5,6 +5,8 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'Forum Diskusi Sekretaris')
+
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full">
         {{-- HEADER --}}

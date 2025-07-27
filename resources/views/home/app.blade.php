@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>@yield('title', config('app.name', 'Knowledge Management System'))</title>
+    <title>@yield('title', config('app.name', 'Knowledge Management System'))</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
@@ -16,7 +16,7 @@
 <body class="font-figtree bg-gray-100" style="background-image: url('{{ asset('img/body-bg-pattern.png') }}');">
     {{-- HEADER --}}
     <header class="bg-white shadow-md sticky top-0 z-20">
-        <div class="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-3">
+        <div class="max-w-[1200px] mx-auto px-6 flex items-center justify-between py-3">
             <a href="/">
                 <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" alt="KMS DISKOMINFOTIK" class="h-9">
             </a>
@@ -123,10 +123,10 @@
             </div>
         </div>
     </header>
-<main>
-   @yield('content')
-</main>
-        <footer class="bg-[#0B3C6A] text-white pt-12 pb-10 mt-8">
+    <main>
+        @yield('content')
+    </main>
+    <footer class="bg-[#0B3C6A] text-white pt-12 pb-10 mt-8">
         <div class="max-w-[1200px] mx-auto px-6 flex flex-col items-center">
 
             {{-- Logo Tengah Atas --}}
@@ -183,6 +183,7 @@
             </div>
         </div>
     </footer>
- @stack('scripts')
+    @stack('scripts')
 </body>
+
 </html>

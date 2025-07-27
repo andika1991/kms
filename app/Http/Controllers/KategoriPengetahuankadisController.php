@@ -2,33 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ArtikelPengetahuan; 
 use App\Models\KategoriPengetahuan;
 use Illuminate\Http\Request;
 
 class KategoriPengetahuankadisController extends Controller
 {
+
     /**
      * Tampilkan seluruh kategori pengetahuan tanpa filter bidang.
      */
-  public function index()
-{
+    public function index()
+    {
+        $kategoriPengetahuans = KategoriPengetahuan::all();
+        $kategori = KategoriPengetahuan::with(['bidang', 'subbidang'])
+            ->whereNull('bidang_id')
+            ->whereNull('subbidang_id')
+            ->latest()
+            ->get();
 
-    $kategori = KategoriPengetahuan::with(['bidang', 'subbidang'])
-        ->whereNull('bidang_id')
-        ->whereNull('subbidang_id')
-        ->latest()
-        ->get();
-
-
-
-
-
-
-   return view('kadis.kategoripengetahuan.index', [
-    'kategoriPengetahuans' => $kategori
-]);
-}
-
+        // Kirim data kategori ke view index
+        return view('kadis.berbagipengetahuan.index', compact('kategoriPengetahuans'));
+    }
 
     /**
      * Tampilkan form tambah kategori pengetahuan.
@@ -46,16 +41,11 @@ class KategoriPengetahuankadisController extends Controller
         $request->validate([
             'nama_kategoripengetahuan' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string'],
-        
-         
         ]);
-
         KategoriPengetahuan::create([
             'nama_kategoripengetahuan' => $request->nama_kategoripengetahuan,
             'deskripsi' => $request->deskripsi,
-
         ]);
-
         return redirect()->route('kadis.berbagipengetahuan.index')->with('success', 'Kategori berhasil ditambahkan.');
     }
 
@@ -90,6 +80,6 @@ class KategoriPengetahuankadisController extends Controller
     {
         $kategoripengetahuan->delete();
 
-        return redirect()->route('kadis.kategoripengetahuan.index')->with('success', 'Kategori berhasil dihapus.');
+        return redirect()->route('kadis.berbagipengetahuan.index')->with('deleted', 'Kategori berhasil dihapus.');
     }
 }

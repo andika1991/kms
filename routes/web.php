@@ -130,7 +130,7 @@ Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 's
     });
 
 
-    Route::prefix('kadis')
+Route::prefix('kadis')
     ->as('kadis.')
     ->middleware(['auth', 'role_group:Kadis'])
     ->group(function () {
