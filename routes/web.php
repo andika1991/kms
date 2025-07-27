@@ -33,10 +33,35 @@ use App\Http\Controllers\ForumsekreController;
 use App\Http\Controllers\PengetahuankadisController;
 use App\Http\Controllers\KategoriPengetahuankadisController;
 use App\Http\Controllers\ForumKadisController;
+use App\Http\Controllers\KategoriPengetahuanadminController;
+use App\Http\Controllers\ArtikelPengetahuanAdmController;
+use App\Http\Controllers\DokumenadminController;
+use App\Http\Controllers\KategoriDokumenadminController;
+use App\Http\Controllers\KegiatanadminController;
+use App\Http\Controllers\ManajemenPenggunaAdminController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
 
+Route::middleware(['auth', 'role_group:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/', [DashboardController::class, 'admin'])->name('dashboard');
+        Route::resource('berbagipengetahuan', ArtikelPengetahuanAdmController::class);
+        Route::resource('kategoripengetahuan', KategoriPengetahuanadminController::class);
+        Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+       ->name('grupchat.pesan.store');
+       Route::resource('kegiatan', KegiatanadminController::class);
+       Route::delete('/kegiatan/foto/{foto}', [FotoKegiatanController::class, 'destroy'])
+    ->name('kegiatan.foto.delete');
+       Route::resource('manajemendokumen', DokumenadminController::class);
+        Route::resource('kategori-dokumen', KategoriDokumenadminController::class)->except(['index', 'create', 'show']);
+    Route::resource('manajemenpengguna', ManajemenPenggunaAdminController::class);
+Route::patch('manajemenpengguna/{id}/verifikasi', [ManajemenPenggunaAdminController::class, 'verifikasi'])
+    ->name('manajemenpengguna.verifikasi');
+
+    });
 Route::middleware(['auth', 'role_group:kepalabagian'])
     ->prefix('kepalabagian')
     ->name('kepalabagian.')
@@ -51,7 +76,7 @@ Route::resource('manajemendokumen', ManajemenDokumenController::class)
     ->parameters(['manajemendokumen' => 'dokumen']);
 Route::resource('forum', \App\Http\Controllers\Kepalabagian\ForumController::class);
 
-        Route::get('artikelpengetahuan/kategori/{id}', [ArtikelPengetahuanController::class, 'byKategori'])
+Route::get('artikelpengetahuan/kategori/{id}', [ArtikelPengetahuanController::class, 'byKategori'])
             ->name('artikelpengetahuan.byKategori');
           
 

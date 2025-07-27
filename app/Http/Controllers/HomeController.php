@@ -170,7 +170,7 @@ public function searchDokumen(Request $request)
 
     $dokumens = Dokumen::with(['kategoriDokumen', 'user'])
         ->whereHas('kategoriDokumen', function ($query) {
-            $query->where('nama_kategoridokumen', '!=', 'rahasia');
+            $query->where('nama_kategoridokumen', '!=', 'Rahasia');
         })
         ->where(function ($query) use ($keyword) {
             $query->where('nama_dokumen', 'like', "%{$keyword}%")

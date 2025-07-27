@@ -46,7 +46,7 @@ class AuthenticatedSessionController extends Controller
     $roleGroup = $user->role->role_group;
 
     $redirectRoutes = [
-        'admin'         => 'dashboard.admin.index',
+        'admin'         => 'admin.dashboard',
         'kepalabagian'  => 'kepalabagian.dashboard',
         'kasubbidang'   => 'kasubbidang.dashboard',
         'pegawai'       => 'pegawai.dashboard',
