@@ -49,7 +49,7 @@
         <!-- BODY GRID -->
         <div class="flex flex-col lg:flex-row gap-8 px-4 md:px-12 pt-8 pb-10 flex-1 w-full max-w-7xl mx-auto">
             <!-- FORM AGENDA -->
-            <form action="{{ route('sekretaris.agenda.store') }}" method="POST" class="flex-1 max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 flex flex-col gap-8" autocomplete="off">
+            <form action="{{ route('sekretaris.agenda.store') }}" method="POST" class="flex-1 max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 flex flex-col gap-8" autocomplete="off" id="agendaForm">
                 @csrf
 
                 <!-- Nama Agenda -->
