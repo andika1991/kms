@@ -23,10 +23,8 @@ class ForumPegawaiController extends Controller
         $query->whereHas('users', function ($q) use ($user) {
             $q->where('pengguna_id', $user->id);
         });
-
-        // Tambahan: jika ingin menampilkan grup sesuai bidang user (opsional)
     })->orWhere(function ($query) use ($user) {
-        // Grup publik berdasarkan bidang yang sama
+ 
         if ($user->role && $user->role->bidang_id) {
             $query->where('is_private', false)
                   ->where('bidang_id', $user->role->bidang_id);
@@ -130,10 +128,19 @@ public function create()
 
         $anggota = $grupChat->users()->get();
 
+    
         $messages = $grupChat->messages()
-            ->with(['pengguna'])
+            ->with('pengguna')
             ->orderBy('created_at', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($message) {
+                try {
+                    $message->decrypted_message = Crypt::decryptString($message->message);
+                } catch (\Exception $e) {
+                    $message->decrypted_message = '[pesan tidak dapat didekripsi]';
+                }
+                return $message;
+            });
 
         return view('pegawai.forum.show', compact('grupChat', 'anggota', 'messages'));
     }

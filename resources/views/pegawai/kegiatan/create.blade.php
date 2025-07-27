@@ -30,7 +30,7 @@
             >
                 @csrf
                 <input type="hidden" name="subbidang_id" value="{{ $subbidangId ?? '' }}">
-
+                <input type="hidden" name="bidang_id" value="{{ $bidangId ?? '' }}">
                 {{-- Upload Foto Kegiatan --}}
                 <div>
                     <label class="block font-semibold text-gray-700 mb-1">
@@ -125,52 +125,62 @@
     </div>
 
     {{-- JS Preview Foto --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const inputFile = document.getElementById('foto_kegiatan_input');
-            const previewContainer = document.getElementById('preview-foto');
-            let filesToUpload = [];
+   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputFile = document.getElementById('foto_kegiatan_input');
+        const previewContainer = document.getElementById('preview-foto');
+        let filesToUpload = [];
 
-            inputFile.addEventListener('change', function(event) {
-                filesToUpload = Array.from(event.target.files).slice(0, 5);
-                renderPreview();
-            });
+        inputFile.addEventListener('change', function(event) {
+            const newFiles = Array.from(event.target.files);
+            const totalFiles = [...filesToUpload, ...newFiles].slice(0, 5); // Batasi max 5
+            filesToUpload = totalFiles;
+            renderPreview();
+        });
 
-            function renderPreview() {
-                previewContainer.innerHTML = '';
-                filesToUpload.forEach((file, idx) => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const div = document.createElement('div');
-                        div.className = "relative";
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = "h-16 w-16 object-cover rounded-lg border";
-                        const removeBtn = document.createElement('button');
-                        removeBtn.type = 'button';
-                        removeBtn.textContent = '×';
-                        removeBtn.className = "absolute top-[-7px] right-[-7px] bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700";
-                        removeBtn.onclick = () => {
-                            filesToUpload.splice(idx, 1);
+        function renderPreview() {
+            previewContainer.innerHTML = '';
+            filesToUpload.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = "relative";
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = "h-16 w-16 object-cover rounded-lg border";
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.textContent = '×';
+                    removeBtn.className = "absolute top-[-7px] right-[-7px] bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700";
+
+                    removeBtn.onclick = () => {
+                        const indexToRemove = filesToUpload.findIndex(f => f === file);
+                        if (indexToRemove > -1) {
+                            filesToUpload.splice(indexToRemove, 1);
                             updateInputFiles();
                             renderPreview();
-                        };
-                        div.appendChild(img);
-                        div.appendChild(removeBtn);
-                        previewContainer.appendChild(div);
+                        }
                     };
-                    reader.readAsDataURL(file);
-                });
-                updateInputFiles();
-            }
 
-            function updateInputFiles() {
-                const dt = new DataTransfer();
-                filesToUpload.forEach(file => dt.items.add(file));
-                inputFile.files = dt.files;
-            }
-        });
-    </script>
+                    div.appendChild(img);
+                    div.appendChild(removeBtn);
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+            updateInputFiles();
+        }
+
+        function updateInputFiles() {
+            const dt = new DataTransfer();
+            filesToUpload.forEach(file => dt.items.add(file));
+            inputFile.files = dt.files;
+        }
+    });
+</script>
+
 
     {{-- FOOTER --}}
     <x-slot name="footer">

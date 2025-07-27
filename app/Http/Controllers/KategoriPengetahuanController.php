@@ -21,8 +21,6 @@ public function index()
     }
 
     $bidangId = $role->bidang_id;
-
-    // Langsung ambil kategori berdasarkan bidang_id
     $kategori = KategoriPengetahuan::where('bidang_id', $bidangId)->get();
 
     return view('kepalabagian.kategoripengetahuan', compact('kategori'));

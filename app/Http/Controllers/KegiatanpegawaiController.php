@@ -32,12 +32,9 @@ public function create()
     $role = $user->role;
 
     $subbidangId = $role->subbidang_id ?? null;
+    $bidangId = $role->bidang_id ?? null;
 
-    if (!$subbidangId) {
-        return redirect()->back()->with('error', 'Anda belum memiliki subbidang.');
-    }
-
-    return view('pegawai.kegiatan.create', compact('subbidangId'));
+    return view('pegawai.kegiatan.create', compact('subbidangId', 'bidangId'));
 }
 
 
@@ -53,6 +50,7 @@ public function create()
         'deskripsi_kegiatan' => 'required|string',
         'kategori_kegiatan' => 'required|in:publik,internal',
         'subbidang_id' => 'nullable|exists:subbidang,id',
+        'bidang_id' => 'nullable|exists:bidang,id',
         'foto_kegiatan.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
 
@@ -62,6 +60,7 @@ public function create()
         'deskripsi_kegiatan' => $request->deskripsi_kegiatan,
         'kategori_kegiatan' => $request->kategori_kegiatan,
         'subbidang_id' => $request->subbidang_id,
+        'bidang_id' => $request->bidang_id,
         'pengguna_id' => Auth::id(),
     ]);
 

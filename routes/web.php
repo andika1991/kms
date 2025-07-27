@@ -33,10 +33,35 @@ use App\Http\Controllers\ForumsekreController;
 use App\Http\Controllers\PengetahuankadisController;
 use App\Http\Controllers\KategoriPengetahuankadisController;
 use App\Http\Controllers\ForumKadisController;
+use App\Http\Controllers\KategoriPengetahuanadminController;
+use App\Http\Controllers\ArtikelPengetahuanAdmController;
+use App\Http\Controllers\DokumenadminController;
+use App\Http\Controllers\KategoriDokumenadminController;
+use App\Http\Controllers\KegiatanadminController;
+use App\Http\Controllers\ManajemenPenggunaAdminController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
 
+Route::middleware(['auth', 'role_group:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/', [DashboardController::class, 'admin'])->name('dashboard');
+        Route::resource('berbagipengetahuan', ArtikelPengetahuanAdmController::class);
+        Route::resource('kategoripengetahuan', KategoriPengetahuanadminController::class);
+        Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
+       ->name('grupchat.pesan.store');
+       Route::resource('kegiatan', KegiatanadminController::class);
+       Route::delete('/kegiatan/foto/{foto}', [FotoKegiatanController::class, 'destroy'])
+    ->name('kegiatan.foto.delete');
+       Route::resource('manajemendokumen', DokumenadminController::class);
+        Route::resource('kategori-dokumen', KategoriDokumenadminController::class)->except(['index', 'create', 'show']);
+    Route::resource('manajemenpengguna', ManajemenPenggunaAdminController::class);
+Route::patch('manajemenpengguna/{id}/verifikasi', [ManajemenPenggunaAdminController::class, 'verifikasi'])
+    ->name('manajemenpengguna.verifikasi');
+
+    });
 Route::middleware(['auth', 'role_group:kepalabagian'])
     ->prefix('kepalabagian')
     ->name('kepalabagian.')
@@ -51,7 +76,7 @@ Route::resource('manajemendokumen', ManajemenDokumenController::class)
     ->parameters(['manajemendokumen' => 'dokumen']);
 Route::resource('forum', \App\Http\Controllers\Kepalabagian\ForumController::class);
 
-        Route::get('artikelpengetahuan/kategori/{id}', [ArtikelPengetahuanController::class, 'byKategori'])
+Route::get('artikelpengetahuan/kategori/{id}', [ArtikelPengetahuanController::class, 'byKategori'])
             ->name('artikelpengetahuan.byKategori');
           
 
@@ -83,6 +108,8 @@ Route::prefix('pegawai')
 Route::get('/', [DashboardController::class, 'pegawai'])->name('dashboard');
 Route::resource('berbagipengetahuan', PengetahuanpegawaiController::class);
 Route::resource('kegiatan', KegiatanpegawaiController::class);
+Route::delete('/pegawai/kegiatan/foto/{foto}', [FotoKegiatanController::class, 'destroy'])
+    ->name('kegiatan.foto.delete');
 Route::resource('manajemendokumen', DokumenpegawaiController::class);
 Route::resource('forum', ForumPegawaiController::class);
  Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
@@ -171,13 +198,26 @@ Route::get('/about', function () {
 // Route untuk Halaman Pengetahuan
 Route::get('/pengetahuan', [HomeController::class, 'pengetahuan'])->name('pengetahuan');
 Route::get('/pengetahuan/search', [HomeController::class, 'search'])->name('artikel.search');
-
-// Route untuk Halaman Dokumen
+Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
+Route::get('/kegiatan/bidang/{bidang_id}', [KegiatanController::class, 'getByBidang'])->name('kegiatan.byBidang');
+Route::get('/kegiatan/subbidang/{subbidang_id}', [KegiatanController::class, 'getBySubbidang'])->name('kegiatan.bySubbidang');
 Route::get('/dokumen', function () { 
     return view('dokumen');
 })->name('dokumen');
 
 Route::get('/dokumen', [HomeController::class, 'dokumen'])->name('dokumen');
+Route::get('/dokumen/bidang/{bidangId}', [HomeController::class, 'getDokumenByBidang']);
+Route::get('/dokumen/subbidang/{subbidangId}', [HomeController::class, 'getDokumenBySubbidang']);
+Route::get('/dokumen/search', [HomeController::class, 'searchDokumen'])->name('dokumen.search');
+Route::get('/dokumen/detail/{id}', [HomeController::class, 'showDokumenById'])->name('dokumen.show');
+
+
+// Route utama untuk daftar kegiatan
+Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
+Route::get('/kegiatan/bidang/{bidang_id}', [HomeController::class, 'getByBidang']);
+Route::get('/kegiatan/subbidang/{subbidang_id}', [HomeController::class, 'getBySubbidang']);
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

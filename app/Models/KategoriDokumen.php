@@ -23,6 +23,12 @@ class KategoriDokumen extends Model
         return $this->belongsTo(Subbidang::class, 'subbidang_id');
     }
 
+    
+    public function bidang()
+    {
+        return $this->belongsTo(Bidang::class, 'bidang_id');
+    }
+
     /**
      * Relasi ke Dokumen.
      */

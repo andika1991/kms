@@ -38,6 +38,10 @@
                     class="{{ request()->routeIs('dokumen') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
                     Dokumen
                 </a>
+                    <a href="{{ route('kegiatan') }}"
+                    class="{{ request()->routeIs('kegiatan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    Kegiatan
+                </a>
             </nav>
 
 

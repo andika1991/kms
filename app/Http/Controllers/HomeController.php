@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Bidang;
 use App\Models\ArtikelPengetahuan;
 use App\Models\Subbidang;
+use App\Models\Kegiatan;
 use App\Models\Dokumen;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 class HomeController extends Controller
 {
     public function index()
@@ -127,5 +129,99 @@ class HomeController extends Controller
 
         return view('dokumen', compact('dokumens','bidangs'));
     }
+
+public function getDokumenByBidang($bidang_id)
+{
+    $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($bidang_id) {
+        $query->where('bidang_id', $bidang_id);
+    })->with('user')->get();
+
+    return response()->json($dokumens);
+}
+
+public function getDokumenBySubbidang($subbidang_id)
+{
+    $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($subbidang_id) {
+        $query->where('subbidang_id', $subbidang_id);
+    })->with('user')->get();
+
+    return response()->json($dokumens);
+}
+
+public function showDokumenById($id)
+{
+    $dokumen = Dokumen::with(['kategoriDokumen.bidang', 'kategoriDokumen.subbidang', 'user'])
+        ->whereHas('kategoriDokumen', function ($query) {
+            $query->where('nama_kategoridokumen', '!=', 'rahasia');
+        })
+        ->findOrFail($id);
+
+    return view('dokumenshow', compact('dokumen'));
+}
+
+
+public function searchDokumen(Request $request)
+{
+    $keyword = $request->query('q', '');
+
+    if (strlen($keyword) < 2) {
+        return view('dokumensearch', [
+            'dokumens' => collect(),
+            'keyword' => $keyword,
+        ]);
+    }
+
+    $dokumens = Dokumen::with(['kategoriDokumen', 'user'])
+        ->whereHas('kategoriDokumen', function ($query) {
+            $query->where('nama_kategoridokumen', '!=', 'Rahasia');
+        })
+        ->where(function ($query) use ($keyword) {
+            $query->where('nama_dokumen', 'like', "%{$keyword}%")
+                  ->orWhere('deskripsi', 'like', "%{$keyword}%");
+        })
+        ->get();
+
+    return view('dokumensearch', [
+        'dokumens' => $dokumens,
+        'keyword' => $keyword,
+    ]);
+}
+
+ public function kegiatan()
+    {
+        $bidangs = Bidang::all(); // Untuk sidebar filter bidang
+        // Bisa load semua kegiatan atau kosongkan dulu, nanti di load ajax saat klik bidang/subbidang
+        return view('kegiatan', compact('bidangs'));
+    }
+
+public function getByBidang($bidang_id)
+{
+    $kegiatans = Kegiatan::where('bidang_id', $bidang_id)
+        ->with([
+            'bidang', 
+            'subbidang',
+            'fotokegiatan' => function ($q) {
+                $q->limit(1); // Ambil hanya 1 foto
+            }
+        ])
+        ->get();
+
+    return response()->json($kegiatans);
+}
+
+public function getBySubbidang($subbidang_id)
+{
+    $kegiatans = Kegiatan::where('subbidang_id', $subbidang_id)
+        ->with([
+            'bidang',
+            'subbidang',
+            'fotokegiatan' => function ($q) {
+                $q->limit(1);
+            }
+        ])
+        ->get();
+
+    return response()->json($kegiatans);
+}
 
 }

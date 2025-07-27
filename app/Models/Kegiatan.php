@@ -16,6 +16,7 @@ class Kegiatan extends Model
         'kategori_kegiatan',
         'subbidang_id',
         'pengguna_id',
+        'bidang_id'
     ];
 
     
@@ -36,8 +37,12 @@ class Kegiatan extends Model
         return $this->belongsTo(User::class);
     }
 
-  
+  public function bidang()
+{
+    return $this->belongsTo(Bidang::class);
+}
 
+  
 public function fotokegiatan()
 {
     return $this->hasMany(FotoKegiatan::class, 'kegiatan_id');

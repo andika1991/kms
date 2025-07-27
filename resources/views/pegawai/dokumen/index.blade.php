@@ -50,6 +50,11 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </div>
         </div>
+@if (session('error'))
+    <div class="mb-4 px-4 py-3 rounded-md bg-red-100 text-red-700 text-sm border border-red-300">
+        {{ session('error') }}
+    </div>
+@endif
 
         {{-- BODY GRID --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 max-w-[1400px] mx-auto">
@@ -95,8 +100,13 @@ $tanggal = $carbon->format('l, d F Y');
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 flex items-center gap-2 justify-center">
-                                    <a href="{{ route('pegawai.manajemendokumen.show', $item->id) }}"
-                                       class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition text-sm">Lihat</a>
+                                   <a href="#" 
+   class="lihat-dokumen px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition text-sm"
+   data-id="{{ $item->id }}"
+   data-rahasia="{{ $item->kategoriDokumen->nama_kategoridokumen === 'Rahasia' ? '1' : '0' }}">
+   Lihat
+</a>
+
                                     <a href="{{ route('pegawai.manajemendokumen.edit', $item->id) }}"
                                        class="px-4 py-1.5 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold transition text-sm">Edit</a>
                                     <form action="{{ route('pegawai.manajemendokumen.destroy', $item->id) }}"
@@ -121,6 +131,22 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </section>
 
+            <div id="modal-kunci" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+        <h3 class="text-lg font-semibold mb-4 text-gray-800">Masukkan Kunci Dokumen Rahasia</h3>
+        <form id="form-kunci">
+            @csrf
+            <input type="hidden" name="dokumen_id" id="dokumen_id">
+            <input type="password" name="encrypted_key" placeholder="Kunci rahasia"
+                class="w-full rounded-lg border-gray-300 mb-4" required>
+            <div class="flex justify-end gap-2">
+                <button type="button" id="batal-modal" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Batal</button>
+                <button type="submit" class="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white">Lanjutkan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
             {{-- KOLOM SIDEBAR --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
                 <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
@@ -141,4 +167,47 @@ $tanggal = $carbon->format('l, d F Y');
             </footer>
         </x-slot>
     </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const lihatButtons = document.querySelectorAll('.lihat-dokumen');
+    const modal = document.getElementById('modal-kunci');
+    const form = document.getElementById('form-kunci');
+    const dokumenIdInput = document.getElementById('dokumen_id');
+    const batalModal = document.getElementById('batal-modal');
+
+    let dokumenId = null;
+
+    lihatButtons.forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            dokumenId = this.dataset.id;
+
+            if (this.dataset.rahasia === '1') {
+                // Tampilkan modal input kunci
+                dokumenIdInput.value = dokumenId;
+                modal.classList.remove('hidden');
+            } else {
+                // Jika bukan rahasia, langsung redirect
+                window.location.href = `/pegawai/manajemendokumen/${dokumenId}`;
+            }
+        });
+    });
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const key = form.encrypted_key.value;
+        const id = dokumenIdInput.value;
+
+        const url = `/pegawai/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(key)}`;
+        window.location.href = url;
+    });
+
+    batalModal.addEventListener('click', function () {
+        modal.classList.add('hidden');
+        form.reset();
+    });
+});
+</script>
+
 </x-app-layout>

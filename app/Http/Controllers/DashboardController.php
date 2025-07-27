@@ -8,7 +8,7 @@ class DashboardController extends Controller
 {
     public function admin()
     {
-        return view('dashboard.admin');
+        return view('admin.dashboard');
     }
 
     public function kepalabagian()
