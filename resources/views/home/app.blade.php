@@ -38,7 +38,7 @@
                     class="{{ request()->routeIs('dokumen') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
                     Dokumen
                 </a>
-                    <a href="{{ route('kegiatan') }}"
+                <a href="{{ route('kegiatan') }}"
                     class="{{ request()->routeIs('kegiatan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
                     Kegiatan
                 </a>
@@ -156,10 +156,13 @@
                 <div class="md:mx-auto">
                     <h4 class="font-bold text-white text-base mb-4">Menu</h4>
                     <ul class="space-y-2 text-sm text-white/80">
-                        <li><a href="/" class="hover:underline hover:text-white">Home</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Tentang Kami</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Kegiatan</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Dokumen</a></li>
+                        <li><a href="{{ route('home') }}" class="hover:underline hover:text-white">Home</a></li>
+                        <li><a href="{{ route('about') }}" class="hover:underline hover:text-white">Tentang Kami</a>
+                        </li>
+                        <li><a href="{{ route('pengetahuan') }}"
+                                class="hover:underline hover:text-white">Pengetahuan</a></li>
+                        <li><a href="{{ route('dokumen') }}" class="hover:underline hover:text-white">Dokumen</a></li>
+                        <li><a href="{{ route('kegiatan') }}" class="hover:underline hover:text-white">Kegiatan</a></li>
                         <li><a href="#" class="hover:underline hover:text-white">Kontak</a></li>
                     </ul>
                 </div>
@@ -168,22 +171,26 @@
                 <div class="md:ml-auto md:text-right">
                     <h4 class="font-bold text-white text-base mb-4">Ikuti Kami</h4>
                     <div class="flex items-center justify-center md:justify-end gap-3">
-                        {{-- Menggunakan Font Awesome untuk ikon yang lebih user-friendly --}}
-                        <a href="#"
+                        {{-- Facebook --}}
+                        <a href="https://www.facebook.com/share/175mUXN9ow/?mibextid=wwXIfr" target="_blank"
+                            rel="noopener"
                             class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
                             <i class="fab fa-facebook-f text-white"></i>
                         </a>
-                        <a href="#"
+                        {{-- Instagram --}}
+                        <a href="https://www.instagram.com/diskominfotik.lampung?igsh=MTRqb3VlOWxzbG9yeQ=="
+                            target="_blank" rel="noopener"
                             class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
                             <i class="fab fa-instagram text-white"></i>
                         </a>
-                        <a href="#"
+                        {{-- Youtube --}}
+                        <a href="https://youtube.com/@diskominfotiklampung?si=9-Py4fdTCy2hOeBX" target="_blank"
+                            rel="noopener"
                             class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
                             <i class="fab fa-youtube text-white"></i>
                         </a>
                     </div>
                 </div>
-
             </div>
         </div>
     </footer>

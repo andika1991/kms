@@ -46,34 +46,63 @@
         <img src="{{ asset('assets/img/background_kegiatan_diskominfotik.png') }}"
             alt="Background Kegiatan Diskominfotik" class="w-full h-full object-cover"
             style="filter: grayscale(1) contrast(1.1) brightness(0.98);" draggable="false" />
-        {{-- Optional overlay gradient --}}
-        <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-white/0 to-white/0"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent"></div>
     </div>
-    <div class="relative w-full max-w-[1200px] mx-auto flex flex-col md:flex-row items-center px-6 gap-10">
+    <div class="relative w-full max-w-[1200px] mx-auto flex flex-col md:flex-row items-center px-6 gap-10 z-10">
         <div class="flex-1 text-white">
-            {{-- Judul diubah menjadi lebih besar dan 2 baris --}}
             <h2 class="text-5xl md:text-6xl font-bold mb-6 drop-shadow leading-tight">
                 Kegiatan<br>Diskominfotik
             </h2>
-            {{-- Jarak bawah paragraf ditambah --}}
             <p class="mb-8 text-base md:text-lg drop-shadow">
                 Berbagai aktivitas atau program yang dilaksanakan oleh Dinas Komunikasi, Informatika dan Statistik
                 Provinsi Lampung dalam rangka mencapai tujuan dan sasaran yang telah ditetapkan.
             </p>
-            {{-- Tombol diubah sesuai gambar --}}
-            <a href="#"
+            <a href="{{ route('kegiatan') }}"
                 class="inline-block px-6 py-2 bg-white text-blue-700 rounded-full shadow-md hover:bg-gray-100 font-semibold text-sm transition-all duration-200">
                 Kegiatan
             </a>
         </div>
-        <div class="flex-1 flex justify-center md:justify-end">
-            <div class="rounded-2xl shadow-lg bg-white overflow-hidden w-80">
-                <img src="{{ asset('assets/img/eaf9e99c-955d-4c5c-8bac-7bcc1f4e8fa2.png') }}" alt="Kegiatan 1"
-                    class="w-full h-48 object-cover" />
-                <div class="p-4">
-                    <p class="font-semibold text-gray-800 mb-2">Kunjungan Kerja ke Kementerian Komdigi</p>
-                    <span class="text-xs text-gray-500">12/07/2024</span>
+        <div class="flex-1 flex justify-center md:justify-end w-full">
+            <div class="relative w-full max-w-xs">
+                <!-- Slider Content -->
+                <div id="slider-content" class="transition-transform duration-500 ease-in-out">
+                    @foreach($kegiatans as $i => $kegiatan)
+                    <div class="kegiatan-slide @if($i !== 0) hidden @endif">
+                        <!-- Redesigned Card -->
+                        <div class="rounded-2xl shadow-xl bg-white p-3 w-full mx-auto">
+                            <img src="{{ $kegiatan->fotokegiatan->first() ? asset('storage/'.$kegiatan->fotokegiatan->first()->path_foto) : asset('assets/img/no-image.png') }}"
+                                alt="{{ $kegiatan->nama_kegiatan }}" class="w-full h-64 object-cover rounded-xl" />
+                            <div class="pt-4 pb-2 text-center">
+                                <p class="font-semibold text-gray-800 text-base mb-1 leading-tight">
+                                    {{ $kegiatan->nama_kegiatan }}
+                                </p>
+                                <span
+                                    class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($kegiatan->waktu)->format('d/m/Y') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
+
+                <!-- Panah Kiri (Posisi Diperbaiki) -->
+                <button id="btnPrevKegiatan"
+                    class="absolute top-1/2 left-[-50px] -translate-y-1/2 z-20 bg-white/80 backdrop-blur-sm text-gray-700 hover:bg-blue-600 hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center transition-all duration-200"
+                    aria-label="Prev">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-5 h-5"
+                        stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+
+                <!-- Panah Kanan (Posisi Diperbaiki) -->
+                <button id="btnNextKegiatan"
+                    class="absolute top-1/2 right-[-52px] -translate-y-1/2 z-20 bg-white/80 backdrop-blur-sm text-gray-700 hover:bg-blue-600 hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center transition-all duration-200"
+                    aria-label="Next">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-5 h-5"
+                        stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -100,16 +129,17 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     @foreach($dokumens as $dokumen)
-                    <div class="border rounded-lg p-3 shadow hover:shadow-md transition">
+                    <a href="{{ route('dokumen.show', $dokumen->id) }}"
+                        class="border rounded-lg p-3 shadow hover:shadow-md transition block group focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <img src="{{ asset('storage/'.$dokumen->thumbnail) }}"
-                            class="w-full h-24 object-cover rounded mb-2">
-                        <p class="text-sm font-semibold mb-1">{{ $dokumen->nama_dokumen }}</p>
+                            class="w-full h-24 object-cover rounded mb-2 group-hover:scale-105 transition-transform duration-200">
+                        <p class="text-sm font-semibold mb-1 group-hover:text-blue-700">{{ $dokumen->nama_dokumen }}</p>
                         <p class="text-xs text-gray-500 mb-2">{{ $dokumen->deskripsi }}</p>
                         <div class="flex items-center justify-between text-xs text-gray-500">
                             <span>{{ $dokumen->created_at->format('d/m/Y') }}</span>
                             <span><i class="fas fa-eye"></i> {{ $dokumen->views }}</span>
                         </div>
-                    </div>
+                    </a>
                     @endforeach
                 </div>
             </div>
@@ -153,6 +183,42 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    let slides = document.querySelectorAll('.kegiatan-slide');
+    let current = 0;
+    const showSlide = (idx) => {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('hidden', i !== idx);
+        });
+    };
+    document.getElementById('btnPrevKegiatan').onclick = function() {
+        current = (current - 1 + slides.length) % slides.length;
+        showSlide(current);
+    };
+    document.getElementById('btnNextKegiatan').onclick = function() {
+        current = (current + 1) % slides.length;
+        showSlide(current);
+    };
+    // Support swipe for mobile (optional)
+    let startX = null;
+    const slider = document.getElementById('slider-content');
+    slider.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+    });
+    slider.addEventListener('touchend', function(e) {
+        if (!startX) return;
+        let endX = e.changedTouches[0].clientX;
+        if (endX - startX > 30) { // swipe right
+            document.getElementById('btnPrevKegiatan').click();
+        } else if (startX - endX > 30) { // swipe left
+            document.getElementById('btnNextKegiatan').click();
+        }
+        startX = null;
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
     const listBidang = document.querySelectorAll('.bidang-item');
     const listSubbidangKanan = document.getElementById('listSubbidangKanan');
     const subbidangWrapperKanan = document.getElementById('subbidangWrapperKanan');
