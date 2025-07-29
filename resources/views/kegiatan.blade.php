@@ -7,13 +7,17 @@
 .portal-kegiatan-slider {
     position: relative;
 }
+
+/* PERBAIKAN 2: Memindahkan paginasi ke kanan bawah */
 .swiper-pagination {
     position: absolute !important;
     bottom: 20px !important;
-    left: 20px !important;
+    right: 20px !important;
+    left: auto !important;
     width: auto !important;
-    text-align: left;
+    text-align: right;
 }
+
 .swiper-pagination-bullet {
     width: 10px;
     height: 10px;
@@ -22,6 +26,7 @@
     transition: background-color 0.3s, width 0.3s;
     margin: 0 3px !important;
 }
+
 .swiper-pagination-bullet-active {
     width: 30px;
     border-radius: 5px;
@@ -66,7 +71,7 @@
                 @forelse($kegiatan as $item)
                 <div class="swiper-slide">
                     <a href="/kegiatan/detail/{{ $item->id }}"
-                        class="block rounded-xl overflow-hidden relative group h-64">
+                        class="block rounded-xl overflow-hidden relative group h-80">
                         <img src="{{ asset('storage/' . ($item->fotokegiatan[0]->path_foto ?? 'default.jpg')) }}"
                             alt="{{ $item->nama_kegiatan }}"
                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
@@ -79,7 +84,7 @@
                 </div>
                 @empty
                 <div class="swiper-slide">
-                    <div class="h-64 flex items-center justify-center text-gray-500 bg-gray-100 rounded-xl">Tidak ada
+                    <div class="h-80 flex items-center justify-center text-gray-500 bg-gray-100 rounded-xl">Tidak ada
                         kegiatan untuk ditampilkan</div>
                 </div>
                 @endforelse
@@ -105,55 +110,48 @@
                     </li>
                     @endforeach
                 </ul>
-
-                
             </aside>
 
             {{-- Kegiatan --}}
             <section class="lg:col-span-2" id="kegiatanContainer">
-
-
                 <div class="mt-6" id="subbidangWrapperKeg" style="display:none;">
                     <h4 class="text-sm font-semibold mb-2 text-gray-600">Subbidang</h4>
                     <div id="listSubbidangKeg" class="flex flex-wrap gap-2"></div>
                 </div>
                 <h3 class="font-bold text-2xl mb-6 text-center text-blue-700">Daftar Kegiatan</h3>
-
                 <div id="listKegiatan" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   @php
-    $showingSearch = isset($query) && $query !== '';
-@endphp
-
-@if($showingSearch)
-    @if($kegiatan->count())
-        @foreach ($kegiatan as $item)
-            <div class="border rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col">
-                @if ($item->fotokegiatan->count())
-                    <img src="{{ asset('storage/' . $item->fotokegiatan[0]->path_foto) }}"
-                         class="h-40 w-full object-cover" alt="Thumbnail Kegiatan">
-                @else
-                    <div class="h-40 w-full bg-gray-200 flex items-center justify-center text-gray-400">
-                        Tidak ada gambar
+                    @php
+                    $showingSearch = isset($query) && $query !== '';
+                    @endphp
+                    @if($showingSearch)
+                    @if($kegiatan->count())
+                    @foreach ($kegiatan as $item)
+                    <div class="border rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col">
+                        @if ($item->fotokegiatan->count())
+                        <img src="{{ asset('storage/' . $item->fotokegiatan[0]->path_foto) }}"
+                            class="h-40 w-full object-cover" alt="Thumbnail Kegiatan">
+                        @else
+                        <div class="h-40 w-full bg-gray-200 flex items-center justify-center text-gray-400">
+                            Tidak ada gambar
+                        </div>
+                        @endif
+                        <div class="p-4 flex flex-col">
+                            <h4 class="font-semibold text-base text-gray-800 mb-1">{{ $item->nama_kegiatan }}</h4>
+                            <p class="text-sm text-gray-500 mb-1">
+                                Waktu: {{ \Carbon\Carbon::parse($item->tanggal_kegiatan)->format('d M Y') }}
+                            </p>
+                            <a href="{{ route('kegiatan.detail', $item->id) }}"
+                                class="mt-3 text-blue-600 text-sm hover:underline font-semibold">Lihat Detail</a>
+                        </div>
                     </div>
-                @endif
-
-                <div class="p-4 flex flex-col">
-                    <h4 class="font-semibold text-base text-gray-800 mb-1">{{ $item->nama_kegiatan }}</h4>
-                    <p class="text-sm text-gray-500 mb-1">
-                        Waktu: {{ \Carbon\Carbon::parse($item->tanggal_kegiatan)->format('d M Y') }}
+                    @endforeach
+                    @else
+                    <p class="text-gray-500 col-span-full">Tidak ditemukan kegiatan dengan kata kunci "{{ $query }}".
                     </p>
-                    <a href="{{ route('kegiatan.detail', $item->id) }}"
-                       class="mt-3 text-blue-600 text-sm hover:underline font-semibold">Lihat Detail</a>
-                </div>
-            </div>
-        @endforeach
-    @else
-        <p class="text-gray-500 col-span-full">Tidak ditemukan kegiatan dengan kata kunci "{{ $query }}".</p>
-    @endif
-@else
-    <p class="text-gray-500 col-span-full">Silakan pilih bidang untuk melihat kegiatan.</p>
-@endif
-
+                    @endif
+                    @else
+                    <p class="text-gray-500 col-span-full">Silakan pilih bidang untuk melihat kegiatan.</p>
+                    @endif
                 </div>
             </section>
         </div>
@@ -164,19 +162,29 @@
 @push('scripts')
 <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const slider = new Swiper('.portal-kegiatan-slider', {
-        slidesPerView: 1,
-        loop: document.querySelectorAll('.swiper-slide').length > 1,
-        autoplay: {
-            delay: 5000,
-            disableOnInteraction: false
-        },
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true
-        }
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    const sliderContainer = document.querySelector('.portal-kegiatan-slider');
+    const slideCount = sliderContainer.querySelectorAll('.swiper-slide').length;
+    if (slideCount > 0) {
+        const swiper = new Swiper('.portal-kegiatan-slider', {
+            // PERBAIKAN: Menggunakan efek 'fade' untuk transisi yang bersih
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true // Membuat transisi fade lebih mulus
+            },
+
+            slidesPerView: 1,
+            loop: slideCount > 1,
+            autoplay: slideCount > 1 ? {
+                delay: 5000,
+                disableOnInteraction: false
+            } : false,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true
+            }
+        });
+    }
 
     const listKegiatan = document.getElementById('listKegiatan');
     const bidangItems = document.querySelectorAll('.bidang-item-kegiatan');
@@ -193,11 +201,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         data.forEach(kegiatan => {
             const card = document.createElement('div');
-            card.className = 'border rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col';
+            card.className =
+                'border rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col';
 
-            const thumbnail = kegiatan.fotokegiatan?.length
-                ? `<img src="/storage/${kegiatan.fotokegiatan[0].path_foto}" class="h-40 w-full object-cover" alt="Thumbnail Kegiatan">`
-                : `<div class="h-40 w-full bg-gray-200 flex items-center justify-center text-gray-400">Tidak ada gambar</div>`;
+            const thumbnail = kegiatan.fotokegiatan?.length ?
+                `<img src="/storage/${kegiatan.fotokegiatan[0].path_foto}" class="h-40 w-full object-cover" alt="Thumbnail Kegiatan">` :
+                `<div class="h-40 w-full bg-gray-200 flex items-center justify-center text-gray-400">Tidak ada gambar</div>`;
 
             card.innerHTML = `
                 ${thumbnail}
@@ -213,10 +222,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     bidangItems.forEach(item => {
-        item.addEventListener('click', function () {
+        item.addEventListener('click', function() {
             const bidangId = this.dataset.id;
 
-            listKegiatan.innerHTML = '<p class="text-gray-500 col-span-full">Memuat kegiatan...</p>';
+            listKegiatan.innerHTML =
+                '<p class="text-gray-500 col-span-full">Memuat kegiatan...</p>';
             listSubbidangKeg.innerHTML = '';
             subbidangWrapperKeg.style.display = 'none';
 
@@ -227,17 +237,20 @@ document.addEventListener('DOMContentLoaded', function () {
                         subbidangWrapperKeg.style.display = 'block';
                         data.forEach(sub => {
                             const btn = document.createElement('button');
-                            btn.className = 'px-4 py-2 bg-blue-100 hover:bg-blue-200 text-sm rounded shadow text-blue-700';
+                            btn.className =
+                                'px-4 py-2 bg-blue-100 hover:bg-blue-200 text-sm rounded shadow text-blue-700';
                             btn.textContent = sub.nama;
                             btn.dataset.id = sub.id;
 
-                            btn.addEventListener('click', function () {
-                                listKegiatan.innerHTML = '<p class="text-gray-500 col-span-full">Memuat kegiatan...</p>';
+                            btn.addEventListener('click', function() {
+                                listKegiatan.innerHTML =
+                                    '<p class="text-gray-500 col-span-full">Memuat kegiatan...</p>';
                                 fetch(`/kegiatan/subbidang/${sub.id}`)
                                     .then(res => res.json())
                                     .then(data => renderKegiatan(data))
                                     .catch(() => {
-                                        listKegiatan.innerHTML = '<p class="text-red-500 col-span-full">Gagal memuat kegiatan subbidang.</p>';
+                                        listKegiatan.innerHTML =
+                                            '<p class="text-red-500 col-span-full">Gagal memuat kegiatan subbidang.</p>';
                                     });
                             });
 
@@ -250,7 +263,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(res => res.json())
                 .then(data => renderKegiatan(data))
                 .catch(() => {
-                    listKegiatan.innerHTML = '<p class="text-red-500 col-span-full">Gagal memuat kegiatan bidang.</p>';
+                    listKegiatan.innerHTML =
+                        '<p class="text-red-500 col-span-full">Gagal memuat kegiatan bidang.</p>';
                 });
         });
     });

@@ -203,26 +203,26 @@ class HomeController extends Controller
             'keyword' => $keyword,
         ]);
     }
-public function kegiatan(Request $request)
-{
-    $bidangs = Bidang::all(); // Untuk sidebar filter bidang
-    $query = $request->input('q'); // Tangkap keyword dari form pencarian
 
-    // Ambil kegiatan yang hanya kategori publik dan sesuai pencarian jika ada
-    $kegiatan = Kegiatan::with('fotokegiatan')
-        ->where('kategori_kegiatan', 'publik') // Filter hanya yang publik
-        ->when($query, function ($qBuilder) use ($query) {
-            $qBuilder->where(function ($subQuery) use ($query) {
-                $subQuery->where('nama_kegiatan', 'like', '%' . $query . '%')
-                         ->orWhere('deskripsi_kegiatan', 'like', '%' . $query . '%');
-            });
-        })
-        ->latest()
-        ->get();
+    public function kegiatan(Request $request)
+    {
+        $bidangs = Bidang::all(); // Untuk sidebar filter bidang
+        $query = $request->input('q'); // Tangkap keyword dari form pencarian
 
-    return view('kegiatan', compact('bidangs', 'kegiatan', 'query'));
-}
+        // Ambil kegiatan yang hanya kategori publik dan sesuai pencarian jika ada
+        $kegiatan = Kegiatan::with('fotokegiatan')
+            ->where('kategori_kegiatan', 'publik') // Filter hanya yang publik
+            ->when($query, function ($qBuilder) use ($query) {
+                $qBuilder->where(function ($subQuery) use ($query) {
+                    $subQuery->where('nama_kegiatan', 'like', '%' . $query . '%')
+                            ->orWhere('deskripsi_kegiatan', 'like', '%' . $query . '%');
+                });
+            })
+            ->latest()
+            ->get();
 
+        return view('kegiatan', compact('bidangs', 'kegiatan', 'query'));
+    }
 
     public function showKegiatanById($id)
     {
@@ -230,6 +230,7 @@ public function kegiatan(Request $request)
 
         // Ambil 5 kegiatan lain (selain yang sedang dibuka)
         $kegiatan_lainnya = Kegiatan::where('id', '!=', $kegiatan->id)
+            ->where('kategori_kegiatan', $kegiatan->kategori_kegiatan)
             ->latest()
             ->take(5)
             ->get();
@@ -266,19 +267,4 @@ public function kegiatan(Request $request)
 
         return response()->json($kegiatans);
     }
-
-
-public function detailKegiatan($id)
-{
-    $kegiatan = Kegiatan::with(['fotokegiatan', 'bidang', 'subbidang'])->findOrFail($id);
-
-
-    $kegiatan_lain = Kegiatan::where('id', '!=', $id)
-                        ->latest()
-                        ->take(4)
-                        ->get();
-
-    return view('kegiatandetail', compact('kegiatan', 'kegiatan_lain'));
-}
-
 }

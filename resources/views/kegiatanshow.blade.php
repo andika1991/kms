@@ -3,8 +3,12 @@
 
 @section('content')
 <section class="relative pb-16">
-    <!-- Latar Belakang Biru -->
-    <div class="absolute top-0 left-0 right-0 h-72 bg-[#2b6cb0]"></div>
+    <div class="absolute top-0 left-0 right-0 h-96 w-full">
+        <div class="h-full w-full bg-cover bg-center"
+            style="background-image: url('{{ asset('assets/img/background_section_kegiatan.png') }}');"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-black/30"></div>
+    </div>
+
     <main class="relative max-w-[1200px] mx-auto px-4 sm:px-6 pt-12">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Konten Utama Kegiatan -->
@@ -18,75 +22,64 @@
                             </li>
                             <li class="flex items-center">
                                 <span class="mx-2">></span>
-                                <a href="{{ route('kegiatan') }}" class="text-blue-600 hover:underline">Daftar Kegiatan</a>
+                                <a href="{{ route('kegiatan') }}" class="text-blue-600 hover:underline">Daftar
+                                    Kegiatan</a>
                             </li>
                             <li class="flex items-center">
                                 <span class="mx-2">></span>
-                                <span class="font-semibold text-gray-700 truncate max-w-xs" title="{{ $kegiatan->nama_kegiatan }}">
+                                <span class="font-semibold text-gray-700 truncate max-w-xs"
+                                    title="{{ $kegiatan->nama_kegiatan }}">
                                     {{ \Illuminate\Support\Str::limit($kegiatan->nama_kegiatan, 40) }}
                                 </span>
                             </li>
                         </ol>
                     </nav>
 
-                    {{-- Slider/Foto Kegiatan --}}
-                    @if($kegiatan->fotokegiatan && $kegiatan->fotokegiatan->count())
-                        <div x-data="{ idx: 0 }" class="relative w-full rounded-xl overflow-hidden mb-7">
-                            <template x-if="$wire.entangle('idx') >= 0">
-                                <img 
-                                    :src="'{{ asset('storage') }}/' + '{{ $kegiatan->fotokegiatan[0]->path_foto }}'"
-                                    class="w-full h-64 md:h-80 object-cover rounded-xl border"
-                                    alt="Foto Kegiatan"
-                                    x-bind:src="'{{ asset('storage') }}/' + '{{ $kegiatan->fotokegiatan[idx]->path_foto }}'"
-                                >
-                            </template>
-                            @if($kegiatan->fotokegiatan->count() > 1)
-                            <button @click="idx = (idx - 1 + {{ $kegiatan->fotokegiatan->count() }}) % {{ $kegiatan->fotokegiatan->count() }}" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-blue-600 hover:text-white text-gray-700 rounded-full shadow w-8 h-8 flex items-center justify-center z-10">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button @click="idx = (idx + 1) % {{ $kegiatan->fotokegiatan->count() }}" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-blue-600 hover:text-white text-gray-700 rounded-full shadow w-8 h-8 flex items-center justify-center z-10">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                            @endif
-                        </div>
+                    {{-- Foto Utama Kegiatan --}}
+                    @if ($kegiatan->fotokegiatan && $kegiatan->fotokegiatan->count() > 0)
+                    <img src="{{ asset('storage/' . $kegiatan->fotokegiatan->first()->path_foto) }}"
+                        class="w-full rounded-xl h-64 md:h-80 object-cover border mb-7"
+                        alt="{{ $kegiatan->nama_kegiatan }}">
                     @else
-                        <img src="https://placehold.co/600x300/E9F2FF/3B82F6?text=No+Image" class="w-full rounded-xl h-64 md:h-80 object-cover border mb-7" alt="No Foto">
+                    <img src="https://placehold.co/600x300/E9F2FF/3B82F6?text=Tidak+Ada+Foto"
+                        class="w-full rounded-xl h-64 md:h-80 object-cover border mb-7" alt="Tidak ada foto">
                     @endif
 
-                    {{-- Kategori, Tanggal, Share, Views --}}
-                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-4">
-                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                            {{ $kegiatan->bidang->nama ?? '-' }}
-                        </span>
+                    {{-- Judul --}}
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 leading-tight">
+                        {{ $kegiatan->nama_kegiatan }}</h1>
+
+                    {{-- PERBAIKAN 1: Info Subbidang, Kategori, dan Tanggal --}}
+                    <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600 mb-6">
                         @if($kegiatan->subbidang)
-                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                            {{ $kegiatan->subbidang->nama }}
-                        </span>
+                        <div>
+                            <span class="font-semibold">Subbidang:</span>
+                            <span class="text-blue-700">{{ $kegiatan->subbidang->nama }}</span>
+                        </div>
                         @endif
-                        <span>{{ \Carbon\Carbon::parse($kegiatan->waktu)->translatedFormat('d F Y') }}</span>
-                        <div class="flex items-center gap-x-4 ml-auto">
-                            <button onclick="navigator.clipboard.writeText(window.location.href); alert('Link berhasil disalin!')" class="flex items-center gap-1.5 hover:text-blue-600 transition" title="Bagikan">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                            <span class="flex items-center gap-1.5" title="Dilihat">
-                                <i class="fas fa-eye"></i> {{ $kegiatan->views ?? 0 }}
-                            </span>
+                        <div>
+                            <span class="font-semibold">Kategori:</span>
+                            <span class="text-blue-700 capitalize">{{ $kegiatan->kategori_kegiatan }}</span>
+                        </div>
+                        <div class="ml-auto">
+                            <span class="font-semibold">Tanggal Upload:</span>
+                            <span>{{ \Carbon\Carbon::parse($kegiatan->created_at)->translatedFormat('d F Y') }}</span>
                         </div>
                     </div>
 
-                    {{-- Judul Kegiatan --}}
-                    <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3 leading-tight">{{ $kegiatan->nama_kegiatan }}</h1>
-
-                    {{-- Deskripsi Kegiatan --}}
-                    <div class="prose max-w-none prose-p:leading-relaxed text-gray-800 mb-8">
-                        {!! $kegiatan->deskripsi !!}
+                    {{-- PERBAIKAN 2: Deskripsi dengan garis pemisah --}}
+                    <div class="border-t border-b py-6 my-6">
+                        <h3 class="font-bold text-lg text-gray-800 mb-2">Deskripsi</h3>
+                        <div class="prose max-w-none prose-p:leading-relaxed text-gray-800">
+                            {!! $kegiatan->deskripsi_kegiatan !!}
+                        </div>
                     </div>
 
-                    {{-- Lampiran File/Download jika ada --}}
+                    {{-- Lampiran jika ada --}}
                     @if($kegiatan->file)
-                    <div class="mt-8 pt-4 border-t">
+                    <div class="mt-8">
                         <a href="{{ asset('storage/' . $kegiatan->file) }}" target="_blank" download
-                           class="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow font-semibold transition">
+                            class="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow font-semibold transition">
                             <i class="fas fa-file-download"></i>
                             Download Lampiran
                         </a>
@@ -100,7 +93,8 @@
                 {{-- Fitur Cari Kegiatan --}}
                 <form action="{{ route('kegiatan') }}" method="GET">
                     <div class="relative">
-                        <input name="q" type="text" placeholder="Cari Kegiatan..." class="w-full rounded-full bg-white py-2.5 pl-10 pr-4 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition" />
+                        <input name="q" type="text" placeholder="Cari Kegiatan..."
+                            class="w-full rounded-full bg-white py-2.5 pl-10 pr-4 border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition" />
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fas fa-search"></i>
                         </span>
@@ -113,15 +107,25 @@
                     <div class="flex flex-col gap-5">
                         @forelse ($kegiatan_lainnya as $lain)
                         <a href="{{ route('kegiatan.show', $lain->id) }}" class="group flex gap-4">
-                            @if($lain->fotokegiatan->first())
-                            <img src="{{ asset('storage/'.$lain->fotokegiatan->first()->path_foto) }}" class="h-20 w-20 object-cover rounded-lg border flex-shrink-0 group-hover:opacity-90 transition-opacity" alt="{{ $lain->nama_kegiatan }}">
-                            @else
-                            <img src="https://placehold.co/100x100/E9F2FF/3B82F6?text=No+Img" class="h-20 w-20 object-cover rounded-lg border flex-shrink-0 group-hover:opacity-90 transition-opacity" alt="No Image">
-                            @endif
+                            <img src="{{ asset('storage/' . ($lain->fotokegiatan->first()->path_foto ?? 'default.jpg')) }}"
+                                class="h-20 w-20 object-cover rounded-lg border flex-shrink-0 group-hover:opacity-90 transition-opacity"
+                                alt="{{ $lain->nama_kegiatan }}">
                             <div class="flex-1">
-                                <p class="text-xs font-semibold text-blue-700 mb-1">{{ $lain->bidang->nama ?? '-' }}</p>
-                                <h4 class="font-bold text-sm text-gray-800 leading-snug group-hover:text-blue-800 transition-colors line-clamp-2">{{ $lain->nama_kegiatan }}</h4>
-                                <p class="text-xs text-gray-500 mt-1">{{ \Carbon\Carbon::parse($lain->waktu)->translatedFormat('d M Y') }}</p>
+                                <h4
+                                    class="font-bold text-sm text-gray-800 leading-snug group-hover:text-blue-800 transition-colors line-clamp-2 mb-1">
+                                    {{ $lain->nama_kegiatan }}</h4>
+                                {{-- PERBAIKAN 3: Menambahkan "Kategori :" --}}
+                                <p class="text-xs font-semibold text-blue-700 mb-1 capitalize">Kategori :
+                                    {{ $lain->kategori_kegiatan }}</p>
+                                {{-- PERBAIKAN 4: Menambahkan deskripsi potongan dan memindahkan tanggal --}}
+                                <div class="flex justify-between items-end gap-2">
+                                    <p class="text-xs text-gray-600 line-clamp-1">
+                                        {{ \Illuminate\Support\Str::limit(strip_tags($lain->deskripsi_kegiatan), 30) }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 flex-shrink-0">
+                                        {{ \Carbon\Carbon::parse($lain->created_at)->translatedFormat('d M Y') }}
+                                    </p>
+                                </div>
                             </div>
                         </a>
                         @empty
@@ -133,7 +137,4 @@
         </div>
     </main>
 </section>
-
-{{-- Alpine.js for Slider --}}
-<script src="//unpkg.com/alpinejs" defer></script>
 @endsection
