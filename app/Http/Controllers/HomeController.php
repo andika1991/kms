@@ -14,7 +14,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $bidangs = Bidang::all(); // Untuk dropdown
+        $bidangs = Bidang::all();
         $totalDokumen = Dokumen::count();
         $totalArtikel = ArtikelPengetahuan::count();
 
@@ -27,7 +27,9 @@ class HomeController extends Controller
                     ->latest()
                     ->take(4)
                     ->get();
-        return view('home', compact('bidangs', 'totalDokumen', 'totalArtikel', 'dokumens', 'artikels'));
+
+        $kegiatans = Kegiatan::with('fotokegiatan')->latest()->take(6)->get();
+        return view('home', compact('bidangs', 'totalDokumen', 'totalArtikel', 'dokumens', 'artikels', 'kegiatans'));
     }
 
     public function pengetahuan()
@@ -112,8 +114,14 @@ class HomeController extends Controller
         $artikel = ArtikelPengetahuan::with(['kategoriPengetahuan.bidang', 'kategoriPengetahuan.subbidang', 'pengguna'])
             ->where('slug', $slug)
             ->firstOrFail();
+        
+        // Ambil 5 artikel pengetahuan lainnya (selain yang sedang dibuka)
+        $pengetahuan_lainnya = ArtikelPengetahuan::where('id', '!=', $artikel->id)
+            ->latest()
+            ->take(5)
+            ->get();
 
-        return view('artikelshow', compact('artikel'));
+        return view('artikelshow', compact('artikel', 'pengetahuan_lainnya'));
     }
 
 
@@ -130,98 +138,120 @@ class HomeController extends Controller
         return view('dokumen', compact('dokumens','bidangs'));
     }
 
-public function getDokumenByBidang($bidang_id)
-{
-    $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($bidang_id) {
-        $query->where('bidang_id', $bidang_id);
-    })->with('user')->get();
+    public function getDokumenByBidang($bidang_id)
+    {
+        $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($bidang_id) {
+            $query->where('bidang_id', $bidang_id);
+        })->with('user')->get();
 
-    return response()->json($dokumens);
-}
+        return response()->json($dokumens);
+    }
 
-public function getDokumenBySubbidang($subbidang_id)
-{
-    $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($subbidang_id) {
-        $query->where('subbidang_id', $subbidang_id);
-    })->with('user')->get();
+    public function getDokumenBySubbidang($subbidang_id)
+    {
+        $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($subbidang_id) {
+            $query->where('subbidang_id', $subbidang_id);
+        })->with('user')->get();
 
-    return response()->json($dokumens);
-}
+        return response()->json($dokumens);
+    }
 
-public function showDokumenById($id)
-{
-    $dokumen = Dokumen::with(['kategoriDokumen.bidang', 'kategoriDokumen.subbidang', 'user'])
-        ->whereHas('kategoriDokumen', function ($query) {
-            $query->where('nama_kategoridokumen', '!=', 'rahasia');
-        })
-        ->findOrFail($id);
+    public function showDokumenById($id)
+    {
+        $dokumen = Dokumen::with(['kategoriDokumen.bidang', 'kategoriDokumen.subbidang', 'user'])
+            ->whereHas('kategoriDokumen', function ($query) {
+                $query->where('nama_kategoridokumen', '!=', 'rahasia');
+            })
+            ->findOrFail($id);
 
-    return view('dokumenshow', compact('dokumen'));
-}
+        // Ambil dokumen lainnya, exclude dokumen yang sedang dibuka
+        $dokumen_lainnya = Dokumen::where('id', '!=', $dokumen->id)
+            ->whereHas('kategoriDokumen', function ($query) {
+                $query->where('nama_kategoridokumen', '!=', 'rahasia');
+            })
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('dokumenshow', compact('dokumen', 'dokumen_lainnya'));
+    }
 
 
-public function searchDokumen(Request $request)
-{
-    $keyword = $request->query('q', '');
+    public function searchDokumen(Request $request)
+    {
+        $keyword = $request->query('q', '');
 
-    if (strlen($keyword) < 2) {
+        if (strlen($keyword) < 2) {
+            return view('dokumensearch', [
+                'dokumens' => collect(),
+                'keyword' => $keyword,
+            ]);
+        }
+
+        $dokumens = Dokumen::with(['kategoriDokumen', 'user'])
+            ->whereHas('kategoriDokumen', function ($query) {
+                $query->where('nama_kategoridokumen', '!=', 'Rahasia');
+            })
+            ->where(function ($query) use ($keyword) {
+                $query->where('nama_dokumen', 'like', "%{$keyword}%")
+                    ->orWhere('deskripsi', 'like', "%{$keyword}%");
+            })
+            ->get();
+
         return view('dokumensearch', [
-            'dokumens' => collect(),
+            'dokumens' => $dokumens,
             'keyword' => $keyword,
         ]);
     }
 
-    $dokumens = Dokumen::with(['kategoriDokumen', 'user'])
-        ->whereHas('kategoriDokumen', function ($query) {
-            $query->where('nama_kategoridokumen', '!=', 'Rahasia');
-        })
-        ->where(function ($query) use ($keyword) {
-            $query->where('nama_dokumen', 'like', "%{$keyword}%")
-                  ->orWhere('deskripsi', 'like', "%{$keyword}%");
-        })
-        ->get();
+    public function kegiatan()
+        {
+            $bidangs = Bidang::all(); // Untuk sidebar filter bidang
+            // Bisa load semua kegiatan atau kosongkan dulu, nanti di load ajax saat klik bidang/subbidang
+            $kegiatan = Kegiatan::with(['fotokegiatan'])->latest()->take(5)->get(); // Ambil 5 terbaru
+            return view('kegiatan', compact('bidangs', 'kegiatan'));
+        }
 
-    return view('dokumensearch', [
-        'dokumens' => $dokumens,
-        'keyword' => $keyword,
-    ]);
-}
-
- public function kegiatan()
+    public function showKegiatanById($id)
     {
-        $bidangs = Bidang::all(); // Untuk sidebar filter bidang
-        // Bisa load semua kegiatan atau kosongkan dulu, nanti di load ajax saat klik bidang/subbidang
-        return view('kegiatan', compact('bidangs'));
+        $kegiatan = Kegiatan::with(['bidang', 'subbidang', 'fotokegiatan'])->findOrFail($id);
+
+        // Ambil 5 kegiatan lain (selain yang sedang dibuka)
+        $kegiatan_lainnya = Kegiatan::where('id', '!=', $kegiatan->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('kegiatanshow', compact('kegiatan', 'kegiatan_lainnya'));
     }
 
-public function getByBidang($bidang_id)
-{
-    $kegiatans = Kegiatan::where('bidang_id', $bidang_id)
-        ->with([
-            'bidang', 
-            'subbidang',
-            'fotokegiatan' => function ($q) {
-                $q->limit(1); // Ambil hanya 1 foto
-            }
-        ])
-        ->get();
+    public function getByBidang($bidang_id)
+    {
+        $kegiatans = Kegiatan::where('bidang_id', $bidang_id)
+            ->with([
+                'bidang', 
+                'subbidang',
+                'fotokegiatan' => function ($q) {
+                    $q->limit(1); // Ambil hanya 1 foto
+                }
+            ])
+            ->get();
 
-    return response()->json($kegiatans);
-}
+        return response()->json($kegiatans);
+    }
 
-public function getBySubbidang($subbidang_id)
-{
-    $kegiatans = Kegiatan::where('subbidang_id', $subbidang_id)
-        ->with([
-            'bidang',
-            'subbidang',
-            'fotokegiatan' => function ($q) {
-                $q->limit(1);
-            }
-        ])
-        ->get();
+    public function getBySubbidang($subbidang_id)
+    {
+        $kegiatans = Kegiatan::where('subbidang_id', $subbidang_id)
+            ->with([
+                'bidang',
+                'subbidang',
+                'fotokegiatan' => function ($q) {
+                    $q->limit(1);
+                }
+            ])
+            ->get();
 
-    return response()->json($kegiatans);
-}
-
+        return response()->json($kegiatans);
+    }
 }
