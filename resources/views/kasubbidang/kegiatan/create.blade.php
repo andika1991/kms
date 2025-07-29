@@ -7,28 +7,6 @@ $tanggal = $carbon->format('l, d F Y');
 
 @section('title', 'Tambah Kegiatan Kasubbidang')
 
-@if(session('success'))
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    Swal.fire({
-        toast: true,
-        position: 'top',
-        icon: 'success',
-        title: '{{ session("success") }}',
-        showConfirmButton: false,
-        timer: 2200,
-        background: '#f0fff4',
-        customClass: {
-            popup: 'rounded-xl shadow-xl mt-6 max-w-xs md:max-w-sm border border-green-300',
-            title: 'font-bold text-base md:text-lg text-green-800',
-            icon: 'text-green-500'
-        }
-    });
-});
-</script>
-@endif
-
 <x-app-layout>
     {{-- HEADER --}}
     <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
@@ -124,7 +102,13 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
 
         {{-- SIDEBAR: Progress & Tips --}}
-        <div class="flex flex-col gap-6 w-full max-w-sm mx-auto mt-10 lg:mt-0">
+        <aside class="flex flex-col gap-6 w-full max-w-sm mx-auto mt-10 lg:mt-0">
+            {{-- CARD ROLE --}}
+            <div
+                class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+                <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
+                <p class="font-bold text-base leading-tight">{{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+            </div>
             {{-- Progress Box --}}
             <div
                 class="rounded-xl shadow-xl bg-gradient-to-r from-green-400 via-blue-500 to-blue-700 p-6 flex flex-col items-center">
@@ -145,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <li>Jaga kualitas dokumentasi pengetahuan.</li>
                 </ul>
             </div>
-        </div>
+        </aside>
     </div>
 
     {{-- Preview Foto --}}

@@ -18,7 +18,8 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">
                     {{-- Search Bar --}}
-                    <form method="GET" action="{{ route('magang.manajemendokumen.index') }}" class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                    <form method="GET" action="{{ route('magang.manajemendokumen.index') }}"
+                        class="relative flex-grow sm:flex-grow-0 sm:w-64">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari nama dokumen..."
                             class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
@@ -42,7 +43,8 @@ $tanggal = $carbon->format('l, d F Y');
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                        Out</button>
                                 </form>
                             </div>
                         </div>
@@ -57,38 +59,28 @@ $tanggal = $carbon->format('l, d F Y');
             <section class="xl:col-span-8 w-full">
                 <div class="flex justify-between items-center mb-6">
                     <span class="font-bold text-lg text-[#2171b8]">Daftar Dokumen Magang</span>
-                    <a href="{{ route('magang.manajemendokumen.create') }}"
-                        class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Tambah Dokumen</span>
-                    </a>
-
-                     <a href="{{ route('dokumen.dibagikan.ke.saya') }}"
-            class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base">
-            <i class="fa-solid fa-share-from-square"></i>
-            <span>Dokumen Dibagikan ke Saya</span>
-        </a>
-           {{-- Notifikasi Success --}}
-            @if(session('success'))
+                    {{-- Tombol sudah dipindah ke aside --}}
+                </div>
+                {{-- Notifikasi Success --}}
+                @if(session('success'))
                 <div
                     class="mb-6 px-6 py-4 rounded-lg bg-green-100 text-green-800 font-semibold shadow-md border border-green-300">
                     {{ session('success') }}
                 </div>
-            @endif
+                @endif
 
-            {{-- Notifikasi Error --}}
-            @if($errors->any())
+                {{-- Notifikasi Error --}}
+                @if($errors->any())
                 <div
                     class="mb-6 px-6 py-4 rounded-lg bg-red-100 text-red-800 font-semibold shadow-md border border-red-300">
                     <ul class="list-disc list-inside">
                         @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                        <li>{{ $error }}</li>
                         @endforeach
                     </ul>
                 </div>
-            @endif
+                @endif
 
-                </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white rounded-2xl shadow border mb-2">
                         <thead>
@@ -99,20 +91,24 @@ $tanggal = $carbon->format('l, d F Y');
                             </tr>
                         </thead>
                         <tbody>
-                        @forelse($dokumen as $item)
+                            @forelse($dokumen as $item)
                             <tr class="@if($loop->even) bg-[#eaf3fa] @endif border-b border-gray-100">
                                 <td class="flex items-center gap-4 px-6 py-4">
                                     {{-- Thumbnail --}}
-                                    <div class="w-20 h-14 flex items-center justify-center rounded-md overflow-hidden bg-gray-100 border">
+                                    <div
+                                        class="w-20 h-14 flex items-center justify-center rounded-md overflow-hidden bg-gray-100 border">
                                         @if($item->thumbnail)
-                                            <img src="{{ asset('storage/'.$item->thumbnail) }}" alt="{{ $item->nama_dokumen }}" class="object-cover w-full h-full" />
+                                        <img src="{{ asset('storage/'.$item->thumbnail) }}"
+                                            alt="{{ $item->nama_dokumen }}" class="object-cover w-full h-full" />
                                         @else
-                                            <img src="{{ asset('assets/img/default-file.svg') }}" alt="No Image" class="object-contain w-10 h-10 opacity-60" />
+                                        <img src="{{ asset('assets/img/default-file.svg') }}" alt="No Image"
+                                            class="object-contain w-10 h-10 opacity-60" />
                                         @endif
                                     </div>
                                     <div>
                                         <div class="font-medium text-gray-900">{{ $item->nama_dokumen }}</div>
-                                        <div class="text-xs text-gray-500 mt-1 line-clamp-1">{{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 20) }}</div>
+                                        <div class="text-xs text-gray-500 mt-1 line-clamp-1">
+                                            {{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 20) }}</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -122,22 +118,24 @@ $tanggal = $carbon->format('l, d F Y');
                                 </td>
                                 <td class="px-6 py-4 flex items-center gap-2 justify-center">
                                     <a href="{{ route('magang.manajemendokumen.show', $item->id) }}"
-                                       class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition text-sm">Lihat</a>
+                                        class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition text-sm">Lihat</a>
                                     <a href="{{ route('magang.manajemendokumen.edit', $item->id) }}"
-                                       class="px-4 py-1.5 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold transition text-sm">Edit</a>
+                                        class="px-4 py-1.5 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold transition text-sm">Edit</a>
                                     <form action="{{ route('magang.manajemendokumen.destroy', $item->id) }}"
-                                          method="POST" onsubmit="return confirm('Hapus dokumen ini?');" class="inline-block">
+                                        method="POST" onsubmit="return confirm('Hapus dokumen ini?');"
+                                        class="inline-block">
                                         @csrf @method('DELETE')
                                         <button type="submit"
                                             class="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold transition text-sm">Hapus</button>
                                     </form>
                                 </td>
                             </tr>
-                        @empty
+                            @empty
                             <tr>
-                                <td colspan="3" class="text-gray-500 text-center py-12">Belum ada dokumen yang tersedia.</td>
+                                <td colspan="3" class="text-gray-500 text-center py-12">Belum ada dokumen yang tersedia.
+                                </td>
                             </tr>
-                        @endforelse
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -149,12 +147,27 @@ $tanggal = $carbon->format('l, d F Y');
 
             {{-- KOLOM SIDEBAR --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+                <div
+                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
                         <p class="font-bold text-lg leading-tight mb-2">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
                         <p class="text-xs">Upload, simpan, dan kelola dokumen magang kamu di sini.</p>
                     </div>
+                </div>
+
+                {{-- Tombol aksi --}}
+                <div class="flex flex-col gap-3 w-full">
+                    <a href="{{ route('magang.manajemendokumen.create') }}"
+                        class="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base w-full">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Tambah Dokumen</span>
+                    </a>
+                    <a href="{{ route('dokumen.dibagikan.ke.saya') }}"
+                        class="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow transition text-base w-full">
+                        <i class="fa-solid fa-share-from-square"></i>
+                        <span>Dokumen Dibagikan ke Saya</span>
+                    </a>
                 </div>
             </aside>
         </div>

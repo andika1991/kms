@@ -185,7 +185,6 @@ use App\Http\Controllers\HomeController;
 
 Route::get('/registers', [RegisterController::class, 'showRegistrationForm'])->middleware('guest')->name('register');
 
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/subbidang/{bidang_id}', [HomeController::class, 'getSubbidang']);
 Route::get('/artikel/subbidang/{subbidang_id}', [HomeController::class, 'getArtikelBySubbidang']);
@@ -213,12 +212,10 @@ Route::get('/dokumen/subbidang/{subbidangId}', [HomeController::class, 'getDokum
 Route::get('/dokumen/search', [HomeController::class, 'searchDokumen'])->name('dokumen.search');
 Route::get('/dokumen/detail/{id}', [HomeController::class, 'showDokumenById'])->name('dokumen.show');
 
-
 // Route utama untuk daftar kegiatan
 Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
 Route::get('/kegiatan/bidang/{bidang_id}', [HomeController::class, 'getByBidang']);
 Route::get('/kegiatan/subbidang/{subbidang_id}', [HomeController::class, 'getBySubbidang']);
-
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -226,13 +223,15 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dokumen/dibagikan-ke-saya', [AksesDokumenController::class, 'dokumenDibagikanKeSaya'])->name('dokumen.dibagikan.ke.saya')->middleware('auth');
-  Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
     Route::post('/notifikasi/{id}/dibaca', [NotifikasiController::class, 'tandaiSudahDibaca'])->name('notifikasi.dibaca');
-       Route::get('/aksesdokumen/{id}/bagikan', [AksesDokumenController::class, 'bagikanForm'])->name('aksesdokumen.bagikan');
+    Route::get('/aksesdokumen/{id}/bagikan', [AksesDokumenController::class, 'bagikanForm'])->name('aksesdokumen.bagikan');
     Route::post('/aksesdokumen/{id}/bagikan', [AksesDokumenController::class, 'prosesBagikan'])->name('aksesdokumen.bagikan.proses');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::patch('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.uploadPhoto');
 
 require __DIR__.'/auth.php';

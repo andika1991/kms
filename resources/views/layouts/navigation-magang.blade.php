@@ -1,5 +1,3 @@
-{{-- resources/views/partials/navigation-magang.blade.php --}}
-
 {{-- AlpineJS harus sudah di-load di layout utama --}}
 <div x-data="{ sidebarOpen: false }">
     {{-- Sidebar - Desktop --}}

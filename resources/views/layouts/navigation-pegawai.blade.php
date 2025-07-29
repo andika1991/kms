@@ -1,4 +1,3 @@
-{{-- resources/views/layouts/navigation-pegawai.blade.php --}}
 <div x-data="{ sidebarOpen: false }">
     {{-- SIDEBAR DESKTOP --}}
     <aside class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex-col hidden lg:flex">
