@@ -2,53 +2,98 @@
 <html lang="id">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@yield('title', config('app.name', 'Knowledge Management System'))</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link rel="preconnect" href="https://fonts.bunny.net" />
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     {{-- Font Awesome untuk ikon di sidebar --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Alpine.js untuk interaktivitas -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="font-figtree bg-gray-100" style="background-image: url('{{ asset('img/body-bg-pattern.png') }}');">
     {{-- HEADER --}}
     <header class="bg-white shadow-md sticky top-0 z-20">
-        <div class="max-w-[1200px] mx-auto px-6 flex items-center justify-between py-3">
+        <div
+            class="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between py-3 md:py-4">
+
             <a href="/">
-                <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" alt="KMS DISKOMINFOTIK" class="h-9">
+                <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" alt="KMS DISKOMINFOTIK" class="h-9" />
             </a>
 
-            <nav class="hidden md:flex items-center gap-8">
+            {{-- Mobile Hamburger Menu --}}
+            <div x-data="{ open: false }" class="md:hidden">
+                <button @click="open = !open" aria-label="Toggle navigation"
+                    class="text-gray-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 rounded-md">
+                    <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
+                    </svg>
+                    <svg x-show="open" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display: none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <nav x-show="open" @click.away="open = false"
+                    class="absolute top-full left-0 w-full bg-white shadow-md border-t md:hidden z-30"
+                    x-transition>
+                    <a href="{{ route('home') }}"
+                        class="{{ request()->routeIs('home') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} block px-6 py-3 border-b border-gray-100 text-sm transition">
+                        Beranda
+                    </a>
+                    <a href="{{ route('about') }}"
+                        class="{{ request()->routeIs('about') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} block px-6 py-3 border-b border-gray-100 text-sm transition">
+                        Tentang Kami
+                    </a>
+                    <a href="{{ route('pengetahuan') }}"
+                        class="{{ request()->routeIs('pengetahuan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} block px-6 py-3 border-b border-gray-100 text-sm transition">
+                        Pengetahuan
+                    </a>
+                    <a href="{{ route('dokumen') }}"
+                        class="{{ request()->routeIs('dokumen') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} block px-6 py-3 border-b border-gray-100 text-sm transition">
+                        Dokumen
+                    </a>
+                    <a href="{{ route('kegiatan') }}"
+                        class="{{ request()->routeIs('kegiatan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} block px-6 py-3 border-b border-gray-100 text-sm transition">
+                        Kegiatan
+                    </a>
+                </nav>
+            </div>
+
+            {{-- Desktop Navigation --}}
+            <nav
+                class="hidden md:flex items-center gap-8 whitespace-nowrap text-sm font-medium select-none">
                 <a href="{{ route('home') }}"
-                    class="{{ request()->routeIs('home') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    class="{{ request()->routeIs('home') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} transition">
                     Beranda
                 </a>
                 <a href="{{ route('about') }}"
-                    class="{{ request()->routeIs('about') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    class="{{ request()->routeIs('about') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} transition">
                     Tentang Kami
                 </a>
                 <a href="{{ route('pengetahuan') }}"
-                    class="{{ request()->routeIs('pengetahuan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    class="{{ request()->routeIs('pengetahuan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} transition">
                     Pengetahuan
                 </a>
                 <a href="{{ route('dokumen') }}"
-                    class="{{ request()->routeIs('dokumen') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    class="{{ request()->routeIs('dokumen') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} transition">
                     Dokumen
                 </a>
                 <a href="{{ route('kegiatan') }}"
-                    class="{{ request()->routeIs('kegiatan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} text-sm transition">
+                    class="{{ request()->routeIs('kegiatan') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} transition">
                     Kegiatan
                 </a>
             </nav>
 
-
             {{-- Logika untuk Tombol Login & Dashboard --}}
-            <div class="flex items-center">
+            <div class="flex items-center ml-4">
                 @auth
                 {{-- Jika pengguna sudah login --}}
                 <div x-data="{ open: false }" class="relative">
@@ -57,7 +102,8 @@
                         <span>{{ Auth::user()->name }}</span>
                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                         </svg>
                     </button>
 
@@ -129,16 +175,18 @@
             </div>
         </div>
     </header>
+
     <main>
         @yield('content')
     </main>
+
     <footer class="bg-[#0B3C6A] text-white pt-12 pb-10 mt-8">
-        <div class="max-w-[1200px] mx-auto px-6 flex flex-col items-center">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8 flex flex-col items-center">
 
             {{-- Logo Tengah Atas --}}
             <div class="mb-8">
                 <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Logo Diskominfo Footer"
-                    class="h-16">
+                    class="h-16" />
             </div>
 
             {{-- Konten Tiga Kolom --}}
@@ -196,6 +244,7 @@
             </div>
         </div>
     </footer>
+
     @stack('scripts')
 </body>
 

@@ -108,13 +108,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <a href="{{ route('magang.kegiatan.show', $item->id) }}"
                         class="group bg-white rounded-2xl shadow-md hover:shadow-lg border border-gray-200/80 overflow-hidden flex flex-col transition-all duration-200">
                         {{-- PREVIEW FOTO --}}
-                        @if($item->foto_kegiatan)
-                            <img src="{{ asset('storage/'.$item->foto_kegiatan) }}"
-                                class="w-full h-48 object-cover object-center" alt="{{ $item->nama_kegiatan }}">
-                        @else
-                            <img src="{{ asset('assets/img/empty-photo.png') }}"
-                                class="w-full h-48 object-cover object-center opacity-70" alt="No Image">
-                        @endif
+                      @if ($item->fotokegiatan->isNotEmpty())
+    <img src="{{ asset('storage/' . $item->fotokegiatan->first()->path_foto) }}"
+        class="w-full h-48 object-cover object-center" alt="{{ $item->nama_kegiatan }}">
+@else
+    <img src="{{ asset('assets/img/empty-photo.png') }}"
+        class="w-full h-48 object-cover object-center opacity-70" alt="No Image">
+@endif
+
                         <div class="flex-1 flex flex-col p-5">
                             <h3 class="font-bold text-base md:text-lg text-gray-900 mb-1 group-hover:text-blue-700 line-clamp-2">
                                 {{ $item->nama_kegiatan }}
