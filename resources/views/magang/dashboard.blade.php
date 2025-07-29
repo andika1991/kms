@@ -3,6 +3,19 @@ use Carbon\Carbon;
 $carbon = Carbon::now()->locale('id');
 $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
+       
+    use App\Models\Notifikasi;
+    use Illuminate\Support\Facades\Auth;
+
+    $jumlahNotifikasi = 0;
+
+    if (Auth::check()) {
+        $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
+            ->where('sudahdibaca', false)
+            ->count();
+    }
+
+
 @endphp
 
 @section('title', 'Dashboard Magang')
@@ -47,11 +60,23 @@ $tanggal = $carbon->format('l, d F Y');
                         </div>
                     </div>
                 </div>
+
+{{-- Notifikasi Bell --}}
+<a href="{{ route('notifikasi.index') }}" class="relative w-10 h-10 flex items-center justify-center bg-white rounded-full border border-gray-300 text-blue-600 text-lg hover:shadow-md hover:border-blue-500 transition">
+    <i class="fa-solid fa-bell"></i>
+    @if($jumlahNotifikasi > 0)
+        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
+            {{ $jumlahNotifikasi }}
+        </span>
+    @endif
+</a>
+
             </div>
             <div class="text-gray-700 text-sm font-medium mt-4">
                 Halo, selamat datang <b>{{ Auth::user()->name }}</b>!
                 Role Anda: <b>{{ Auth::user()->role->nama_role ?? '-' }}</b>
             </div>
+  
         </div>
 
         {{-- BODY KONTEN --}}
@@ -60,44 +85,36 @@ $tanggal = $carbon->format('l, d F Y');
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
                     <div class="flex-1">
-                        <div class="text-3xl font-bold">8</div>
-                        <div class="text-sm mt-1 opacity-90">Kegiatan Magang</div>
+                        <div class="text-3xl font-bold">{{ $jumlahKegiatan }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Kegiatan Magang</div>
                     </div>
                     <i class="fa-solid fa-clipboard-list text-4xl opacity-50"></i>
                 </div>
                 <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
                     <div class="flex-1">
-                        <div class="text-3xl font-bold">5</div>
-                        <div class="text-sm mt-1 opacity-90">Berbagi Pengetahuan</div>
+                        <div class="text-3xl font-bold">{{ $jumlahArtikel }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Artikel Saya</div>
                     </div>
                     <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
                 </div>
                 <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
                     <div class="flex-1">
-                        <div class="text-3xl font-bold">11</div>
-                        <div class="text-sm mt-1 opacity-90">Dokumen Diunggah</div>
+                        <div class="text-3xl font-bold">{{ $jumlahDokumen }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Dokumen diunggah</div>
                     </div>
                     <i class="fa-solid fa-file-upload text-4xl opacity-50"></i>
                 </div>
                 <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-indigo-500 to-indigo-600 transition-transform hover:scale-105">
                     <div class="flex-1">
-                        <div class="text-3xl font-bold">3</div>
-                        <div class="text-sm mt-1 opacity-90">Forum Diskusi</div>
+                        <div class="text-3xl font-bold">{{ $jumlahForum }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Forum Diskusi</div>
                     </div>
                     <i class="fa-solid fa-comments text-4xl opacity-50"></i>
                 </div>
             </div>
 
             {{-- CHARTS & DOKUMEN TERATAS --}}
-            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 flex flex-col lg:flex-row gap-8">
-                {{-- Chart Progress Magang --}}
-                <div class="lg:w-7/12 w-full">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Progress Kegiatan Magang</h3>
-                    <div class="w-full h-60 flex items-center justify-center bg-gray-50 rounded-lg">
-                        {{-- Ganti dengan chart JS dinamis jika sudah ada --}}
-                        <img src="{{ asset('assets/img/chart_dummy_magang.png') }}" class="h-44" alt="Chart Progress Magang">
-                    </div>
-                </div>
+          
                 {{-- Dokumen/Laporan Teratas --}}
                 <div class="lg:w-5/12 w-full flex flex-col justify-center">
                     <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4 text-center lg:text-left">Dokumen/Laporan Magang Teratas</h3>
@@ -122,34 +139,7 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </div>
 
-            {{-- GROUP: 3 Kolom Info Magang + Bar Chart --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {{-- Info Magang --}}
-                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between">
-                    <h3 class="font-bold text-base sm:text-lg text-[#2171b8] mb-2">Info Kegiatan Magang</h3>
-                    <p class="text-sm text-gray-700 leading-relaxed mb-2">
-                        Semua aktivitas, progress, dan kontribusi selama magang akan terintegrasi dalam dashboard ini. Pantau progres, perbarui data, dan pastikan seluruh tugas magang terarsip dengan rapi.
-                    </p>
-                    <p class="text-sm text-gray-600 leading-relaxed">
-                        Setiap aktivitas dan dokumen magang yang sudah diunggah bisa dipantau langsung dari sini.
-                    </p>
-                </div>
-                {{-- Bar Chart Pengetahuan --}}
-                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Perkembangan Pengetahuan Magang</h3>
-                    <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                        <img src="{{ asset('assets/img/chart_dummy_knowledge.png') }}" class="h-32" alt="Bar Chart Pengetahuan">
-                    </div>
-                </div>
-                {{-- Bar Chart Forum --}}
-                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Aktivitas Forum Diskusi Magang</h3>
-                    <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                        <img src="{{ asset('assets/img/chart_dummy_forum.png') }}" class="h-32" alt="Bar Chart Forum">
-                    </div>
-                </div>
-            </div>
-        </div>
+  
 
         <x-slot name="footer">
             <footer class="bg-[#2b6cb0] py-4 mt-8">

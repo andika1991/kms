@@ -55,7 +55,7 @@ $tanggal = $carbon->format('l, d F Y');
             <section class="xl:col-span-8 w-full">
                 {{-- Tombol tambah forum mobile --}}
                 <div class="block xl:hidden mb-4">
-                    <a href="{{ route('magang.forum.create') }}"
+                    <a href="{{ route('pegawai.forum.create') }}"
                         class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-plus"></i>
                         <span>Tambah Forum</span>
@@ -67,7 +67,7 @@ $tanggal = $carbon->format('l, d F Y');
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div>
                                 <h3 class="font-bold text-xl text-gray-800 mb-1">
-                                    <a href="{{ route('magang.forum.show', $grupchat->id) }}" class="hover:text-blue-700">
+                                    <a href="{{ route('pegawai.forum.show', $grupchat->id) }}" class="hover:text-blue-700">
                                         {{ $grupchat->nama_grup }}
                                     </a>
                                 </h3>

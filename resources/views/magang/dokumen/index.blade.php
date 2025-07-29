@@ -62,6 +62,32 @@ $tanggal = $carbon->format('l, d F Y');
                         <i class="fa-solid fa-plus"></i>
                         <span>Tambah Dokumen</span>
                     </a>
+
+                     <a href="{{ route('dokumen.dibagikan.ke.saya') }}"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base">
+            <i class="fa-solid fa-share-from-square"></i>
+            <span>Dokumen Dibagikan ke Saya</span>
+        </a>
+           {{-- Notifikasi Success --}}
+            @if(session('success'))
+                <div
+                    class="mb-6 px-6 py-4 rounded-lg bg-green-100 text-green-800 font-semibold shadow-md border border-green-300">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            {{-- Notifikasi Error --}}
+            @if($errors->any())
+                <div
+                    class="mb-6 px-6 py-4 rounded-lg bg-red-100 text-red-800 font-semibold shadow-md border border-red-300">
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white rounded-2xl shadow border mb-2">
@@ -86,7 +112,7 @@ $tanggal = $carbon->format('l, d F Y');
                                     </div>
                                     <div>
                                         <div class="font-medium text-gray-900">{{ $item->nama_dokumen }}</div>
-                                        <div class="text-xs text-gray-500 mt-1 line-clamp-1">{{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 48) }}</div>
+                                        <div class="text-xs text-gray-500 mt-1 line-clamp-1">{{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 20) }}</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">

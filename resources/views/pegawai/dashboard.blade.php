@@ -3,6 +3,17 @@ use Carbon\Carbon;
 $carbon = Carbon::now()->locale('id');
 $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
+
+    use App\Models\Notifikasi;
+    use Illuminate\Support\Facades\Auth;
+
+    $jumlahNotifikasi = 0;
+
+    if (Auth::check()) {
+        $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
+            ->where('sudahdibaca', false)
+            ->count();
+    }
 @endphp
 
 @section('title', 'Dashboard Pegawai')
@@ -44,10 +55,22 @@ $tanggal = $carbon->format('l, d F Y');
                                         class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
                                 </form>
                             </div>
+
                         </div>
                     </div>
                 </div>
+                {{-- Notifikasi Bell --}}
+<a href="{{ route('notifikasi.index') }}" class="relative w-10 h-10 flex items-center justify-center bg-white rounded-full border border-gray-300 text-blue-600 text-lg hover:shadow-md hover:border-blue-500 transition">
+    <i class="fa-solid fa-bell"></i>
+    @if($jumlahNotifikasi > 0)
+        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
+            {{ $jumlahNotifikasi }}
+        </span>
+    @endif
+</a>
+
             </div>
+            
             <div class="text-gray-700 text-sm font-medium mt-4">
                 Halo, selamat datang <b>{{ Auth::user()->name }}</b>!
                 Role Anda: <b>{{ Auth::user()->role->nama_role ?? '-' }}</b>

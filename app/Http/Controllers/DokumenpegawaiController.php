@@ -77,12 +77,10 @@ public function show(Request $request, $id)
 {
     $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
-    // Cek apakah dokumen ini Rahasia
     $isRahasia = $dokumen->kategoriDokumen 
         && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
 
     if ($isRahasia) {
-        // Cek apakah user sudah mengirimkan encrypted_key
         $inputKey = $request->encrypted_key;
 
         if (!$inputKey) {
@@ -90,8 +88,16 @@ public function show(Request $request, $id)
                 ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
         }
 
-  
-        if ($inputKey !== $dokumen->encrypted_key) {
+        // Dekripsi key dari DB
+        try {
+            $decryptedKey = decrypt($dokumen->encrypted_key);
+        } catch (\Exception $e) {
+            // Jika gagal dekripsi, berarti ada masalah data
+            return redirect()->route('pegawai.manajemendokumen.index')
+                ->with('error', 'Data kunci dokumen tidak valid.');
+        }
+
+        if ($inputKey !== $decryptedKey) {
             return redirect()->route('pegawai.manajemendokumen.index')
                 ->with('error', 'Kunci dokumen salah.');
         }
@@ -99,6 +105,7 @@ public function show(Request $request, $id)
 
     return view('pegawai.dokumen.show', compact('dokumen'));
 }
+
 
 
     public function edit(Dokumen $manajemendokuman)

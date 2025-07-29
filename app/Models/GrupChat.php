@@ -36,6 +36,12 @@ public function messages()
 {
     return $this->hasMany(\App\Models\Message::class, 'grupchat_id');
 }
+
+public function pengguna()
+{
+    return $this->belongsTo(User::class, 'pengguna_id'); // pastikan nama kolom sesuai
+}
+
 public function users()
 {
     return $this->belongsToMany(

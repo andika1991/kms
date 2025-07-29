@@ -54,4 +54,10 @@ class Dokumen extends Model
     {
         return $this->belongsTo(User::class, 'pengguna_id');
     }
+
+    public function aksesDokumenPengguna()
+{
+    return $this->hasMany(AksesDokumenPengguna::class, 'dokumen_id', 'id');
+}
+
 }

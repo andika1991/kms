@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Kepalabagian;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\GrupChat;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\User;
 use App\Models\Bidang;
@@ -105,16 +106,21 @@ class ForumController extends Controller
 
 public function show($id)
 {
-    $grupChat = \App\Models\GrupChat::findOrFail($id);
+    $grupChat = GrupChat::findOrFail($id);
+        $anggota = $grupChat->users()->get();
+   $messages = $grupChat->messages()
+            ->with('pengguna')
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function ($message) {
+                try {
+                    $message->decrypted_message = Crypt::decryptString($message->message);
+                } catch (\Exception $e) {
+                    $message->decrypted_message = '[pesan tidak dapat didekripsi]';
+                }
+                return $message;
+            });
 
-    // Load anggota grup
-    $anggota = $grupChat->users()->get();
-
-    // Load pesan-pesan chat
-    $messages = $grupChat->messages()
-        ->with(['pengguna']) // eager load user
-        ->latest()
-        ->get();
 
     return view('kepalabagian.forum.show', compact('grupChat', 'anggota', 'messages'));
 }
@@ -122,27 +128,99 @@ public function show($id)
 
     public function edit($id)
     {
-        $grupchat = GrupChat::findOrFail($id);
+     $user = Auth::user();
+    $grupchat = GrupChat::findOrFail($id);
+    $roleId = optional($user->role)->id;
+    $bidangId = optional($user->role)->bidang_id;
+    // ambil user & decrypt
+ $users = User::whereHas('role', function ($query) use ($roleId, $bidangId) {
+        $query->where('id', $roleId)
+              ->where('bidang_id', $bidangId);
+    })->get()->map(function ($user) {
+        try {
+            $user->decrypted_name = Crypt::decryptString($user->getRawOriginal('name'));
+        } catch (\Exception $e) {
+            $user->decrypted_name = '[decrypt error]';
+        }
+        try {
+            $user->decrypted_email = Crypt::decryptString($user->getRawOriginal('email'));
+        } catch (\Exception $e) {
+            $user->decrypted_email = '[decrypt error]';
+        }
+        return $user;
+    });
+    // ambil id anggota grup
+    $anggota_ids = $grupchat->users->pluck('id')->toArray();
 
-        return view('kepalabagian.forum.edit', compact('grupchat'));
+    $user = Auth::user();
+    $bidangs = Bidang::where('id', $user->role->bidang_id)->get();
+
+        return view('kepalabagian.forum.edit', compact('grupchat', 'users', 'anggota_ids', 'bidangs'));
     }
 
-    public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'nama_grup' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
-            'grup_role' => 'nullable|string|max:255',
-            'is_private' => 'boolean',
-            'bidang_id' => 'nullable|exists:bidang,id',
+   public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'nama_grup' => 'required|string|max:255',
+        'deskripsi' => 'nullable|string',
+        'grup_role' => 'nullable|string|max:255',
+        'is_private' => 'boolean',
+        'bidang_id' => 'nullable|exists:bidang,id',
+        'pengguna_id' => 'nullable|array',
+        'pengguna_id.*' => 'exists:pengguna,id',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        $grupchat = GrupChat::findOrFail($id);
+
+        // Update data grup chat
+        $grupchat->update([
+            'nama_grup' => $validated['nama_grup'],
+            'deskripsi' => $validated['deskripsi'] ?? null,
+            'grup_role' => $validated['grup_role'] ?? null,
+            'is_private' => $request->has('is_private') ? 1 : 0,
+            'bidang_id' => $validated['bidang_id'] ?? null,
         ]);
 
-        $grupchat = GrupChat::findOrFail($id);
-        $grupchat->update($validated);
+        // Kelola anggota grup
+        $anggota = [];
 
-        return redirect()->route('kepalabagian.forum.index')
-                         ->with('success', 'Forum berhasil diperbarui.');
+        // Pastikan pembuat grup tetap ada di grup
+        $anggota[] = auth()->id();
+
+        if ($grupchat->is_private && isset($validated['pengguna_id'])) {
+            foreach ($validated['pengguna_id'] as $userId) {
+                $anggota[] = $userId;
+            }
+        }
+
+        $anggota = array_unique($anggota);
+
+        // Hapus anggota lama
+        GrupChatUser::where('grupchat_id', $grupchat->id)->delete();
+
+        // Tambahkan anggota baru
+        foreach ($anggota as $userId) {
+            GrupChatUser::create([
+                'grupchat_id' => $grupchat->id,
+                'pengguna_id' => $userId,
+            ]);
+        }
+
+        DB::commit();
+
+        return redirect()
+            ->route('kepalabagian.forum.index')
+            ->with('success', 'Forum berhasil diperbarui.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
+}
+
 
     public function destroy($id)
     {

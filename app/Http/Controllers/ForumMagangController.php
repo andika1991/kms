@@ -126,11 +126,19 @@ public function create()
 
 
         $anggota = $grupChat->users()->get();
-
-        $messages = $grupChat->messages()
-            ->with(['pengguna'])
+   $messages = $grupChat->messages()
+            ->with('pengguna')
             ->orderBy('created_at', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($message) {
+                try {
+                    $message->decrypted_message = Crypt::decryptString($message->message);
+                } catch (\Exception $e) {
+                    $message->decrypted_message = '[pesan tidak dapat didekripsi]';
+                }
+                return $message;
+            });
+
 
         return view('magang.forum.show', compact('grupChat', 'anggota', 'messages'));
     }

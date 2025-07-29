@@ -76,9 +76,34 @@ class DokumenmagangController extends Controller
                      ->with('success', 'Dokumen berhasil ditambahkan.');
 }
 
-public function show($id)
+public function show(Request $request, $id)
 {
     $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
+     $isRahasia = $dokumen->kategoriDokumen 
+        && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
+
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
+
+        if (!$inputKey) {
+            return redirect()->route('pegawai.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
+        }
+
+        // Dekripsi key dari DB
+        try {
+            $decryptedKey = decrypt($dokumen->encrypted_key);
+        } catch (\Exception $e) {
+            // Jika gagal dekripsi, berarti ada masalah data
+            return redirect()->route('magang.manajemendokumen.index')
+                ->with('error', 'Data kunci dokumen tidak valid.');
+        }
+
+        if ($inputKey !== $decryptedKey) {
+            return redirect()->route('magang.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
+    }
 
     return view('magang.dokumen.show', compact('dokumen'));
 }
@@ -86,8 +111,12 @@ public function show($id)
     public function edit(Dokumen $manajemendokuman)
     {
 
-
-        $kategori = KategoriDokumen::all();
+ $bidangId = auth()->user()->role->bidang_id ?? null;
+        $kategori = KategoriDokumen::with('subbidang')
+            ->when($bidangId, function ($query) use ($bidangId) {
+                $query->where('bidang_id', $bidangId);
+            })
+            ->get();
 
         return view('magang.dokumen.edit', compact('manajemendokuman', 'kategori'));
     }
@@ -99,6 +128,7 @@ public function update(Request $request, $id)
         'deskripsi'            => ['nullable', 'string'],
         'kategori_dokumen_id'  => ['required', 'exists:kategori_dokumen,id'],
         'path_dokumen'         => ['nullable', 'file', 'max:10240'],
+        'encrypted_key'        => ['nullable', 'string', 'max:255'], // validasi encrypted_key
     ]);
 
     $dokumen = Dokumen::findOrFail($id);
@@ -115,6 +145,12 @@ public function update(Request $request, $id)
             ->store('dokumen', 'public');
     } else {
         unset($validated['path_dokumen']);
+    }
+
+    // Jika ingin menyimpan encrypted_key (misal terenkripsi pakai Laravel encryption)
+    if (isset($validated['encrypted_key'])) {
+        // Contoh enkripsi:
+        $validated['encrypted_key'] = encrypt($validated['encrypted_key']);
     }
 
     $dokumen->update($validated);

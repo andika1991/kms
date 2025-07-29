@@ -45,8 +45,29 @@ $tanggal = $carbon->format('l, d F Y');
                         </div>
                     </div>
                 </div>
+                
             </div>
+              <a href="{{ route('dokumen.dibagikan.ke.saya') }}"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base mt-4">
+                <i class="fa-solid fa-share-from-square"></i>
+                <span>Dokumen Dibagikan ke Saya</span>
+            </a>
+            
         </div>
+  @if(session('success'))
+                <div
+                    class="mb-6 px-6 py-4 rounded-lg bg-green-100 text-green-800 font-semibold shadow-md border border-green-300">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            {{-- Notifikasi Error --}}
+      @if(session('error'))
+    <div
+        class="mb-6 px-6 py-4 rounded-lg bg-red-100 text-red-800 font-semibold shadow-md border border-red-300">
+        {{ session('error') }}
+    </div>
+@endif
 
         {{-- BODY GRID --}}
         <div class="p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 max-w-[1400px] mx-auto">
@@ -82,6 +103,18 @@ $tanggal = $carbon->format('l, d F Y');
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 flex items-center gap-2 justify-center">
+
+                                    @if ($item->kategoriDokumen && $item->kategoriDokumen->nama_kategoridokumen == 'Rahasia')
+                                    <button
+                                        onclick="showPasswordModal('{{ $item->id }}')"
+                                        class="text-blue-600 hover:underline">
+                                        Lihat
+                                    </button>
+                                    @else
+                                    <a href="{{ route('kepalabagian.manajemendokumen.show', $item->id) }}" class="text-blue-600 hover:underline">
+                                        Lihat
+                                    </a>
+                                    @endif
                                     <a href="{{ route('kepalabagian.manajemendokumen.edit', $item->id) }}"
                                        class="px-4 py-1.5 rounded-full bg-[#bbb549] hover:bg-yellow-500 text-white font-semibold transition text-sm">Edit</a>
                                     <form action="{{ route('kepalabagian.manajemendokumen.destroy', $item->id) }}"
@@ -121,23 +154,27 @@ $tanggal = $carbon->format('l, d F Y');
                     <i class="fa-solid fa-plus"></i>
                     <span>Tambah Dokumen</span>
                 </a>
-                <a href="{{ route('kepalabagian.kategoridokumen.create') }}"
-                   class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base">
-                    <i class="fa-solid fa-folder-plus"></i>
-                    <span>Tambah Kategori</span>
-                </a>
+          
                 {{-- Kategori --}}
-                <div class="bg-white rounded-2xl shadow-lg p-7">
-                    <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Kategori</h3>
-                    <ul class="list-none text-sm text-gray-600 leading-relaxed space-y-1">
-                        <li>Surat Edaran</li>
-                        <li>Formulir & Template</li>
-                        <li>Laporan Bulanan</li>
-                        <li>Notulen Rapat</li>
-                        <li>Laporan Proyek</li>
-                    </ul>
-                </div>
+                
             </aside>
+
+            <!-- MODAL PASSWORD -->
+            <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                <div class="bg-white rounded-xl shadow-lg p-6 w-80 max-w-full">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Masukkan Kunci Dokumen</h3>
+                    <input id="modalPasswordInput" type="password" placeholder="Kunci Dokumen"
+                        class="w-full border border-gray-300 rounded-md px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input type="hidden" id="dokumenId" />
+                    <div class="flex justify-end gap-2">
+                        <button onclick="closeModal()"
+                            class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold">Batal</button>
+                        <button onclick="submitPassword()"
+                            class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
         <x-slot name="footer">
             <footer class="bg-[#2b6cb0] py-4 mt-8">
@@ -148,4 +185,62 @@ $tanggal = $carbon->format('l, d F Y');
             </footer>
         </x-slot>
     </div>
+
+  <script>
+        function closeKategoriModal() {
+            document.getElementById('kategoriModal').classList.add('hidden');
+        }
+
+        function openEditKategoriModal(id, nama) {
+            document.getElementById('edit_nama_kategori').value = nama;
+            document.getElementById('editKategoriForm').action = '/kasubbidang/kategori-dokumen/' + id;
+            document.getElementById('editKategoriModal').classList.remove('hidden');
+        }
+
+        function closeEditKategoriModal() {
+            document.getElementById('editKategoriModal').classList.add('hidden');
+        }
+
+        // Modal password untuk dokumen rahasia
+        function showPasswordModal(dokumenId) {
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('dokumenId').value = dokumenId;
+            document.getElementById('modalPasswordInput').value = '';
+        }
+
+        function closeModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        }
+
+        function submitPassword() {
+            const dokumenId = document.getElementById('dokumenId').value;
+            const password = document.getElementById('modalPasswordInput').value.trim();
+
+            if (!password) {
+                alert('Kunci tidak boleh kosong.');
+                return;
+            }
+
+            const url = `/kepalabagian/manajemendokumen/${dokumenId}?encrypted_key=${encodeURIComponent(password)}`;
+            window.location.href = url;
+        }
+
+        // Konfirmasi hapus dokumen
+        function showHapusModal(id) {
+            Swal.fire({
+                title: 'Yakin ingin menghapus dokumen ini?',
+                text: "Data yang sudah dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-hapus-' + id).submit();
+                }
+            });
+        }
+        </script>
 </x-app-layout>

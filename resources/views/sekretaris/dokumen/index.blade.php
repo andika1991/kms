@@ -93,16 +93,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
 
         {{-- BODY GRID --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 max-w-[1400px] mx-auto">
-            {{-- KOLOM UTAMA (TABEL DOKUMEN) --}}
+            {{-- KOLOM UTAMA (TABEL DOKUMEN) --}}  <a href="{{ route('dokumen.dibagikan.ke.saya') }}"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base mt-4">
+                <i class="fa-solid fa-share-from-square"></i>
+                <span>Dokumen Dibagikan ke Saya</span>
+            </a>
             <section class="xl:col-span-8 w-full">
                 <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
                     <span class="font-bold text-lg text-[#2171b8]">Daftar Dokumen</span>
                 </div>
+                
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white rounded-2xl shadow border mb-2">
                         <thead>
@@ -158,7 +164,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                         {{ $item->kategoriDokumen->nama_kategoridokumen ?? '-' }}
                                     </span>
                                 </td>
-                                {{-- Aksi --}}
+                                @if ($item->kategoriDokumen && $item->kategoriDokumen->nama_kategoridokumen == 'Rahasia')
+                                    <button
+                                        onclick="showPasswordModal('{{ $item->id }}')"
+                                        class="text-blue-600 hover:underline">
+                                        Lihat
+                                    </button>
+                                    @else
+                                    <a href="{{ route('kepalabagian.manajemendokumen.show', $item->id) }}" class="text-blue-600 hover:underline">
+                                        Lihat
+                                    </a>
+                                    @endif
                                 <td class="px-6 py-4 flex items-center gap-2 justify-center align-top group-hover:bg-[#e3f0fd]"
                                     onclick="event.stopPropagation();">
                                     <a href="{{ route('sekretaris.manajemendokumen.edit', $item->id) }}"
@@ -424,4 +440,62 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         </script>
+         <script>
+        function closeKategoriModal() {
+            document.getElementById('kategoriModal').classList.add('hidden');
+        }
+
+        function openEditKategoriModal(id, nama) {
+            document.getElementById('edit_nama_kategori').value = nama;
+            document.getElementById('editKategoriForm').action = '/kasubbidang/kategori-dokumen/' + id;
+            document.getElementById('editKategoriModal').classList.remove('hidden');
+        }
+
+        function closeEditKategoriModal() {
+            document.getElementById('editKategoriModal').classList.add('hidden');
+        }
+
+        // Modal password untuk dokumen rahasia
+        function showPasswordModal(dokumenId) {
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.getElementById('dokumenId').value = dokumenId;
+            document.getElementById('modalPasswordInput').value = '';
+        }
+
+        function closeModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        }
+
+        function submitPassword() {
+            const dokumenId = document.getElementById('dokumenId').value;
+            const password = document.getElementById('modalPasswordInput').value.trim();
+
+            if (!password) {
+                alert('Kunci tidak boleh kosong.');
+                return;
+            }
+
+            const url = `/kepalabagian/manajemendokumen/${dokumenId}?encrypted_key=${encodeURIComponent(password)}`;
+            window.location.href = url;
+        }
+
+        // Konfirmasi hapus dokumen
+        function showHapusModal(id) {
+            Swal.fire({
+                title: 'Yakin ingin menghapus dokumen ini?',
+                text: "Data yang sudah dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-hapus-' + id).submit();
+                }
+            });
+        }
+        </script>
+        
 </x-app-layout>

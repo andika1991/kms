@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Models\Notifikasi;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -26,7 +27,6 @@ class AuthenticatedSessionController extends Controller
 {
     // Jalankan proses autentikasi
     $request->authenticate();
-
     $request->session()->regenerate();
 
     $user = Auth::user();
@@ -45,6 +45,12 @@ class AuthenticatedSessionController extends Controller
     // Ambil role_group dari relasi role
     $roleGroup = $user->role->role_group;
 
+    // Hitung jumlah notifikasi belum dibaca
+    $jumlahNotifikasi = \App\Models\Notifikasi::where('pengguna_id', $user->id)
+        ->where('sudahdibaca', false)
+        ->count();
+
+
     $redirectRoutes = [
         'admin'         => 'admin.dashboard',
         'kepalabagian'  => 'kepalabagian.dashboard',
@@ -52,7 +58,7 @@ class AuthenticatedSessionController extends Controller
         'pegawai'       => 'pegawai.dashboard',
         'magang'        => 'magang.dashboard',
         'sekretaris'    => 'sekretaris.dashboard',
-        'Kadis'  => 'kadis.dashboard',
+        'Kadis'         => 'kadis.dashboard',
     ];
 
     if (isset($redirectRoutes[$roleGroup])) {

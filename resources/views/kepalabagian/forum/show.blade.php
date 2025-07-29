@@ -39,7 +39,7 @@
                                 </span>
                             </p>
                             <p class="text-base">
-                                {{ $message->message }}
+                                {{ $message->decrypted_message }}
                             </p>
 
                             @if($message->file)
