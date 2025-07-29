@@ -69,7 +69,6 @@
                         </div>
                     </div>
 
-                    {{-- PERBAIKAN 1: Menambahkan label "Deskripsi" --}}
                     <h3 class="font-bold text-lg text-gray-800 mt-6 mb-2">Deskripsi</h3>
                     <div class="prose max-w-none prose-p:leading-relaxed text-gray-800 mb-8">
                         {!! $dokumen->deskripsi !!}
