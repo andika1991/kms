@@ -190,6 +190,8 @@ Route::get('/subbidang/{bidang_id}', [HomeController::class, 'getSubbidang']);
 Route::get('/artikel/subbidang/{subbidang_id}', [HomeController::class, 'getArtikelBySubbidang']);
 Route::get('/artikel/bidang/{bidang_id}', [HomeController::class, 'getArtikelByBidang']);
 Route::get('/artikel/{slug}', [HomeController::class, 'showArtikelBySlug'])->name('artikel.show');
+Route::get('/kegiatan/detail/{id}', [HomeController::class, 'detailKegiatan'])->name('kegiatan.detail');
+
 Route::get('/about', function () {
     return view('about');
 })->name('about');

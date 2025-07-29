@@ -1,15 +1,12 @@
 @extends('home.app')
 @section('title', 'Kegiatan - Knowledge Management System')
 
-{{-- Menambahkan SwiperJS untuk slider --}}
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 <style>
-/* Custom Swiper pagination styles to match the design */
 .portal-kegiatan-slider {
     position: relative;
 }
-
 .swiper-pagination {
     position: absolute !important;
     bottom: 20px !important;
@@ -17,7 +14,6 @@
     width: auto !important;
     text-align: left;
 }
-
 .swiper-pagination-bullet {
     width: 10px;
     height: 10px;
@@ -26,7 +22,6 @@
     transition: background-color 0.3s, width 0.3s;
     margin: 0 3px !important;
 }
-
 .swiper-pagination-bullet-active {
     width: 30px;
     border-radius: 5px;
@@ -40,7 +35,6 @@
     <div class="absolute top-0 left-0 right-0 h-96 w-full">
         <div class="h-full w-full bg-cover bg-center"
             style="background-image: url('{{ asset('assets/img/background_section_kegiatan.png') }}');"></div>
-        {{-- Overlay gradient agar teks lebih terbaca --}}
         <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-black/30"></div>
     </div>
 
@@ -66,10 +60,9 @@
     </div>
 
     <main class="relative -mt-40 max-w-[1100px] mx-auto bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
-        <!-- Portal Kegiatan Slider -->
+        {{-- SwiperJS Slider --}}
         <div class="swiper-container portal-kegiatan-slider mb-10">
             <div class="swiper-wrapper">
-                {{-- Ambil 5 kegiatan terbaru untuk slider --}}
                 @forelse($kegiatan as $item)
                 <div class="swiper-slide">
                     <a href="/kegiatan/detail/{{ $item->id }}"
@@ -91,12 +84,11 @@
                 </div>
                 @endforelse
             </div>
-            <!-- Pagination -->
             <div class="swiper-pagination"></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-10">
-            <!-- Sidebar Bidang -->
+            {{-- Sidebar --}}
             <aside class="lg:col-span-1 h-fit">
                 <h3 class="font-bold text-lg mb-6 text-gray-800 border-b pb-3">Bidang</h3>
                 <ul class="flex flex-col gap-4" id="listBidangKegiatan">
@@ -113,25 +105,55 @@
                     </li>
                     @endforeach
                 </ul>
-                <!-- Wrapper dan list subbidang, selalu ada di sidebar -->
+
+                
+            </aside>
+
+            {{-- Kegiatan --}}
+            <section class="lg:col-span-2" id="kegiatanContainer">
+
+
                 <div class="mt-6" id="subbidangWrapperKeg" style="display:none;">
                     <h4 class="text-sm font-semibold mb-2 text-gray-600">Subbidang</h4>
                     <div id="listSubbidangKeg" class="flex flex-wrap gap-2"></div>
                 </div>
-            </aside>
-
-            <!-- Daftar Kegiatan -->
-            <section class="lg:col-span-2" id="kegiatanContainer">
                 <h3 class="font-bold text-2xl mb-6 text-center text-blue-700">Daftar Kegiatan</h3>
 
                 <div id="listKegiatan" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <p class="text-gray-500 col-span-full">Silakan pilih bidang untuk melihat kegiatan.</p>
+                   @php
+    $showingSearch = isset($query) && $query !== '';
+@endphp
+
+@if($showingSearch)
+    @if($kegiatan->count())
+        @foreach ($kegiatan as $item)
+            <div class="border rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col">
+                @if ($item->fotokegiatan->count())
+                    <img src="{{ asset('storage/' . $item->fotokegiatan[0]->path_foto) }}"
+                         class="h-40 w-full object-cover" alt="Thumbnail Kegiatan">
+                @else
+                    <div class="h-40 w-full bg-gray-200 flex items-center justify-center text-gray-400">
+                        Tidak ada gambar
+                    </div>
+                @endif
+
+                <div class="p-4 flex flex-col">
+                    <h4 class="font-semibold text-base text-gray-800 mb-1">{{ $item->nama_kegiatan }}</h4>
+                    <p class="text-sm text-gray-500 mb-1">
+                        Waktu: {{ \Carbon\Carbon::parse($item->tanggal_kegiatan)->format('d M Y') }}
+                    </p>
+                    <a href="{{ route('kegiatan.detail', $item->id) }}"
+                       class="mt-3 text-blue-600 text-sm hover:underline font-semibold">Lihat Detail</a>
                 </div>
-                <div class="mt-10 text-center">
-                    <button
-                        class="bg-blue-600 text-white font-semibold px-6 py-2.5 rounded-lg shadow hover:bg-blue-700 transition-all duration-200">
-                        Tampilkan lebih banyak
-                    </button>
+            </div>
+        @endforeach
+    @else
+        <p class="text-gray-500 col-span-full">Tidak ditemukan kegiatan dengan kata kunci "{{ $query }}".</p>
+    @endif
+@else
+    <p class="text-gray-500 col-span-full">Silakan pilih bidang untuk melihat kegiatan.</p>
+@endif
+
                 </div>
             </section>
         </div>
@@ -142,34 +164,28 @@
 @push('scripts')
 <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const sliderContainer = document.querySelector('.portal-kegiatan-slider');
-    const slideCount = sliderContainer.querySelectorAll('.swiper-slide').length;
+document.addEventListener('DOMContentLoaded', function () {
+    const slider = new Swiper('.portal-kegiatan-slider', {
+        slidesPerView: 1,
+        loop: document.querySelectorAll('.swiper-slide').length > 1,
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true
+        }
+    });
 
-    // Hanya inisialisasi Swiper jika ada slide
-    if (slideCount > 0) {
-        const swiper = new Swiper('.portal-kegiatan-slider', {
-            slidesPerView: 1,
-            spaceBetween: 0,
-            // Hanya aktifkan loop dan autoplay jika ada lebih dari 1 slide
-            loop: slideCount > 1,
-            autoplay: slideCount > 1 ? {
-                delay: 4000,
-                disableOnInteraction: false,
-            } : false,
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-        });
-    }
     const listKegiatan = document.getElementById('listKegiatan');
-    const listBidangKegiatan = document.querySelectorAll('.bidang-item-kegiatan');
+    const bidangItems = document.querySelectorAll('.bidang-item-kegiatan');
     const listSubbidangKeg = document.getElementById('listSubbidangKeg');
     const subbidangWrapperKeg = document.getElementById('subbidangWrapperKeg');
 
     function renderKegiatan(data) {
         listKegiatan.innerHTML = '';
+
         if (!Array.isArray(data) || data.length === 0) {
             listKegiatan.innerHTML = '<p class="text-gray-500 col-span-full">Tidak ada kegiatan ditemukan.</p>';
             return;
@@ -177,56 +193,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
         data.forEach(kegiatan => {
             const card = document.createElement('div');
-            card.className =
-                'border rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col';
+            card.className = 'border rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col';
 
-            const thumbnail = kegiatan.fotokegiatan?.length ?
-                `<img src="/storage/${kegiatan.fotokegiatan[0].path_foto}" class="h-40 w-full object-cover" alt="Thumbnail Kegiatan">` :
-                `<div class="h-40 w-full bg-gray-200 flex items-center justify-center text-gray-400">Tidak ada gambar</div>`;
+            const thumbnail = kegiatan.fotokegiatan?.length
+                ? `<img src="/storage/${kegiatan.fotokegiatan[0].path_foto}" class="h-40 w-full object-cover" alt="Thumbnail Kegiatan">`
+                : `<div class="h-40 w-full bg-gray-200 flex items-center justify-center text-gray-400">Tidak ada gambar</div>`;
 
             card.innerHTML = `
-            ${thumbnail}
-            <div class="p-4 flex flex-col">
-                <h4 class="font-semibold text-base text-gray-800 mb-1">${kegiatan.nama_kegiatan}</h4>
-                <p class="text-sm text-gray-500 mb-1">Waktu: ${kegiatan.waktu ?? '-'}</p>
-                <a href="/kegiatan/detail/${kegiatan.id}" class="mt-3 text-blue-600 text-sm hover:underline font-semibold">Lihat Detail</a>
-            </div>
-        `;
+                ${thumbnail}
+                <div class="p-4 flex flex-col">
+                    <h4 class="font-semibold text-base text-gray-800 mb-1">${kegiatan.nama_kegiatan}</h4>
+                    <p class="text-sm text-gray-500 mb-1">Waktu: ${kegiatan.waktu ?? '-'}</p>
+                    <a href="/kegiatan/detail/${kegiatan.id}" class="mt-3 text-blue-600 text-sm hover:underline font-semibold">Lihat Detail</a>
+                </div>
+            `;
 
             listKegiatan.appendChild(card);
         });
     }
 
-    listBidangKegiatan.forEach(item => {
-        item.addEventListener('click', function() {
+    bidangItems.forEach(item => {
+        item.addEventListener('click', function () {
             const bidangId = this.dataset.id;
 
             listKegiatan.innerHTML = '<p class="text-gray-500 col-span-full">Memuat kegiatan...</p>';
             listSubbidangKeg.innerHTML = '';
-            subbidangWrapperDok.classList.add('hidden');
+            subbidangWrapperKeg.style.display = 'none';
 
             fetch(`/subbidang/${bidangId}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.length > 0) {
-                        subbidangWrapperKeg.classList.remove('hidden');
-                        listSubbidangKeg.innerHTML = '';
+                        subbidangWrapperKeg.style.display = 'block';
                         data.forEach(sub => {
                             const btn = document.createElement('button');
-                            btn.className =
-                                'px-4 py-2 bg-blue-100 hover:bg-blue-200 text-sm rounded shadow text-blue-700';
+                            btn.className = 'px-4 py-2 bg-blue-100 hover:bg-blue-200 text-sm rounded shadow text-blue-700';
                             btn.textContent = sub.nama;
                             btn.dataset.id = sub.id;
 
-                            btn.addEventListener('click', function() {
-                                listKegiatan.innerHTML =
-                                    '<p class="text-gray-500 col-span-full">Memuat kegiatan...</p>';
+                            btn.addEventListener('click', function () {
+                                listKegiatan.innerHTML = '<p class="text-gray-500 col-span-full">Memuat kegiatan...</p>';
                                 fetch(`/kegiatan/subbidang/${sub.id}`)
                                     .then(res => res.json())
                                     .then(data => renderKegiatan(data))
                                     .catch(() => {
-                                        listKegiatan.innerHTML =
-                                            '<p class="text-red-500 col-span-full">Gagal memuat kegiatan subbidang.</p>';
+                                        listKegiatan.innerHTML = '<p class="text-red-500 col-span-full">Gagal memuat kegiatan subbidang.</p>';
                                     });
                             });
 
@@ -239,8 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(res => res.json())
                 .then(data => renderKegiatan(data))
                 .catch(() => {
-                    listKegiatan.innerHTML =
-                        '<p class="text-red-500 col-span-full">Gagal memuat kegiatan bidang.</p>';
+                    listKegiatan.innerHTML = '<p class="text-red-500 col-span-full">Gagal memuat kegiatan bidang.</p>';
                 });
         });
     });

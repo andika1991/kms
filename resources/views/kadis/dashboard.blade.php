@@ -58,53 +58,81 @@ $tanggal = $carbon->format('l, d F Y');
         {{-- BODY KONTEN --}}
         <div class="p-6 md:p-8">
             {{-- STATS CARDS --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {{-- Card 1 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1422</div>
-                        <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
-                    </div>
-                    <i class="fa-solid fa-file-arrow-down text-4xl opacity-50"></i>
-                </div>
-                {{-- Card 2 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1234</div>
-                        <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
-                    </div>
-                    <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
-                </div>
-                {{-- Card 3 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-red-500 to-red-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1422</div>
-                        <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
-                    </div>
-                    <i class="fa-solid fa-file-import text-4xl opacity-50"></i>
-                </div>
-                {{-- Card 4 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1234</div>
-                        <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
-                    </div>
-                    <i class="fa-solid fa-paper-plane text-4xl opacity-50"></i>
-                </div>
-            </div>
+          {{-- STATS CARDS --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    {{-- Total Dokumen --}}
+    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
+        <div class="flex-1">
+            <div class="text-3xl font-bold">{{ $totalDokumen }}</div>
+            <div class="text-sm mt-1 opacity-90">Total Dokumen</div>
+        </div>
+        <i class="fa-solid fa-file-arrow-down text-4xl opacity-50"></i>
+    </div>
+
+    {{-- Total Artikel --}}
+    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
+        <div class="flex-1">
+            <div class="text-3xl font-bold">{{ $totalArtikel }}</div>
+            <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
+        </div>
+        <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
+    </div>
+
+    {{-- Total Pegawai --}}
+    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-red-500 to-red-600 transition-transform hover:scale-105">
+        <div class="flex-1">
+            <div class="text-3xl font-bold">{{ $totalPegawai }}</div>
+            <div class="text-sm mt-1 opacity-90">Total Pegawai</div>
+        </div>
+        <i class="fa-solid fa-user-tie text-4xl opacity-50"></i>
+    </div>
+
+    {{-- Total Magang --}}
+    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
+        <div class="flex-1">
+            <div class="text-3xl font-bold">{{ $totalMagang }}</div>
+            <div class="text-sm mt-1 opacity-90">Total Magang</div>
+        </div>
+        <i class="fa-solid fa-user-graduate text-4xl opacity-50"></i>
+    </div>
+</div>
+
 
             {{-- MAIN GRID (Charts, Lists, etc) --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {{-- Kolom Kiri (Lebih besar) --}}
                 <div class="lg:col-span-2 flex flex-col gap-8">
                     <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perbandingan Dokumen</h3>
-                        <div class="w-full h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                            <span class="text-gray-400 text-sm">[Grafik/Chart Area]</span>
+{{-- Pengguna Teraktif Berdasarkan Artikel --}}
+<div class="bg-white rounded-2xl shadow-lg p-6 mt-8">
+    <h3 class="font-bold text-lg text-gray-800 mb-4">🏆 Top 5 Pengguna Aktif - Artikel</h3>
+    <ul class="space-y-2 text-sm text-gray-700">
+        @forelse ($penggunaTeraktifArtikel as $user)
+            <li class="flex justify-between items-center">
+                <span>{{ $user->pengguna->name ?? 'Tidak diketahui' }}</span>
+                <span class="font-semibold text-gray-500">{{ $user->total_artikel }} artikel</span>
+            </li>
+        @empty
+            <li>Tidak ada data pengguna aktif artikel.</li>
+        @endforelse
+    </ul>
+</div>
+
+{{-- Pengguna Teraktif Berdasarkan Dokumen --}}
+<div class="bg-white rounded-2xl shadow-lg p-6 mt-6">
+    <h3 class="font-bold text-lg text-gray-800 mb-4">📤 Top 5 Pengguna Aktif - Dokumen</h3>
+    <ul class="space-y-2 text-sm text-gray-700">
+        @forelse ($penggunaTeraktifDokumen as $user)
+            <li class="flex justify-between items-center">
+                <span>{{ $user->pengguna->name ?? 'Tidak diketahui' }}</span>
+                <span class="font-semibold text-gray-500">{{ $user->total_dokumen }} dokumen</span>
+            </li>
+        @empty
+            <li>Tidak ada data pengguna aktif dokumen.</li>
+        @endforelse
+    </ul>
+</div>
+
                         </div>
                     </div>
                     <div class="bg-white rounded-2xl shadow-lg p-6">
