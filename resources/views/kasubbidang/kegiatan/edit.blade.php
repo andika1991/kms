@@ -126,7 +126,13 @@ $tanggal = $carbon->format('l, d F Y');
             </form>
         </div>
         {{-- SIDEBAR --}}
-        <div class="flex flex-col gap-6 w-full max-w-sm mx-auto mt-10 lg:mt-0">
+        <aside class="flex flex-col gap-6 w-full max-w-sm mx-auto mt-10 lg:mt-0">
+            {{-- CARD ROLE --}}
+            <div
+                class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+                <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
+                <p class="font-bold text-base leading-tight">{{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+            </div>
             <div
                 class="rounded-xl shadow-xl bg-gradient-to-r from-green-400 via-blue-500 to-blue-700 p-6 flex flex-col items-center">
                 <i class="fa fa-tasks text-4xl mb-3 text-white drop-shadow"></i>
@@ -145,7 +151,7 @@ $tanggal = $carbon->format('l, d F Y');
                     <li>Jaga kualitas dokumentasi pengetahuan.</li>
                 </ul>
             </div>
-        </div>
+        </aside>
     </div>
     {{-- Preview Foto Baru --}}
     <script>

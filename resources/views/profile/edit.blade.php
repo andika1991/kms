@@ -44,7 +44,7 @@ $tanggal = $carbon->format('l, d F Y');
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
                                         Log Out
                                     </button>
                                 </form>
@@ -168,17 +168,40 @@ $tanggal = $carbon->format('l, d F Y');
             {{-- KOLOM KANAN (PROFIL) --}}
             <aside class="lg:col-span-1 w-full flex flex-col gap-8">
                 {{-- Kartu Foto Profil --}}
-                <div
-                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
-                    <div class="relative w-32 h-32 mb-4">
-                        <img src="{{ asset('assets/img/avatar-placeholder.png') }}" alt="Foto Profil"
-                            class="w-full h-full rounded-full object-cover border-4 border-white/50">
+                <form id="form-upload-foto" method="POST" action="{{ route('profile.uploadPhoto') }}"
+                    enctype="multipart/form-data"
+                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center mb-2">
+                    @csrf
+                    @method('PATCH')
+                    <div class="relative w-32 h-32 mb-4 group">
+                        <img id="preview-foto"
+                            src="{{ Auth::user()->photo_profil ? asset('storage/' . Auth::user()->photo_profil) : asset('assets/img/avatar-placeholder.png') }}"
+                            alt="Foto Profil"
+                            class="w-full h-full rounded-full object-cover border-4 border-white/50 transition duration-150 group-hover:opacity-70">
+                        <label for="photo_profil"
+                            class="absolute inset-0 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 bg-black/30 rounded-full transition">
+                            <span class="text-sm font-bold text-white">Pilih Foto</span>
+                            <input type="file" id="photo_profil" name="photo_profil" accept="image/*" class="hidden"
+                                onchange="previewFotoProfile(event)">
+                        </label>
                     </div>
-                    <button
-                        class="w-full bg-white/90 text-blue-800 font-semibold py-2 rounded-lg hover:bg-white transition">
+                    <button type="submit"
+                        class="w-full bg-white/90 text-blue-800 font-semibold py-2 rounded-lg hover:bg-white transition mt-2">
                         Ganti foto
                     </button>
-                </div>
+
+                    {{-- NOTIFIKASI FOTO BERHASIL DIUBAH --}}
+                    @if (session('status') === 'profile-photo-updated')
+                    <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 2000)" x-show="show"
+                        x-transition class="text-green-200 font-bold mt-2 text-sm">
+                        Foto berhasil diubah!
+                    </div>
+                    @endif
+
+                    @error('photo_profil')
+                    <p class="text-red-200 font-semibold mt-2 text-sm">{{ $message }}</p>
+                    @enderror
+                </form>
 
                 {{-- Kartu Info Pengguna --}}
                 <div class="bg-gradient-to-br from-blue-800 to-blue-900 text-white rounded-2xl shadow-lg p-7 space-y-4">
@@ -198,4 +221,18 @@ $tanggal = $carbon->format('l, d F Y');
             </aside>
         </div>
     </div>
+
+    {{-- JS Preview Foto --}}
+    <script>
+    function previewFotoProfile(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('preview-foto').src = ev.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+    </script>
 </x-app-layout>
