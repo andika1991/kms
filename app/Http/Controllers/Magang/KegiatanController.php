@@ -18,7 +18,7 @@ class KegiatanController extends Controller
 {
     $userId = auth()->id();
 
-    $query = Kegiatan::with(['subbidang', 'pengguna'])
+    $query = Kegiatan::with(['subbidang', 'pengguna','fotokegiatan'])
         ->where('pengguna_id', $userId);
 
     if ($request->filled('subbidang_id')) {

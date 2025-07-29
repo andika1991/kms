@@ -7,7 +7,8 @@ use App\Models\Dokumen;
 use App\Models\GrupChatUser;
 use App\Models\ArtikelPengetahuan;
 use Illuminate\Http\Request;
-
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 class DashboardController extends Controller
 {
     public function admin()
@@ -30,19 +31,55 @@ class DashboardController extends Controller
         return view('pegawai.dashboard');
     }
 
-    public function magang()
-    {
+   public function magang()
+{
     $userId = Auth::id();
 
-        // Hitung data yang terkait user yang login
-        $jumlahKegiatan = Kegiatan::where('pengguna_id', $userId)->count();
-        $jumlahDokumen = Dokumen::where('pengguna_id', $userId)->count();
-        $jumlahForum = GrupChatUser::where('pengguna_id', $userId)->count();
-        $jumlahArtikel = ArtikelPengetahuan::where('pengguna_id', $userId)->count();
+    // Total
+    $jumlahKegiatan = Kegiatan::where('pengguna_id', $userId)->count();
+    $jumlahDokumen = Dokumen::where('pengguna_id', $userId)->count();
+    $jumlahForum = GrupChatUser::where('pengguna_id', $userId)->count();
+    $jumlahArtikel = ArtikelPengetahuan::where('pengguna_id', $userId)->count();
 
-        // Kirim ke view
-        return view('magang.dashboard', compact('jumlahKegiatan', 'jumlahDokumen', 'jumlahForum', 'jumlahArtikel'));
+    // Data bulanan (12 bulan terakhir)
+    $bulan = collect(range(1, 12))->map(function ($m) {
+        return Carbon::create()->month($m)->translatedFormat('F');
+    });
+
+    $dokumenPerBulan = Dokumen::select(
+        DB::raw('MONTH(created_at) as bulan'),
+        DB::raw('COUNT(*) as total')
+    )->where('pengguna_id', $userId)
+     ->whereYear('created_at', date('Y'))
+     ->groupBy('bulan')
+     ->pluck('total', 'bulan');
+
+    $artikelPerBulan = ArtikelPengetahuan::select(
+        DB::raw('MONTH(created_at) as bulan'),
+        DB::raw('COUNT(*) as total')
+    )->where('pengguna_id', $userId)
+     ->whereYear('created_at', date('Y'))
+     ->groupBy('bulan')
+     ->pluck('total', 'bulan');
+
+    // Buat array jumlah berdasarkan bulan (0 jika tidak ada)
+    $dataDokumen = [];
+    $dataArtikel = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $dataDokumen[] = $dokumenPerBulan[$i] ?? 0;
+        $dataArtikel[] = $artikelPerBulan[$i] ?? 0;
     }
+    $dokumenTerbaru = Dokumen::where('pengguna_id', $userId)
+    ->orderBy('created_at', 'desc')
+    ->take(5)
+    ->get();
+
+
+    return view('magang.dashboard', compact(
+        'jumlahKegiatan', 'jumlahDokumen', 'jumlahForum', 'jumlahArtikel',
+        'bulan', 'dataDokumen', 'dataArtikel','dokumenTerbaru'
+    ));
+}
 
     public function sekretaris()
     {

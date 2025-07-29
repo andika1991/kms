@@ -112,32 +112,85 @@ $tanggal = $carbon->format('l, d F Y');
                     <i class="fa-solid fa-comments text-4xl opacity-50"></i>
                 </div>
             </div>
+            <h3> <b>Statistik performa saya</b></h3>
+<canvas id="chartDokumenArtikel" class="w-full h-64 bg-white rounded-xl p-4 shadow-md mb-8"></canvas>
 
-            {{-- CHARTS & DOKUMEN TERATAS --}}
-          
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('chartDokumenArtikel').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: @json($bulan),
+            datasets: [
+                {
+                    label: 'Berbagi Dokumen',
+                    data: @json($dataDokumen),
+                    fill: false,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+                },
+                {
+                    label: 'Berbagi Artikel Pengetahuan',
+                    data: @json($dataArtikel),
+                    fill: false,
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(255, 159, 64, 1)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
+
                 {{-- Dokumen/Laporan Teratas --}}
-                <div class="lg:w-5/12 w-full flex flex-col justify-center">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4 text-center lg:text-left">Dokumen/Laporan Magang Teratas</h3>
-                    <ul class="space-y-3">
-                        <li class="flex justify-between items-center text-sm text-gray-700 bg-[#f3f7fb] rounded-md px-3 py-2">
-                            <span>Laporan Akhir Magang</span>
-                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">56 <i class="fa-solid fa-eye text-xs"></i></span>
-                        </li>
-                        <li class="flex justify-between items-center text-sm text-gray-700 px-3 py-2">
-                            <span>Absensi Harian</span>
-                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">23 <i class="fa-solid fa-eye text-xs"></i></span>
-                        </li>
-                        <li class="flex justify-between items-center text-sm text-gray-700 bg-[#f3f7fb] rounded-md px-3 py-2">
-                            <span>Laporan Tengah Magang</span>
-                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">19 <i class="fa-solid fa-eye text-xs"></i></span>
-                        </li>
-                        <li class="flex justify-between items-center text-sm text-gray-700 px-3 py-2">
-                            <span>Surat Tugas Magang</span>
-                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">12 <i class="fa-solid fa-eye text-xs"></i></span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+             {{-- Dokumen/Laporan Teratas --}}
+<div class="lg:w-5/12 w-full flex flex-col justify-center">
+    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4 text-center lg:text-left">Dokumen/Laporan Magang Teratas</h3>
+    <ul class="space-y-3">
+        @forelse($dokumenTerbaru as $index => $dokumen)
+            <li class="flex justify-between items-center text-sm text-gray-700 {{ $index % 2 == 0 ? 'bg-[#f3f7fb] rounded-md' : '' }} px-3 py-2">
+                <span>{{ $dokumen->nama_dokumen }}</span>
+                <span class="font-semibold flex items-center gap-1.5 text-gray-500">
+                    {{ $dokumen->view_count ?? 0 }}
+                    <i class="fa-solid fa-eye text-xs"></i>
+                </span>
+            </li>
+        @empty
+            <li class="text-gray-500 text-sm text-center py-2">Belum ada dokumen yang diunggah.</li>
+        @endforelse
+    </ul>
+</div>
 
   
 

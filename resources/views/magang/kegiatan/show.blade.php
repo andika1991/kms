@@ -53,11 +53,20 @@ $tanggal = $carbon->format('l, d F Y');
             <section class="xl:col-span-8 w-full">
                 <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 flex flex-col gap-6">
                     {{-- Cover/Thumbnail --}}
-                    @if($kegiatan->thumbnail)
-                    <img src="{{ asset('storage/'.$kegiatan->thumbnail) }}"
-                        alt="{{ $kegiatan->nama_kegiatan }}"
-                        class="w-full h-56 md:h-72 object-cover rounded-xl border mb-2" />
-                    @endif
+         @if ($kegiatan->fotokegiatan && $kegiatan->fotokegiatan->count())
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        @foreach ($kegiatan->fotokegiatan as $foto)
+            <img src="{{ asset('storage/' . $foto->path_foto) }}"
+                 alt="{{ $kegiatan->nama_kegiatan }}"
+                 class="w-full h-56 md:h-72 object-cover rounded-xl border">
+        @endforeach
+    </div>
+@else
+    <img src="{{ asset('assets/img/empty-photo.png') }}"
+         alt="Tidak ada gambar"
+         class="w-full h-56 md:h-72 object-cover rounded-xl border opacity-60 mb-2">
+@endif
+
 
                     {{-- Judul --}}
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 leading-tight mb-2">{{ $kegiatan->nama_kegiatan }}</h1>
