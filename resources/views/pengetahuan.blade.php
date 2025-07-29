@@ -50,11 +50,7 @@
             {{-- Artikel Section --}}
             <section class="lg:col-span-2" id="artikelContainer">
                 {{-- Filter Buttons --}}
-                <div class="flex justify-end gap-2 mb-6">
-                    <button class="bg-gray-100 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm hover:bg-gray-200 transition">Persandian</button>
-                    <button class="bg-gray-100 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm hover:bg-gray-200 transition">Statistik</button>
-                </div>
-
+           
                 <div id="subbidangWrapperKanan" class="mb-4 hidden">
                     <h4 class="font-semibold text-gray-700 mb-2">Subbidang</h4>
                     <div id="listSubbidangKanan" class="flex flex-wrap gap-2"></div>

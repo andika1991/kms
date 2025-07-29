@@ -203,14 +203,26 @@ class HomeController extends Controller
             'keyword' => $keyword,
         ]);
     }
+public function kegiatan(Request $request)
+{
+    $bidangs = Bidang::all(); // Untuk sidebar filter bidang
+    $query = $request->input('q'); // Tangkap keyword dari form pencarian
 
-    public function kegiatan()
-        {
-            $bidangs = Bidang::all(); // Untuk sidebar filter bidang
-            // Bisa load semua kegiatan atau kosongkan dulu, nanti di load ajax saat klik bidang/subbidang
-            $kegiatan = Kegiatan::with(['fotokegiatan'])->latest()->take(5)->get(); // Ambil 5 terbaru
-            return view('kegiatan', compact('bidangs', 'kegiatan'));
-        }
+    // Ambil kegiatan yang hanya kategori publik dan sesuai pencarian jika ada
+    $kegiatan = Kegiatan::with('fotokegiatan')
+        ->where('kategori_kegiatan', 'publik') // Filter hanya yang publik
+        ->when($query, function ($qBuilder) use ($query) {
+            $qBuilder->where(function ($subQuery) use ($query) {
+                $subQuery->where('nama_kegiatan', 'like', '%' . $query . '%')
+                         ->orWhere('deskripsi_kegiatan', 'like', '%' . $query . '%');
+            });
+        })
+        ->latest()
+        ->get();
+
+    return view('kegiatan', compact('bidangs', 'kegiatan', 'query'));
+}
+
 
     public function showKegiatanById($id)
     {
@@ -254,4 +266,19 @@ class HomeController extends Controller
 
         return response()->json($kegiatans);
     }
+
+
+public function detailKegiatan($id)
+{
+    $kegiatan = Kegiatan::with(['fotokegiatan', 'bidang', 'subbidang'])->findOrFail($id);
+
+
+    $kegiatan_lain = Kegiatan::where('id', '!=', $id)
+                        ->latest()
+                        ->take(4)
+                        ->get();
+
+    return view('kegiatandetail', compact('kegiatan', 'kegiatan_lain'));
+}
+
 }
