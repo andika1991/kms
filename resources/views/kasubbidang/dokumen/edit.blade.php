@@ -52,23 +52,7 @@ $tanggal = $carbon->format('l, d F Y');
                                 : null;
                         @endphp
 
-                        @if($manajemendokuman->path_dokumen)
-                        <div class="border-2 border-gray-300 border-dashed rounded-xl h-60 flex flex-col justify-center items-center w-full bg-gray-50 mb-3 relative overflow-hidden">
-                            @if($thumb)
-                                <img src="{{ $thumb }}" alt="Thumbnail" class="object-contain max-h-56 w-auto" />
-                            @elseif(in_array($ext, ['jpg','jpeg','png','gif','bmp','webp']))
-                                <img src="{{ $img }}" alt="Gambar" class="object-contain max-h-56 w-auto" />
-                            @elseif($ext == 'pdf')
-                                <img src="{{ route('kasubbidang.manajemendokumen.preview', $manajemendokuman->id) }}" alt="PDF" class="object-contain max-h-56 w-auto" />
-                            @elseif(in_array($ext, ['doc','docx']))
-                                <img src="{{ asset('assets/img/icon-word.svg') }}" alt="Word" class="w-14 h-14" />
-                            @elseif(in_array($ext, ['xls','xlsx']))
-                                <img src="{{ asset('assets/img/icon-excel.svg') }}" alt="Excel" class="w-14 h-14" />
-                            @else
-                                <img src="{{ asset('assets/img/default-file.svg') }}" alt="File" class="w-14 h-14 opacity-70" />
-                            @endif
-                        </div>
-                        @endif
+                   
 
                         <label for="path_dokumen" class="w-full">
                             <div class="border-2 border-gray-300 border-dashed rounded-xl h-20 flex flex-col justify-center items-center cursor-pointer hover:bg-gray-50 transition relative">

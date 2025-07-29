@@ -79,10 +79,43 @@ class ManajemenDokumenController extends Controller
 }
 
 
-    public function show(Dokumen $dokumen)
-    {
-        return view('kepalabagian.dokumen.show', compact('dokumen'));
+   public function show(Request $request, $id)
+{
+    // Ambil data dokumen dengan relasi kategori dan user
+    $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
+
+    // Cek apakah dokumen termasuk kategori "Rahasia"
+    $isRahasia = $dokumen->kategoriDokumen 
+        && $dokumen->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
+
+    // Jika dokumen rahasia, cek kunci yang dimasukkan
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
+
+        if (!$inputKey) {
+            return redirect()->route('kepalabagian.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
+        }
+
+        try {
+            // Dekripsi kunci yang disimpan di database
+            $decryptedKey = decrypt($dokumen->encrypted_key);
+        } catch (\Exception $e) {
+            return redirect()->route('kepalabagian.manajemendokumen.index')
+                ->with('error', 'Data kunci dokumen tidak valid.');
+        }
+
+        // Cocokkan input dengan hasil dekripsi
+        if ($inputKey !== $decryptedKey) {
+            return redirect()->route('kepalabagian.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
     }
+
+    // Tampilkan halaman dokumen jika lolos semua pemeriksaan
+    return view('kepalabagian.dokumen.show', compact('dokumen'));
+}
+
 
     public function edit(Dokumen $dokumen)
     {

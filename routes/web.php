@@ -39,6 +39,8 @@ use App\Http\Controllers\DokumenadminController;
 use App\Http\Controllers\KategoriDokumenadminController;
 use App\Http\Controllers\KegiatanadminController;
 use App\Http\Controllers\ManajemenPenggunaAdminController;
+use App\Http\Controllers\AksesDokumenController;
+use App\Http\Controllers\NotifikasiController;
 Route::middleware(['auth', 'role_group:admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
 });
@@ -78,8 +80,6 @@ Route::resource('forum', \App\Http\Controllers\Kepalabagian\ForumController::cla
 
 Route::get('artikelpengetahuan/kategori/{id}', [ArtikelPengetahuanController::class, 'byKategori'])
             ->name('artikelpengetahuan.byKategori');
-          
-
 Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
 
@@ -223,6 +223,11 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dokumen/dibagikan-ke-saya', [AksesDokumenController::class, 'dokumenDibagikanKeSaya'])->name('dokumen.dibagikan.ke.saya')->middleware('auth');
+  Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::post('/notifikasi/{id}/dibaca', [NotifikasiController::class, 'tandaiSudahDibaca'])->name('notifikasi.dibaca');
+       Route::get('/aksesdokumen/{id}/bagikan', [AksesDokumenController::class, 'bagikanForm'])->name('aksesdokumen.bagikan');
+    Route::post('/aksesdokumen/{id}/bagikan', [AksesDokumenController::class, 'prosesBagikan'])->name('aksesdokumen.bagikan.proses');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

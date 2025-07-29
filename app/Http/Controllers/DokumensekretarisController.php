@@ -94,22 +94,32 @@ class DokumensekretarisController extends Controller
 
         $viewers = \App\Models\DocumentView::where('dokumen_id', $dokumen->id)->with('pengguna')->latest('viewed_at')->get();
 
-        $isRahasia = $dokumen->kategoriDokumen &&
-            strtolower($dokumen->kategoriDokumen->nama_kategoridokumen) === 'rahasia';
+        $isRahasia = $dokumen->kategoriDokumen 
+        && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
 
-        if ($isRahasia) {
-            $inputKey = $request->encrypted_key;
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
 
-            if (!$inputKey) {
-                return redirect()->route('sekretaris.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
-            }
-
-            if ($inputKey !== $dokumen->encrypted_key) {
-                return redirect()->route('sekretaris.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen salah.');
-            }
+        if (!$inputKey) {
+            return redirect()->route('pegawai.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
         }
+
+        // Dekripsi key dari DB
+        try {
+            $decryptedKey = decrypt($dokumen->encrypted_key);
+        } catch (\Exception $e) {
+            // Jika gagal dekripsi, berarti ada masalah data
+            return redirect()->route('sekretaris.manajemendokumen.index')
+                ->with('error', 'Data kunci dokumen tidak valid.');
+        }
+
+        if ($inputKey !== $decryptedKey) {
+            return redirect()->route('sekretaris.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
+    }
+
 
         return view('sekretaris.dokumen.show', compact('dokumen', 'viewers'));
     }

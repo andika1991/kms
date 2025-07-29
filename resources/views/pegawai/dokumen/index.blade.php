@@ -50,23 +50,42 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </div>
         </div>
-@if (session('error'))
-    <div class="mb-4 px-4 py-3 rounded-md bg-red-100 text-red-700 text-sm border border-red-300">
-        {{ session('error') }}
-    </div>
-@endif
+     @if(session('success'))
+                <div
+                    class="mb-6 px-6 py-4 rounded-lg bg-green-100 text-green-800 font-semibold shadow-md border border-green-300">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            {{-- Notifikasi Error --}}
+            @if($errors->any())
+                <div
+                    class="mb-6 px-6 py-4 rounded-lg bg-red-100 text-red-800 font-semibold shadow-md border border-red-300">
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
         {{-- BODY GRID --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 max-w-[1400px] mx-auto">
             {{-- KOLOM UTAMA (DAFTAR DOKUMEN) --}}
             <section class="xl:col-span-8 w-full">
                 <div class="flex justify-between items-center mb-6">
-                    <span class="font-bold text-lg text-[#2171b8]">Daftar Dokumen Pegawai</span>
+                    <span class="font-bold text-lg text-[#2171b8]">Daftar Dokumen Saya</span>
                     <a href="{{ route('pegawai.manajemendokumen.create') }}"
                         class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-plus"></i>
                         <span>Tambah Dokumen</span>
                     </a>
+
+                                 <a href="{{ route('dokumen.dibagikan.ke.saya') }}"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base">
+            <i class="fa-solid fa-share-from-square"></i>
+            <span>Dokumen Dibagikan ke Saya</span>
+        </a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white rounded-2xl shadow border mb-2">

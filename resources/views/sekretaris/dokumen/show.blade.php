@@ -55,6 +55,17 @@ $viewers = $viewers ?? [];
         {{-- MAIN KONTEN --}}
         <div class="p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
             {{-- Konten Dokumen --}}
+              @if(Auth::id() === $dokumen->pengguna_id)
+        <a href="{{ route('aksesdokumen.bagikan', $dokumen->id) }}"
+           class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-xl shadow-lg transition duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15 12H3m0 0l3.293-3.293a1 1 0 011.414 0L12 12l-4.293 4.293a1 1 0 01-1.414 0L3 12z"/>
+            </svg>
+            Bagikan Dokumen
+        </a>
+    @endif
             <section class="xl:col-span-8 w-full">
                 <div class="bg-white rounded-2xl shadow-lg p-4 md:p-10 flex flex-col gap-4">
                     {{-- Breadcrumb --}}

@@ -12,6 +12,7 @@ $tanggal = $carbon->format('l, d F Y');
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Forum Diskusi</h2>
+                     
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -59,6 +60,7 @@ $tanggal = $carbon->format('l, d F Y');
                         <i class="fa-solid fa-plus"></i>
                         <span>Tambah Forum</span>
                     </a>
+                    
                 </div>
 
                 @forelse($grupchats as $grupchat)
@@ -78,6 +80,8 @@ $tanggal = $carbon->format('l, d F Y');
                                 class="px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium transition text-sm">
                                 Lihat
                             </a>
+                       
+
                             @if($grupchat->pengguna_id == auth()->id())
                             <a href="{{ route('kasubbidang.forum.edit', $grupchat->id) }}"
                                 class="px-4 py-2 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-800 font-medium transition text-sm">
