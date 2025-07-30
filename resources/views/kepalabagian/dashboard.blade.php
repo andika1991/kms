@@ -79,56 +79,96 @@ $tanggal = $carbon->format('l, d F Y');
         </div>
 
         {{-- BODY KONTEN --}}
-        <div class="p-6 md:p-8">
-            {{-- STATS CARDS --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {{-- Card 1 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1422</div>
-                        <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
-                    </div>
-                    <i class="fa-solid fa-file-arrow-down text-4xl opacity-50"></i>
-                </div>
-                {{-- Card 2 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1234</div>
-                        <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
-                    </div>
-                    <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
-                </div>
-                {{-- Card 3 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-red-500 to-red-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1422</div>
-                        <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
-                    </div>
-                    <i class="fa-solid fa-file-import text-4xl opacity-50"></i>
-                </div>
-                {{-- Card 4 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1234</div>
-                        <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
-                    </div>
-                    <i class="fa-solid fa-paper-plane text-4xl opacity-50"></i>
-                </div>
-            </div>
+       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    {{-- Dokumen --}}
+    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
+        <div class="flex-1">
+            <div class="text-3xl font-bold">{{ $jumlahDokumen }}</div>
+            <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
+        </div>
+        <i class="fa-solid fa-file-arrow-down text-4xl opacity-50"></i>
+    </div>
+    
+    {{-- Artikel --}}
+    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
+        <div class="flex-1">
+            <div class="text-3xl font-bold">{{ $jumlahArtikel }}</div>
+            <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
+        </div>
+        <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
+    </div>
+    
+    {{-- Kegiatan --}}
+    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-red-500 to-red-600 transition-transform hover:scale-105">
+        <div class="flex-1">
+            <div class="text-3xl font-bold">{{ $jumlahKegiatan }}</div>
+            <div class="text-sm mt-1 opacity-90">Total Kegiatan</div>
+        </div>
+        <i class="fa-solid fa-file-import text-4xl opacity-50"></i>
+    </div>
+    
+    {{-- Forum --}}
+    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
+        <div class="flex-1">
+            <div class="text-3xl font-bold">{{ $jumlahForum }}</div>
+            <div class="text-sm mt-1 opacity-90">Forum Terdaftar</div>
+        </div>
+        <i class="fa-solid fa-comments text-4xl opacity-50"></i>
+    </div>
+</div>
+<div class="bg-white rounded-2xl shadow-lg p-6 mt-6">
+    <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Dokumen & Artikel Tahun Ini</h3>
+    <canvas id="lineChart" class="w-full h-64"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('lineChart').getContext('2d');
+
+    const lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($bulan) !!},
+            datasets: [
+                {
+                    label: 'Dokumen',
+                    data: {!! json_encode($dataDokumen) !!},
+                    borderColor: 'rgba(34,197,94,1)', // green
+                    backgroundColor: 'rgba(34,197,94,0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Artikel',
+                    data: {!! json_encode($dataArtikel) !!},
+                    borderColor: 'rgba(59,130,246,1)', // blue
+                    backgroundColor: 'rgba(59,130,246,0.1)',
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
 
             {{-- GROUP: Perbandingan Dokumen & Dokumen Teratas --}}
-            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 flex flex-col lg:flex-row gap-8">
-                {{-- Chart Area --}}
-                <div class="lg:w-7/12 w-full">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Perbandingan Dokumen</h3>
-                    <div class="w-full h-60 flex items-center justify-center bg-gray-50 rounded-lg">
-                        <span class="text-gray-400 text-sm">[Grafik/Chart Area]</span>
-                    </div>
-                </div>
+           
                 {{-- Dokumen Teratas --}}
                 <div class="lg:w-5/12 w-full flex flex-col justify-center">
                     <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4 text-center lg:text-left">Dokumen

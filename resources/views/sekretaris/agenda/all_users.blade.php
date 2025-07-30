@@ -104,10 +104,14 @@ $waktu = $carbon->format('H:i:s') . ' WIB';
                     </div>
                 </div>
                 <!-- Tombol Tambah Agenda -->
-                <a href="{{ route('sekretaris.agenda.create') }}"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
-                    <i class="fa-solid fa-plus"></i> Tambah Agenda
-                </a>
+                @if (Auth::check() && Auth::user()->roleGroup && Auth::user()->roleGroup->nama_role_group === 'sekretaris')
+    <!-- Tombol Tambah Agenda -->
+    <a href="{{ route('sekretaris.agenda.create') }}"
+        class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
+        <i class="fa-solid fa-plus"></i> Tambah Agenda
+    </a>
+@endif
+
             </aside>
         </div>
     </div>

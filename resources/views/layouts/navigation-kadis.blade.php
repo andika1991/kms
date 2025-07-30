@@ -26,6 +26,12 @@
                 <i class="fa-solid fa-comments w-6 text-center {{ request()->routeIs('kadis.forum.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
                 <span>Forum Diskusi</span>
             </a>
+            <a href="{{ route('all_users') }}"
+                class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
+                    {{ request()->routeIs('all_users.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
+                <i class="fa-solid fa-calendar-check w-6 text-center {{ request()->routeIs('all_users.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
+                <span>Agenda</span>
+            </a>
         </nav>
     </aside>
 
@@ -74,6 +80,12 @@
                 {{ request()->routeIs('kadis.forum.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
             <i class="fa-solid fa-comments w-6 text-center {{ request()->routeIs('kadis.forum.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
             <span>Forum Diskusi</span>
+        </a>
+        <a href="{{ route('all_users') }}"
+            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
+                {{ request()->routeIs('all_users.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
+            <i class="fa-solid fa-calendar-check w-6 text-center {{ request()->routeIs('all_users.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
+            <span>Agenda</span>
         </a>
         <div class="border-t mt-4 pt-4">
             <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>

@@ -134,7 +134,7 @@ $tanggal = $carbon->format('l, d F Y');
                         <i class="fa-solid fa-comments text-4xl"></i>
                     </div>
                     <h3 class="font-bold text-lg">Forum Diskusi</h3>
-                    <p class="text-xs mt-2">Diskusi, kolaborasi, dan knowledge sharing kasubbidang.</p>
+                    <p class="text-xs mt-2">Diskusi, kolaborasi, dan knowledge sharing.</p>
                 </div>
                 <div class="bg-white rounded-2xl shadow-lg p-7">
                     <p class="text-sm text-gray-600 leading-relaxed">

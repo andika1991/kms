@@ -76,57 +76,126 @@ $tanggal = $carbon->format('l, d F Y');
         </div>
 
         {{-- BODY KONTEN --}}
-        <div class="p-6 md:p-8">
-            {{-- STATS CARDS --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {{-- Card 1 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1422</div>
-                        <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
-                    </div>
-                    <i class="fa-solid fa-file-arrow-down text-4xl opacity-50"></i>
-                </div>
-                {{-- Card 2 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1234</div>
-                        <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
-                    </div>
-                    <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
-                </div>
-                {{-- Card 3 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-red-500 to-red-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1422</div>
-                        <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
-                    </div>
-                    <i class="fa-solid fa-file-import text-4xl opacity-50"></i>
-                </div>
-                {{-- Card 4 --}}
-                <div
-                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">1234</div>
-                        <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
-                    </div>
-                    <i class="fa-solid fa-paper-plane text-4xl opacity-50"></i>
-                </div>
+       <div class="p-6 md:p-8">
+    {{-- STATS CARDS --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {{-- Card 1: Total Dokumen --}}
+        <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
+            <div class="flex-1">
+                <div class="text-3xl font-bold">{{ $jumlahDokumen }}</div>
+                <div class="text-sm mt-1 opacity-90">Total Dokumen Masuk</div>
             </div>
+            <i class="fa-solid fa-file-arrow-down text-4xl opacity-50"></i>
+        </div>
 
+        {{-- Card 2: Total Artikel --}}
+        <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
+            <div class="flex-1">
+                <div class="text-3xl font-bold">{{ $jumlahArtikel }}</div>
+                <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
+            </div>
+            <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
+        </div>
+
+        {{-- Card 3: Total Forum --}}
+        <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-red-500 to-red-600 transition-transform hover:scale-105">
+            <div class="flex-1">
+                <div class="text-3xl font-bold">{{ $jumlahForum }}</div>
+                <div class="text-sm mt-1 opacity-90">Total Forum Diikuti</div>
+            </div>
+            <i class="fa-solid fa-comments text-4xl opacity-50"></i>
+        </div>
+
+        {{-- Card 4: Total Kegiatan --}}
+        <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
+            <div class="flex-1">
+                <div class="text-3xl font-bold">{{ $jumlahKegiatan }}</div>
+                <div class="text-sm mt-1 opacity-90">Total Kegiatan</div>
+            </div>
+            <i class="fa-solid fa-calendar-check text-4xl opacity-50"></i>
+        </div>
+    </div>
+</div>
+
+
+<div class="bg-white rounded-2xl shadow-lg p-6">
+    <h3 class="font-bold text-lg text-gray-800 mb-4">Grafik Aktivitas Bulanan</h3>
+    <div class="w-full h-64">
+        <canvas id="lineChartDokumenArtikel"></canvas>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('lineChartDokumenArtikel').getContext('2d');
+
+    const lineChartDokumenArtikel = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: @json($bulan),
+            datasets: [
+                {
+                    label: 'Dokumen',
+                    data: @json($dataDokumen),
+                    borderColor: 'rgba(59, 130, 246, 1)', // blue-500
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                },
+                {
+                    label: 'Artikel',
+                    data: @json($dataArtikel),
+                    borderColor: 'rgba(34, 197, 94, 1)', // green-500
+                    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+</script>
             {{-- MAIN GRID (Charts, Lists, etc) --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {{-- Kolom Kiri (Lebih besar) --}}
                 <div class="lg:col-span-2 flex flex-col gap-8">
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perbandingan Dokumen</h3>
-                        <div class="w-full h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                            <span class="text-gray-400 text-sm">[Grafik/Chart Area]</span>
-                        </div>
-                    </div>
+                 
                     <div class="bg-white rounded-2xl shadow-lg p-6">
                         <h3 class="font-bold text-lg text-gray-800 mb-4">Knowledge Management System</h3>
                         <p class="text-sm text-gray-700 leading-relaxed">
@@ -168,18 +237,8 @@ $tanggal = $carbon->format('l, d F Y');
                             </li>
                         </ul>
                     </div>
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Pengetahuan</h3>
-                        <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                            <span class="text-gray-400 text-sm">[Bar Chart]</span>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Artikel</h3>
-                        <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                            <span class="text-gray-400 text-sm">[Bar Chart]</span>
-                        </div>
-                    </div>
+                   
+                   
                 </div>
             </div>
         </div>
