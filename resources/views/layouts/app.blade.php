@@ -8,9 +8,9 @@
 
     <title>
         @hasSection('title')
-            @yield('title') | KMS Diskominfotik Lampung
+        @yield('title') | KMS Diskominfotik Lampung
         @else
-            KMS Diskominfotik Lampung
+        KMS Diskominfotik Lampung
         @endif
     </title>
 
@@ -29,7 +29,7 @@
 <body class="font-sans antialiased">
     {{-- 1. Tambahkan state management Alpine.js di sini --}}
     <div x-data="{ sidebarOpen: false }" class="min-h-screen bg-[#f8fafc]">
-        
+
         {{-- Sidebar Navigasi --}}
         @if (Auth::check())
         @php
@@ -42,13 +42,13 @@
         @include('layouts.navigation-magang')
         @elseif ($roleGroup === 'kepalabagian')
         @include('layouts.navigation-kepalabagian')
-         @elseif ($roleGroup === 'pegawai')
+        @elseif ($roleGroup === 'pegawai')
         @include('layouts.navigation-pegawai')
-           @elseif ($roleGroup === 'kasubbidang')
+        @elseif ($roleGroup === 'kasubbidang')
         @include('layouts.navigation-kasubbidang')
-             @elseif ($roleGroup === 'sekretaris')
+        @elseif ($roleGroup === 'sekretaris')
         @include('layouts.navigation-sekretaris')
-            @elseif ($roleGroup === 'Kadis')
+        @elseif ($roleGroup === 'Kadis')
         @include('layouts.navigation-kadis')
         @else
         @include('layouts.navigation-default')
@@ -64,9 +64,12 @@
                         <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" class="h-8" alt="Logo">
                     </a>
                     {{-- Tombol ini akan mengubah state 'sidebarOpen' --}}
-                    <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring">
-                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <button @click="sidebarOpen = !sidebarOpen"
+                        class="p-2 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
                 </div>
@@ -80,7 +83,7 @@
             <footer>
                 {{ $footer ?? '' }}
             </footer>
-            
+
         </div>
     </div>
     @stack('scripts')
