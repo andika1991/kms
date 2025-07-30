@@ -7,6 +7,8 @@
     <title>Daftar - Knowledge Management System</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600,700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -52,8 +54,9 @@
                     <!-- Name -->
                     <div>
                         <x-input-label for="name" :value="__('Nama Lengkap')" />
-                        <x-text-input id="name" class="block mt-1 w-full rounded-md border border-gray-300 bg-[#f6f8fa] text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-none transition" type="text" name="name" :value="old('name')"
-                            required autofocus autocomplete="name" />
+                        <x-text-input id="name"
+                            class="block mt-1 w-full rounded-md border border-gray-300 bg-[#f6f8fa] text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-none transition"
+                            type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                     </div>
 
@@ -111,18 +114,40 @@
                     </div>
 
                     <!-- Password -->
-                    <div class="mt-4">
+                    <div class="mt-4 relative">
                         <x-input-label for="password" :value="__('Password')" />
-                        <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
-                            autocomplete="new-password" />
+                        <x-text-input id="password" class="block mt-1 w-full pr-12" type="password" name="password"
+                            required autocomplete="new-password" />
+                        <button type="button" id="togglePassword"
+                            class="absolute right-3 bottom-3 text-gray-400 hover:text-blue-600 focus:outline-none"
+                            tabindex="-1">
+                            <svg id="eyePassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
                     </div>
 
                     <!-- Confirm Password -->
-                    <div class="mt-4">
+                    <div class="mt-4 relative">
                         <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')" />
-                        <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
+                        <x-text-input id="password_confirmation" class="block mt-1 w-full pr-12" type="password"
                             name="password_confirmation" required autocomplete="new-password" />
+                        <button type="button" id="togglePasswordConfirm"
+                            class="absolute right-3 bottom-3 text-gray-400 hover:text-blue-600 focus:outline-none"
+                            tabindex="-1">
+                            <svg id="eyePasswordConfirm" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
                         <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                     </div>
 
@@ -190,12 +215,12 @@
 
     {{-- FOOTER --}}
     <footer class="bg-[#0B3C6A] text-white pt-12 pb-10 mt-8">
-        <div class="max-w-[1200px] mx-auto px-6 flex flex-col items-center">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8 flex flex-col items-center">
 
             {{-- Logo Tengah Atas --}}
             <div class="mb-8">
                 <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Logo Diskominfo Footer"
-                    class="h-16">
+                    class="h-16" />
             </div>
 
             {{-- Konten Tiga Kolom --}}
@@ -215,10 +240,13 @@
                 <div class="md:mx-auto">
                     <h4 class="font-bold text-white text-base mb-4">Menu</h4>
                     <ul class="space-y-2 text-sm text-white/80">
-                        <li><a href="/" class="hover:underline hover:text-white">Home</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Tentang Kami</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Kegiatan</a></li>
-                        <li><a href="#" class="hover:underline hover:text-white">Dokumen</a></li>
+                        <li><a href="{{ route('home') }}" class="hover:underline hover:text-white">Home</a></li>
+                        <li><a href="{{ route('about') }}" class="hover:underline hover:text-white">Tentang Kami</a>
+                        </li>
+                        <li><a href="{{ route('pengetahuan') }}"
+                                class="hover:underline hover:text-white">Pengetahuan</a></li>
+                        <li><a href="{{ route('dokumen') }}" class="hover:underline hover:text-white">Dokumen</a></li>
+                        <li><a href="{{ route('kegiatan') }}" class="hover:underline hover:text-white">Kegiatan</a></li>
                         <li><a href="#" class="hover:underline hover:text-white">Kontak</a></li>
                     </ul>
                 </div>
@@ -227,22 +255,26 @@
                 <div class="md:ml-auto md:text-right">
                     <h4 class="font-bold text-white text-base mb-4">Ikuti Kami</h4>
                     <div class="flex items-center justify-center md:justify-end gap-3">
-                        {{-- Menggunakan Font Awesome untuk ikon yang lebih user-friendly --}}
-                        <a href="#"
+                        {{-- Facebook --}}
+                        <a href="https://www.facebook.com/share/175mUXN9ow/?mibextid=wwXIfr" target="_blank"
+                            rel="noopener"
                             class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
                             <i class="fab fa-facebook-f text-white"></i>
                         </a>
-                        <a href="#"
+                        {{-- Instagram --}}
+                        <a href="https://www.instagram.com/diskominfotik.lampung?igsh=MTRqb3VlOWxzbG9yeQ=="
+                            target="_blank" rel="noopener"
                             class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
                             <i class="fab fa-instagram text-white"></i>
                         </a>
-                        <a href="#"
+                        {{-- Youtube --}}
+                        <a href="https://youtube.com/@diskominfotiklampung?si=9-Py4fdTCy2hOeBX" target="_blank"
+                            rel="noopener"
                             class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors">
                             <i class="fab fa-youtube text-white"></i>
                         </a>
                     </div>
                 </div>
-
             </div>
         </div>
     </footer>
@@ -282,6 +314,37 @@
         toggleRoleOptions();
     });
     </script>
+
+    <script>
+    // Toggle Password
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyePassword = document.getElementById('eyePassword');
+    let isPasswordVisible = false;
+
+    togglePassword?.addEventListener('click', function() {
+        isPasswordVisible = !isPasswordVisible;
+        passwordInput.type = isPasswordVisible ? 'text' : 'password';
+        eyePassword.innerHTML = isPasswordVisible ?
+            `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.06 10.06 0 012.98-4.362m1.97-1.643A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.961 9.961 0 01-4.234 5.146M15 12a3 3 0 11-6 0 3 3 0 016 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />` :
+            `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+    });
+
+    // Toggle Confirm Password
+    const togglePasswordConfirm = document.getElementById('togglePasswordConfirm');
+    const passwordConfirmInput = document.getElementById('password_confirmation');
+    const eyePasswordConfirm = document.getElementById('eyePasswordConfirm');
+    let isPasswordConfirmVisible = false;
+
+    togglePasswordConfirm?.addEventListener('click', function() {
+        isPasswordConfirmVisible = !isPasswordConfirmVisible;
+        passwordConfirmInput.type = isPasswordConfirmVisible ? 'text' : 'password';
+        eyePasswordConfirm.innerHTML = isPasswordConfirmVisible ?
+            `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.06 10.06 0 012.98-4.362m1.97-1.643A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.961 9.961 0 01-4.234 5.146M15 12a3 3 0 11-6 0 3 3 0 016 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />` :
+            `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+    });
+    </script>
+
 </body>
 
 </html>
