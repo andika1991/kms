@@ -222,6 +222,8 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+     Route::get('/agenda/all-users', [ManajemenAgendaController::class, 'showAllUsersWithAgenda'])
+->name('all_users');
     Route::get('/dokumen/dibagikan-ke-saya', [AksesDokumenController::class, 'dokumenDibagikanKeSaya'])->name('dokumen.dibagikan.ke.saya')->middleware('auth');
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
     Route::post('/notifikasi/{id}/dibaca', [NotifikasiController::class, 'tandaiSudahDibaca'])->name('notifikasi.dibaca');

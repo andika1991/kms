@@ -81,72 +81,122 @@ $tanggal = $carbon->format('l, d F Y');
         <div class="p-6 md:p-8">
             {{-- STATS CARDS --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold">{{ $jumlah_kegiatan ?? 10 }}</div>
-                        <div class="text-sm mt-1 opacity-90">Total Kegiatan</div>
-                    </div>
-                    <i class="fa-solid fa-list-check text-4xl opacity-50"></i>
-                </div>
                 <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
                     <div class="flex-1">
-                        <div class="text-3xl font-bold">{{ $jumlah_pengetahuan ?? 7 }}</div>
-                        <div class="text-sm mt-1 opacity-90">Knowledge Shared</div>
+                        <div class="text-3xl font-bold">{{ $jumlahKegiatan }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Kegiatan Magang</div>
+                    </div>
+                    <i class="fa-solid fa-clipboard-list text-4xl opacity-50"></i>
+                </div>
+                <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold">{{ $jumlahArtikel }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Artikel Saya</div>
                     </div>
                     <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
                 </div>
                 <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
                     <div class="flex-1">
-                        <div class="text-3xl font-bold">{{ $jumlah_dokumen ?? 13 }}</div>
-                        <div class="text-sm mt-1 opacity-90">Dokumen Dikelola</div>
+                        <div class="text-3xl font-bold">{{ $jumlahDokumen }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Dokumen diunggah</div>
                     </div>
-                    <i class="fa-solid fa-folder-open text-4xl opacity-50"></i>
+                    <i class="fa-solid fa-file-upload text-4xl opacity-50"></i>
                 </div>
                 <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-indigo-500 to-indigo-600 transition-transform hover:scale-105">
                     <div class="flex-1">
-                        <div class="text-3xl font-bold">{{ $jumlah_forum ?? 4 }}</div>
-                        <div class="text-sm mt-1 opacity-90">Forum Diskusi</div>
+                        <div class="text-3xl font-bold">{{ $jumlahForum }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Forum Diskusi</div>
                     </div>
                     <i class="fa-solid fa-comments text-4xl opacity-50"></i>
                 </div>
             </div>
+            <h3> <b>Statistik performa saya</b></h3>
+<canvas id="chartDokumenArtikel" class="w-full h-64 bg-white rounded-xl p-4 shadow-md mb-8"></canvas>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('chartDokumenArtikel').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: @json($bulan),
+            datasets: [
+                {
+                    label: 'Berbagi Dokumen',
+                    data: @json($dataDokumen),
+                    fill: false,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+                },
+                {
+                    label: 'Berbagi Artikel Pengetahuan',
+                    data: @json($dataArtikel),
+                    fill: false,
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(255, 159, 64, 1)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+                {{-- Dokumen/Laporan Teratas --}}
+             {{-- Dokumen/Laporan Teratas --}}
+<div class="lg:w-5/12 w-full flex flex-col justify-center">
+    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4 text-center lg:text-left">Dokumen/Laporan Magang Teratas</h3>
+    <ul class="space-y-3">
+        @forelse($dokumenTerbaru as $index => $dokumen)
+            <li class="flex justify-between items-center text-sm text-gray-700 {{ $index % 2 == 0 ? 'bg-[#f3f7fb] rounded-md' : '' }} px-3 py-2">
+                <span>{{ $dokumen->nama_dokumen }}</span>
+                <span class="font-semibold flex items-center gap-1.5 text-gray-500">
+                    {{ $dokumen->view_count ?? 0 }}
+                    <i class="fa-solid fa-eye text-xs"></i>
+                </span>
+            </li>
+        @empty
+            <li class="text-gray-500 text-sm text-center py-2">Belum ada dokumen yang diunggah.</li>
+        @endforelse
+    </ul>
+</div>
 
             {{-- CHARTS & DOKUMEN TERPOPULER --}}
             <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 flex flex-col lg:flex-row gap-8">
                 {{-- Chart Progress Kegiatan --}}
-                <div class="lg:w-7/12 w-full">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Progress Pengelolaan Kegiatan</h3>
-                    <div class="w-full h-60 flex items-center justify-center bg-gray-50 rounded-lg">
-                        {{-- Chart dinamis, jika sudah tersedia --}}
-                        <img src="{{ asset('assets/img/chart_dummy_pegawai.png') }}" class="h-44" alt="Chart Progress Kegiatan">
-                    </div>
-                </div>
-                {{-- Dokumen Terpopuler --}}
-                <div class="lg:w-5/12 w-full flex flex-col justify-center">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4 text-center lg:text-left">Dokumen Terpopuler</h3>
-                    <ul class="space-y-3">
-                        <li class="flex justify-between items-center text-sm text-gray-700 bg-[#f3f7fb] rounded-md px-3 py-2">
-                            <span>Surat Keputusan</span>
-                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">42 <i class="fa-solid fa-eye text-xs"></i></span>
-                        </li>
-                        <li class="flex justify-between items-center text-sm text-gray-700 px-3 py-2">
-                            <span>Berita Acara Rapat</span>
-                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">35 <i class="fa-solid fa-eye text-xs"></i></span>
-                        </li>
-                        <li class="flex justify-between items-center text-sm text-gray-700 bg-[#f3f7fb] rounded-md px-3 py-2">
-                            <span>Laporan Tahunan</span>
-                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">28 <i class="fa-solid fa-eye text-xs"></i></span>
-                        </li>
-                        <li class="flex justify-between items-center text-sm text-gray-700 px-3 py-2">
-                            <span>Template Administrasi</span>
-                            <span class="font-semibold flex items-center gap-1.5 text-gray-500">17 <i class="fa-solid fa-eye text-xs"></i></span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            
 
             {{-- GROUP: 3 Kolom Info + Statistik --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+           
                 {{-- Info Pegawai --}}
                 <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between">
                     <h3 class="font-bold text-base sm:text-lg text-[#2171b8] mb-2">Info Kegiatan Pegawai</h3>
@@ -158,19 +208,7 @@ $tanggal = $carbon->format('l, d F Y');
                     </p>
                 </div>
                 {{-- Bar Chart Pengetahuan --}}
-                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Statistik Knowledge Sharing</h3>
-                    <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                        <img src="{{ asset('assets/img/chart_dummy_knowledge.png') }}" class="h-32" alt="Bar Chart Pengetahuan">
-                    </div>
-                </div>
-                {{-- Bar Chart Forum --}}
-                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-4">Aktivitas Forum Diskusi</h3>
-                    <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                        <img src="{{ asset('assets/img/chart_dummy_forum.png') }}" class="h-32" alt="Bar Chart Forum">
-                    </div>
-                </div>
+            
             </div>
         </div>
 

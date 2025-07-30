@@ -6,10 +6,9 @@
         </a>
     </div>
 
-    {{-- Nav Links --}}
-    <nav class="flex-1 px-4 py-4 space-y-2">
-        
-        {{-- Link Dashboard --}}
+    {{-- Navigasi scrollable --}}
+    <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto max-h-screen">
+        {{-- Dashboard --}}
         <a href="{{ route('kepalabagian.dashboard') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition 
                   {{ request()->routeIs('kepalabagian.dashboard') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
@@ -17,40 +16,44 @@
             <span>Dashboard</span>
         </a>
 
-        {{-- Link Kategori Pengetahuan --}}
+        {{-- Kategori Pengetahuan --}}
         <a href="{{ route('kepalabagian.kategoripengetahuan.index') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
                   {{ request()->routeIs('kepalabagian.kategoripengetahuan.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
             <i class="fa-solid fa-layer-group w-6 text-center {{ request()->routeIs('kepalabagian.kategoripengetahuan.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
             <span>Kategori Pengetahuan</span>
         </a>
-        
-        {{-- Link Artikel Pengetahuan --}}
+
+        {{-- Artikel Pengetahuan --}}
         <a href="{{ route('kepalabagian.artikelpengetahuan.index') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
                   {{ request()->routeIs('kepalabagian.artikelpengetahuan.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
             <i class="fa-solid fa-file-alt w-6 text-center {{ request()->routeIs('kepalabagian.artikelpengetahuan.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
             <span>Artikel Pengetahuan</span>
         </a>
-        
-        {{-- Link Manajemen Dokumen --}}
+
+        {{-- Manajemen Dokumen --}}
         <a href="{{ route('kepalabagian.manajemendokumen.index') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
                   {{ request()->routeIs('kepalabagian.manajemendokumen.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
-            
-            {{-- PERBAIKAN: Operator ternary diperbaiki di baris ini --}}
             <i class="fa-solid fa-folder-open w-6 text-center {{ request()->routeIs('kepalabagian.manajemendokumen.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
-            
             <span>Manajemen Dokumen</span>
         </a>
 
-        {{-- Link Forum Diskusi --}}
+        {{-- Forum Diskusi --}}
         <a href="{{ route('kepalabagian.forum.index') }}"
            class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
                   {{ request()->routeIs('kepalabagian.forum.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
             <i class="fa-solid fa-comments w-6 text-center {{ request()->routeIs('kepalabagian.forum.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
             <span>Forum Diskusi</span>
         </a>
-
+  
+    <a href="{{ route('all_users') }}"
+       class="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base transition
+              {{ request()->routeIs('all_users.*') ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100' }}">
+        <i class="fa-solid fa-calendar-check w-6 text-center {{ request()->routeIs('agenda.*') ? 'text-white' : 'text-gray-400' }} text-lg"></i>
+        <span>Agenda</span>
+    </a>
+        {{-- Tambahkan menu lain di sini jika diperlukan --}}
     </nav>
 </aside>

@@ -67,11 +67,9 @@ $tanggal = $carbon->format('l, d F Y');
                                 </a>
                             </h3>
                             <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ $grupchat->deskripsi }}</p>
-                            <div class="text-xs text-gray-500">
-                                Role: <span class="font-semibold">{{ $grupchat->grup_role ?? '-' }}</span>
-                            </div>
+ 
                             <div class="text-xs text-gray-500 mt-1">
-                                Dibuat oleh: <span class="font-semibold">{{ $grupchat->user->name ?? 'N/A' }}</span>
+                                Dibuat oleh: <span class="font-semibold">{{ $grupchat->pengguna->name ?? 'N/A' }}</span>
                             </div>
                         </div>
                         <div class="flex gap-2 md:gap-4 mt-3 md:mt-0">
