@@ -12,10 +12,72 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 class DashboardController extends Controller
 {
-    public function admin()
-    {
-        return view('admin.dashboard');
+  public function admin()
+{
+    // Hitung total seluruh data di sistem (tidak terbatas pengguna tertentu)
+    $jumlahKegiatan = Kegiatan::count();
+    $jumlahDokumen  = Dokumen::count();
+    $jumlahForum    = GrupChatUser::count();
+    $jumlahArtikel  = ArtikelPengetahuan::count();
+
+    // Nama bulan (Januari - Desember)
+    $bulan = collect(range(1, 12))->map(fn($m) => Carbon::create()->month($m)->translatedFormat('F'));
+
+    // Data dokumen per bulan
+    $dokumenPerBulan = Dokumen::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
+
+    // Data artikel per bulan
+    $artikelPerBulan = ArtikelPengetahuan::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
+
+    // Data kegiatan per bulan
+    $kegiatanPerBulan = Kegiatan::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
+
+    // Data forum per bulan
+    $forumPerBulan = GrupChatUser::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
+
+    // Inisialisasi array agar semua bulan terisi (meskipun 0)
+    $dataDokumen = [];
+    $dataArtikel = [];
+    $dataKegiatan = [];
+    $dataForum = [];
+
+    for ($i = 1; $i <= 12; $i++) {
+        $dataDokumen[] = $dokumenPerBulan[$i] ?? 0;
+        $dataArtikel[] = $artikelPerBulan[$i] ?? 0;
+        $dataKegiatan[] = $kegiatanPerBulan[$i] ?? 0;
+        $dataForum[] = $forumPerBulan[$i] ?? 0;
     }
+
+    // Dokumen terbaru secara keseluruhan
+    $dokumenTerbaru = Dokumen::latest()->take(5)->get();
+
+    return view('admin.dashboard', compact(
+        'jumlahKegiatan',
+        'jumlahDokumen',
+        'jumlahForum',
+        'jumlahArtikel',
+        'bulan',
+        'dataDokumen',
+        'dataArtikel',
+        'dataKegiatan',
+        'dataForum',
+        'dokumenTerbaru'
+    ));
+}
+
+
 
   public function kepalabagian()
 {
@@ -245,7 +307,50 @@ $penggunaIds = \App\Models\User::whereHas('role', function ($query) use ($subbid
 
     public function sekretaris()
     {
-        return view('sekretaris.dashboard');
+        $userId = Auth::id();
+
+    // Total
+    $jumlahKegiatan = Kegiatan::where('pengguna_id', $userId)->count();
+    $jumlahDokumen = Dokumen::where('pengguna_id', $userId)->count();
+    $jumlahForum = GrupChatUser::where('pengguna_id', $userId)->count();
+    $jumlahArtikel = ArtikelPengetahuan::where('pengguna_id', $userId)->count();
+
+    // Data bulanan (12 bulan terakhir)
+    $bulan = collect(range(1, 12))->map(function ($m) {
+        return Carbon::create()->month($m)->translatedFormat('F');
+    });
+
+    $dokumenPerBulan = Dokumen::select(
+        DB::raw('MONTH(created_at) as bulan'),
+        DB::raw('COUNT(*) as total')
+    )->where('pengguna_id', $userId)
+     ->whereYear('created_at', date('Y'))
+     ->groupBy('bulan')
+     ->pluck('total', 'bulan');
+
+    $artikelPerBulan = ArtikelPengetahuan::select(
+        DB::raw('MONTH(created_at) as bulan'),
+        DB::raw('COUNT(*) as total')
+    )->where('pengguna_id', $userId)
+     ->whereYear('created_at', date('Y'))
+     ->groupBy('bulan')
+     ->pluck('total', 'bulan');
+
+    // Buat array jumlah berdasarkan bulan (0 jika tidak ada)
+    $dataDokumen = [];
+    $dataArtikel = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $dataDokumen[] = $dokumenPerBulan[$i] ?? 0;
+        $dataArtikel[] = $artikelPerBulan[$i] ?? 0;
+    }
+    $dokumenTerbaru = Dokumen::where('pengguna_id', $userId)
+    ->orderBy('created_at', 'desc')
+    ->take(5)
+    ->get();
+        return view('sekretaris.dashboard', compact(
+            'jumlahKegiatan', 'jumlahDokumen', 'jumlahForum', 'jumlahArtikel',
+            'bulan', 'dataDokumen', 'dataArtikel','dokumenTerbaru'
+        ));
     }
 
   public function kadis()
