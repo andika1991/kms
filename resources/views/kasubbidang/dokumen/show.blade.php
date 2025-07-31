@@ -3,7 +3,11 @@ use Carbon\Carbon;
 $carbon = Carbon::parse($dokumen->created_at)->locale('id');
 $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
+$viewCount = $dokumen->views_count ?? 0;
+
 @endphp
+
+@section('title', 'View Dokumen Kasubbidang')
 
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-12">
@@ -15,7 +19,7 @@ $tanggal = $carbon->format('l, d F Y');
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">
-                    {{-- Search Bar (optional, bisa dihapus kalau tidak pakai) --}}
+                    {{-- Search Bar --}}
                     <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
                         <input type="text" placeholder="Cari..."
                             class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
@@ -38,7 +42,8 @@ $tanggal = $carbon->format('l, d F Y');
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                        Out</button>
                                 </form>
                             </div>
                         </div>
@@ -46,86 +51,90 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </div>
         </div>
-  @if(Auth::id() === $dokumen->pengguna_id)
-        <a href="{{ route('aksesdokumen.bagikan', $dokumen->id) }}"
-           class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-xl shadow-lg transition duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M15 12H3m0 0l3.293-3.293a1 1 0 011.414 0L12 12l-4.293 4.293a1 1 0 01-1.414 0L3 12z"/>
-            </svg>
-            Bagikan Dokumen
-        </a>
-    @endif
+
         {{-- KONTEN DOKUMEN --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
             {{-- Bagian Kiri --}}
             <section class="xl:col-span-8 w-full">
                 <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 flex flex-col gap-5">
-                    {{-- Thumbnail (jika ada thumbnail di DB) --}}
-                    @if($dokumen->thumbnail && \Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->thumbnail))
-                        <img src="{{ asset('storage/'.$dokumen->thumbnail) }}"
-                            alt="Thumbnail {{ $dokumen->nama_dokumen }}"
-                            class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-xl border mb-4" />
+
+                    {{-- Thumbnail atau Preview Dokumen --}}
+                    @if($dokumen->thumbnail &&
+                    \Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->thumbnail))
+                    <img src="{{ asset('storage/'.$dokumen->thumbnail) }}" alt="Thumbnail {{ $dokumen->nama_dokumen }}"
+                        class="w-full h-auto max-h-[480px] object-contain rounded-xl border mb-4" />
                     @elseif($dokumen->path_dokumen)
-                        {{-- Jika tidak ada thumbnail, tampilkan PDF preview, image, atau icon --}}
-                        @php
-                            $ext = strtolower(\Illuminate\Support\Str::afterLast($dokumen->path_dokumen, '.'));
-                        @endphp
-                        @if(in_array($ext, ['jpg','jpeg','png','webp','gif','bmp']))
-                            <img src="{{ asset('storage/'.$dokumen->path_dokumen) }}"
-                                alt="Dokumen Gambar"
-                                class="w-full h-64 sm:h-80 md:h-96 object-contain rounded-xl border mb-4" />
-                        @elseif($ext == 'pdf')
-                            <iframe src="{{ asset('storage/'.$dokumen->path_dokumen) }}" width="100%" height="480" class="rounded-xl border mb-4"></iframe>
-                        @else
-                            <div class="flex justify-center items-center h-64 bg-gray-50 rounded-xl border mb-4">
-                                <i class="fa-solid fa-file text-7xl text-gray-400"></i>
-                            </div>
-                        @endif
+                    @php
+                    $ext = strtolower(\Illuminate\Support\Str::afterLast($dokumen->path_dokumen, '.'));
+                    @endphp
+                    @if(in_array($ext, ['jpg','jpeg','png','webp','gif','bmp']))
+                    <img src="{{ asset('storage/'.$dokumen->path_dokumen) }}" alt="Dokumen Gambar"
+                        class="w-full h-auto max-h-[480px] object-contain rounded-xl border mb-4" />
+                    @elseif($ext == 'pdf')
+                    <iframe src="{{ asset('storage/'.$dokumen->path_dokumen) }}" width="100%" height="480"
+                        class="rounded-xl border mb-4"></iframe>
+                    @else
+                    <div class="flex justify-center items-center h-64 bg-gray-50 rounded-xl border mb-4">
+                        <i class="fa-solid fa-file text-7xl text-gray-400"></i>
+                    </div>
+                    @endif
                     @endif
 
-                    {{-- Judul & Info --}}
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 leading-tight mb-2">
+                    {{-- Judul --}}
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 leading-tight">
                         {{ $dokumen->nama_dokumen }}
                     </h1>
-                    <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 mb-2">
-                        <div>
-                            <span>Kategori:</span>
-                            <span class="font-semibold text-blue-600">
-                                {{ $dokumen->kategoriDokumen->nama_kategoridokumen ?? '-' }}
-                            </span>
+
+                    <div class="flex justify-between items-start gap-4">
+                        {{-- Info Kiri: Kategori & Tanggal --}}
+                        <div class="flex flex-col gap-2 text-sm text-gray-600">
+                            <p>
+                                <span class="font-semibold">Kategori:</span>
+                                <span
+                                    class="text-blue-700">{{ $dokumen->kategoriDokumen->nama_kategoridokumen ?? '-' }}</span>
+                            </p>
+                            <p>
+                                <span class="font-semibold">Diunggah:</span>
+                                <span>{{ $tanggal }}</span>
+                            </p>
                         </div>
-                        <span class="hidden sm:inline">|</span>
-                        <div>
-                            <span>Uploader:</span>
-                            <span>{{ $dokumen->user->name ?? 'Tidak diketahui' }}</span>
-                        </div>
-                        <span class="hidden sm:inline">|</span>
-                        <div>
-                            <span>Diunggah:</span>
-                            <span>{{ $tanggal }}</span>
+                        {{-- Info Kanan: Views & Tombol Bagikan --}}
+                        <div class="flex flex-col items-end gap-3">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <i class="fas fa-eye"></i>
+                                <span>{{ $viewCount }}</span>
+                            </div>
+                            @if(Auth::id() === $dokumen->pengguna_id)
+                            <a href="{{ route('aksesdokumen.bagikan', $dokumen->id) }}"
+                                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition duration-300 text-xs">
+                                <i class="fas fa-share-alt"></i>
+                                <span>Bagikan Dokumen</span>
+                            </a>
+                            @endif
                         </div>
                     </div>
 
-                    {{-- Deskripsi --}}
-                    <div class="prose max-w-none prose-p:my-2 text-gray-800 text-base leading-relaxed mb-4">
-                        {!! nl2br(e($dokumen->deskripsi)) !!}
+                    {{-- PERBAIKAN: Menambahkan label "Deskripsi" --}}
+                    <div class="mt-4">
+                        <h3 class="font-bold text-lg text-gray-900 mb-2">Deskripsi</h3>
+                        <div class="prose max-w-none prose-p:my-2 text-gray-800 text-base leading-relaxed">
+                            {!! nl2br(e($dokumen->deskripsi)) !!}
+                        </div>
                     </div>
 
                     {{-- File Dokumen Download --}}
-                    @if($dokumen->path_dokumen && \Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->path_dokumen))
-                        <div class="mt-4">
-                            <label class="font-semibold text-gray-800 mb-2 block">File Dokumen</label>
-                            <a href="{{ asset('storage/' . $dokumen->path_dokumen) }}"
-                                class="flex items-center gap-3 rounded-lg bg-gray-100 p-3 hover:bg-blue-50 transition group w-max"
-                                target="_blank" download>
-                                <i class="fa-solid fa-download text-2xl text-green-600 group-hover:text-green-700"></i>
-                                <span class="text-sm font-medium text-blue-700 underline">
-                                    {{ \Illuminate\Support\Str::afterLast($dokumen->path_dokumen, '/') }}
-                                </span>
-                            </a>
-                        </div>
+                    @if($dokumen->path_dokumen &&
+                    \Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->path_dokumen))
+                    <div class="mt-6 pt-6 border-t">
+                        <a href="{{ asset('storage/' . $dokumen->path_dokumen) }}"
+                            class="flex items-center gap-3 rounded-lg bg-gray-100 p-3 hover:bg-blue-50 transition group w-max"
+                            target="_blank" download>
+                            <i class="fa-solid fa-download text-2xl text-green-600 group-hover:text-green-700"></i>
+                            <span class="text-sm font-medium text-blue-700 underline">
+                                {{ \Illuminate\Support\Str::afterLast($dokumen->path_dokumen, '/') }}
+                            </span>
+                        </a>
+                    </div>
                     @endif
                 </div>
             </section>
@@ -167,15 +176,16 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </aside>
         </div>
-
-        {{-- FOOTER --}}
-        <x-slot name="footer">
-            <footer class="bg-[#2b6cb0] py-4 mt-8">
-                <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
-                    <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
-                        class="h-10 object-contain">
-                </div>
-            </footer>
-        </x-slot>
     </div>
+
+    {{-- FOOTER --}}
+    <x-slot name="footer">
+        <footer class="bg-[#2b6cb0] py-4 mt-8">
+            <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
+                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
+                    class="h-10 object-contain">
+            </div>
+        </footer>
+    </x-slot>
+
 </x-app-layout>

@@ -16,7 +16,7 @@
     style="background-image: url('{{ asset('assets/img/body-bg-pattern.png') }}'); background-repeat: repeat; background-size: auto;">
 
     {{-- HEADER --}}
-    <header class="bg-white shadow-md sticky top-0 z-20">
+    <header class="bg-white shadow-md sticky top-0 z-20 rounded-b-3xl">
         <div class="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-3">
             <a href="/">
                 <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" alt="KMS DISKOMINFOTIK" class="h-9">
@@ -241,12 +241,9 @@
                     <h4 class="font-bold text-white text-base mb-4">Menu</h4>
                     <ul class="space-y-2 text-sm text-white/80">
                         <li><a href="{{ route('home') }}" class="hover:underline hover:text-white">Home</a></li>
-                        <li><a href="{{ route('about') }}" class="hover:underline hover:text-white">Tentang Kami</a>
-                        </li>
-                        <li><a href="{{ route('pengetahuan') }}"
-                                class="hover:underline hover:text-white">Pengetahuan</a></li>
-                        <li><a href="{{ route('dokumen') }}" class="hover:underline hover:text-white">Dokumen</a></li>
+                        <li><a href="{{ route('about') }}" class="hover:underline hover:text-white">Tentang Kami</a></li>
                         <li><a href="{{ route('kegiatan') }}" class="hover:underline hover:text-white">Kegiatan</a></li>
+                        <li><a href="{{ route('dokumen') }}" class="hover:underline hover:text-white">Dokumen</a></li>
                         <li><a href="#" class="hover:underline hover:text-white">Kontak</a></li>
                     </ul>
                 </div>

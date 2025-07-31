@@ -5,6 +5,8 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'View Pengetahuan Kasubbidang')
+
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-12">
         {{-- HEADER --}}
@@ -17,7 +19,7 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="flex items-center gap-4 w-full sm:w-auto">
                     {{-- Search Bar --}}
                     <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
-                        <input type="text" placeholder="Cari..."
+                        <input type="text" placeholder="Cari artikel pengetahuan..."
                             class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fa fa-search"></i>
@@ -50,9 +52,9 @@ $tanggal = $carbon->format('l, d F Y');
 
         {{-- KONTEN ARTIKEL --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
-            {{-- Bagian Kiri --}}
+            {{-- KONTEN UTAMA --}}
             <section class="xl:col-span-8 w-full">
-                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 flex flex-col gap-5">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 flex flex-col gap-6">
                     {{-- Thumbnail --}}
                     @if($artikel->thumbnail)
                     <img src="{{ asset('storage/'.$artikel->thumbnail) }}" alt="{{ $artikel->judul }}"
@@ -99,7 +101,7 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
             </section>
 
-            {{-- Sidebar --}}
+            {{-- SIDEBAR --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8 mt-8 xl:mt-0">
                 <div
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
@@ -148,20 +150,26 @@ $tanggal = $carbon->format('l, d F Y');
         e.preventDefault();
         Swal.fire({
             icon: 'warning',
-            title: 'Apakah Anda Yakin?',
-            text: "Artikel akan dihapus secara permanen!",
+            title: 'Apakah Anda Yakin',
+            html: '<span class="text-gray-600 text-base">Artikel akan dihapus</span>',
             showCancelButton: true,
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
+            confirmButtonText: 'Hapus',
+            cancelButtonText: 'Batalkan',
             reverseButtons: true,
-            buttonsStyling: false,
+            focusCancel: true,
             customClass: {
-                confirmButton: 'bg-red-600 hover:bg-red-800 text-white font-semibold px-8 py-2 rounded-lg mx-2',
-                cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-8 py-2 rounded-lg mx-2'
-            }
+                popup: 'rounded-2xl px-8 pt-5 pb-6',
+                icon: 'mt-3 mb-2',
+                title: 'mb-1',
+                htmlContainer: 'mb-3',
+                cancelButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-10 py-2 rounded-lg text-base',
+                confirmButton: 'bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
+                actions: 'flex justify-center gap-4',
+            },
+            buttonsStyling: false,
         }).then((result) => {
             if (result.isConfirmed) {
-                // Submit form hapus
+                // Hapus artikel
                 document.getElementById('delete-artikel-form').submit();
             }
         });

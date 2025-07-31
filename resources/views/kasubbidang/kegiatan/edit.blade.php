@@ -104,8 +104,9 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
                 <!-- Hidden delete form for each photo -->
                 @foreach($kegiatan->fotokegiatan as $foto)
-                <form id="delete-foto-{{ $foto->id }}" action="{{ route('magang.kegiatan.foto.delete', $foto->id) }}"
-                    method="POST" style="display:none;">
+                <form id="delete-foto-{{ $foto->id }}"
+                    action="{{ route('kasubbidang.kegiatan.foto.delete', $foto->id) }}" method="POST"
+                    style="display:none;">
                     @csrf
                     @method('DELETE')
                 </form>
@@ -129,26 +130,28 @@ $tanggal = $carbon->format('l, d F Y');
         <aside class="flex flex-col gap-6 w-full max-w-sm mx-auto mt-10 lg:mt-0">
             {{-- CARD ROLE --}}
             <div
-                class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
-                <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
-                <p class="font-bold text-base leading-tight">{{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+                class="bg-gradient-to-br from-green-400 to-blue-500 text-white rounded-2xl shadow-lg p-7 mb-2 flex flex-col items-center justify-center text-center">
+                <i class="fa-solid fa-list-check text-4xl mb-2"></i>
+                <p class="font-bold text-base mb-2">Progress Kegiatan Kasubbidang</p>
+                <p class="text-xs">Pantau dan catat aktivitas harian selama kegiatan. Kegiatan bisa berupa tugas,
+                    laporan, atau proyek.</p>
             </div>
             <div
                 class="rounded-xl shadow-xl bg-gradient-to-r from-green-400 via-blue-500 to-blue-700 p-6 flex flex-col items-center">
                 <i class="fa fa-tasks text-4xl mb-3 text-white drop-shadow"></i>
-                <div class="font-bold text-lg text-white mb-1">Progress Kegiatan Kasubbidang</div>
+                <div class="font-bold text-lg text-white mb-1">Progress Kegiatan Magang</div>
                 <div class="text-white text-sm opacity-90 text-center">
                     Dokumentasikan setiap aktivitas kerja, inovasi, knowledge sharing, pelatihan, dan kolaborasi tim di
                     sini.
                 </div>
             </div>
-            <div class="rounded-xl shadow-lg bg-white p-6">
-                <div class="font-semibold text-blue-700 mb-3">Tips Produktif Kasubbidang</div>
-                <ul class="text-gray-700 text-sm space-y-1 pl-4 list-disc">
-                    <li>Update laporan kegiatan secara berkala.</li>
-                    <li>Unggah dokumentasi foto setiap aktivitas.</li>
-                    <li>Laporkan kegiatan inovatif & kolaboratif.</li>
-                    <li>Jaga kualitas dokumentasi pengetahuan.</li>
+            <div class="bg-white rounded-2xl shadow-lg p-7">
+                <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Tips Produktif Kasubbidang</h3>
+                <ul class="list-disc list-inside text-sm text-gray-600 leading-relaxed space-y-1">
+                    <li>Fokus pada tugas dengan dampak terbesar terlebih dahulu.</li>
+                    <li>Beri staf Anda tanggung jawab dan instruksi jelas.</li>
+                    <li>Gunakan tools digital untuk komunikasi dan manajemen tugas.</li>
+                    <li>Alokasikan waktu untuk perencanaan singkat setiap pagi.</li>
                 </ul>
             </div>
         </aside>

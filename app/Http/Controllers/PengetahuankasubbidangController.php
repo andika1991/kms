@@ -176,7 +176,7 @@ class PengetahuankasubbidangController extends Controller
 
         return redirect()
             ->route('kasubbidang.berbagipengetahuan.index')
-            ->with('success', 'Artikel berhasil dihapus.');
+            ->with('deleted', 'Artikel berhasil dihapus.');
     }
 
     public function show($id)

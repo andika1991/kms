@@ -7,50 +7,50 @@ $tanggal = $carbon->format('l, d F Y');
 
 @section('title', 'Manajemen Dokumen Kasubbidang')
 
+{{-- ALERT Sukses --}}
+@if (session('success'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'success',
+        title: '{{ session("success") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5',
+            title: 'font-bold text-base md:text-lg text-green-800',
+            icon: 'text-green-500'
+        },
+        timer: 2200
+    });
+});
+</script>
+@endif
+
+@if (session('deleted'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'error',
+        title: '{{ session("deleted") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5 border border-red-200',
+            title: 'font-bold text-base md:text-lg text-red-800',
+            icon: 'text-red-600'
+        },
+        timer: 2500
+    });
+});
+</script>
+@endif
+
 <x-app-layout>
-    <!-- SweetAlert2 CDN for Notification -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    @if(session('success'))
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: '{{ session('success') }}',
-            toast: true,
-            position: 'top',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            customClass: {
-                popup: 'rounded-xl shadow-lg'
-            }
-        });
-    });
-    </script>
-    @endif
-
-    @if(session('error'))
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal!',
-            text: '{{ session('error') }}',
-            toast: true,
-            position: 'top',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            customClass: {
-                popup: 'rounded-xl shadow-lg'
-            }
-        });
-    });
-    </script>
-    @endif
-
     <div class="w-full min-h-screen bg-[#eaf5ff]">
         <!-- HEADER -->
         <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
@@ -95,12 +95,6 @@ $tanggal = $carbon->format('l, d F Y');
                     </div>
                 </div>
             </div>
-
-            <a href="{{ route('dokumen.dibagikan.ke.saya') }}"
-                class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base mt-4">
-                <i class="fa-solid fa-share-from-square"></i>
-                <span>Dokumen Dibagikan ke Saya</span>
-            </a>
         </div>
 
         <!-- BODY GRID -->
@@ -110,10 +104,18 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="flex justify-between items-center mb-6">
                     <span class="font-bold text-lg text-[#2171b8]">Daftar Dokumen Kasubbidang</span>
                 </div>
+                <div class="mt-4 mb-6">
+                    <a href="{{ route('dokumen.dibagikan.ke.saya') }}"
+                        class="flex items-center justify-center gap-2 w-full px-0 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base text-center"
+                        style="min-width: 0;">
+                        <i class="fa-solid fa-share-from-square text-lg"></i>
+                        <span class="text-base font-semibold whitespace-nowrap">Dokumen Dibagikan ke Saya</span>
+                    </a>
+                </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white rounded-2xl shadow border mb-2">
+                    <table class="w-full bg-white rounded-2xl shadow border mb-2">
                         <thead>
-                            <tr class="text-left bg-gray-100">
+                            <tr class="text-left bg-[#2171b8]">
                                 <th class="px-6 py-4 text-base font-semibold">Judul Dokumen</th>
                                 <th class="px-6 py-4 text-base font-semibold">Kategori</th>
                                 <th class="px-6 py-4 text-base font-semibold text-center">Aksi</th>
@@ -121,67 +123,68 @@ $tanggal = $carbon->format('l, d F Y');
                         </thead>
                         <tbody>
                             @forelse($dokumen as $item)
-                            <tr class="@if($loop->even) bg-[#eaf3fa] @endif border-b border-gray-100">
-                                <td class="flex items-center gap-4 px-6 py-4">
-                                    @php
-                                    $filePath = $item->path_dokumen ? asset('storage/'.$item->path_dokumen) : null;
-                                    $extension = $item->path_dokumen ? strtolower(pathinfo($item->path_dokumen,
-                                    PATHINFO_EXTENSION)) : '';
-                                    $isImage = in_array($extension, ['jpg','jpeg','png','gif','bmp','webp']);
-                                    @endphp
+                            @php
+                            $filePath = $item->path_dokumen ? asset('storage/'.$item->path_dokumen) : null;
+                            $extension = $item->path_dokumen ? strtolower(pathinfo($item->path_dokumen,
+                            PATHINFO_EXTENSION)) : '';
+                            $isImage = in_array($extension, ['jpg','jpeg','png','gif','bmp','webp']);
+                            $iconPath = match(true) {
+                            $isImage => $filePath,
+                            $extension == 'pdf' => asset('assets/img/icon-pdf.svg'),
+                            in_array($extension, ['doc','docx']) => asset('assets/img/icon-word.svg'),
+                            in_array($extension, ['xls','xlsx']) => asset('assets/img/icon-excel.svg'),
+                            default => asset('assets/img/default-file.svg'),
+                            };
+                            @endphp
+                            <tr class="@if($loop->even) bg-[#eaf3fa] @endif border-b border-gray-100 group hover:bg-[#d6eaff] transition cursor-pointer"
+                                onclick="window.location='{{ route('kasubbidang.manajemendokumen.show', $item->id) }}'">
+                                <td class="px-6 py-4 flex items-center gap-4 min-w-[240px]">
+                                    <!-- Preview File -->
                                     <div
-                                        class="w-20 h-14 flex items-center justify-center rounded-md overflow-hidden bg-gray-100 border">
-                                        @if($isImage)
-                                        <img src="{{ asset('storage/'.$item->path_dokumen) }}"
-                                            alt="{{ $item->nama_dokumen }}" class="object-cover w-full h-full" />
-                                        @elseif($extension == 'pdf')
-                                        <img src="{{ asset('assets/img/icon-pdf.svg') }}"
-                                            class="object-contain w-10 h-10" />
-                                        @elseif(in_array($extension, ['doc','docx']))
-                                        <img src="{{ asset('assets/img/icon-word.svg') }}" alt="Word"
-                                            class="object-contain w-10 h-10" />
-                                        @elseif(in_array($extension, ['xls','xlsx']))
-                                        <img src="{{ asset('assets/img/icon-excel.svg') }}" alt="Excel"
-                                            class="object-contain w-10 h-10" />
+                                        class="flex-shrink-0 w-[90px] h-[62px] bg-gray-100 rounded-lg border flex items-center justify-center overflow-hidden">
+                                        @if($item->thumbnail && file_exists(public_path('storage/'.$item->thumbnail)))
+                                        <img src="{{ asset('storage/'.$item->thumbnail) }}" alt="preview"
+                                            class="object-cover w-full h-full" />
+                                        @elseif($isImage)
+                                        <img src="{{ $filePath }}" alt="preview" class="object-cover w-full h-full" />
                                         @else
-                                        <img src="{{ asset('assets/img/default-file.svg') }}" alt="File"
-                                            class="object-contain w-10 h-10 opacity-60" />
+                                        <img src="{{ $iconPath }}" alt="icon" class="object-contain w-12 h-12" />
                                         @endif
                                     </div>
-                                    <div>
-                                        <div class="font-medium text-gray-900">{{ $item->nama_dokumen }}</div>
+                                    <!-- Judul & Deskripsi -->
+                                    <div class="flex flex-col min-w-0">
+                                        <div class="font-medium text-gray-900 truncate">{{ $item->nama_dokumen }}</div>
                                         <div class="text-xs text-gray-500 mt-1 line-clamp-1">
-                                            {{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 48) }}</div>
+                                            {{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 48) }}
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-block rounded-lg px-3 py-1 bg-[#f3f3f3] text-gray-700 text-sm">
+
+                                <td class="px-6 py-4 align-middle">
+                                    <span
+                                        class="inline-block rounded-lg px-3 py-1 bg-[#f3f3f3] text-gray-700 text-sm whitespace-nowrap">
                                         {{ $item->kategoriDokumen->nama_kategoridokumen ?? '-' }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 flex items-center gap-2 justify-center">
-                                    @if ($item->kategoriDokumen && $item->kategoriDokumen->nama_kategoridokumen == 'Rahasia')
-                                    <button
-                                        onclick="showPasswordModal('{{ $item->id }}')"
-                                        class="text-blue-600 hover:underline">
-                                        Lihat
-                                    </button>
-                                    @else
-                                    <a href="{{ route('kasubbidang.manajemendokumen.show', $item->id) }}" class="text-blue-600 hover:underline">
-                                        Lihat
-                                    </a>
-                                    @endif
-
+                                <td class="px-6 py-4 flex items-center gap-2 justify-center align-middle z-10"
+                                    onclick="event.stopPropagation();">
+                                    <!-- EDIT ICON -->
                                     <a href="{{ route('kasubbidang.manajemendokumen.edit', $item->id) }}"
-                                        class="px-4 py-1.5 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold transition text-sm">Edit</a>
+                                        class="w-10 h-10 flex items-center justify-center rounded-full bg-yellow-100 hover:bg-yellow-200 transition"
+                                        title="Edit">
+                                        <i class="fa-solid fa-pen text-yellow-500 text-lg"></i>
+                                    </a>
+                                    <!-- DELETE ICON -->
                                     <form id="form-hapus-{{ $item->id }}"
                                         action="{{ route('kasubbidang.manajemendokumen.destroy', $item->id) }}"
                                         method="POST" class="inline-block">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" onclick="showHapusModal({{ $item->id }})"
-                                            class="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold transition text-sm">
-                                            Hapus
+                                        <button type="button"
+                                            onclick="showHapusModal({{ $item->id }}); event.stopPropagation();"
+                                            class="w-10 h-10 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 transition"
+                                            title="Hapus">
+                                            <i class="fa-solid fa-trash text-red-600 text-lg"></i>
                                         </button>
                                     </form>
                                 </td>
@@ -208,8 +211,8 @@ $tanggal = $carbon->format('l, d F Y');
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
                         <p class="font-bold text-lg leading-tight mb-2">
-                            {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
-                        <p class="text-xs">Upload, simpan, dan kelola dokumen kegiatan, inovasi, dan knowledge sharing
+                            Bidang {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+                        <p class="text-xs">Upload, simpan, dan kelola dokumen kegiatan maupun knowledge sharing
                             di sini.</p>
                     </div>
                 </div>
@@ -308,7 +311,8 @@ $tanggal = $carbon->format('l, d F Y');
             </div>
 
             <!-- MODAL PASSWORD -->
-            <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div id="passwordModal"
+                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
                 <div class="bg-white rounded-xl shadow-lg p-6 w-80 max-w-full">
                     <h3 class="text-lg font-semibold mb-4 text-gray-800">Masukkan Kunci Dokumen</h3>
                     <input id="modalPasswordInput" type="password" placeholder="Kunci Dokumen"

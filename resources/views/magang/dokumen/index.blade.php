@@ -84,7 +84,7 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white rounded-2xl shadow border mb-2">
                         <thead>
-                            <tr class="text-left bg-gray-100">
+                            <tr class="text-left bg-[#2171b8]">
                                 <th class="px-6 py-4 text-base font-semibold">Nama Dokumen</th>
                                 <th class="px-6 py-4 text-base font-semibold">Kategori</th>
                                 <th class="px-6 py-4 text-base font-semibold text-center">Aksi</th>
