@@ -131,8 +131,8 @@
                     @foreach($dokumens as $dokumen)
                     <a href="{{ route('dokumen.show', $dokumen->id) }}"
                         class="border rounded-lg p-3 shadow hover:shadow-md transition block group focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <img src="{{ asset('storage/'.$dokumen->thumbnail) }}"
-                            class="w-full h-24 object-cover rounded mb-2 group-hover:scale-105 transition-transform duration-200">
+                     <span class="material-icons text-red-600 text-3xl">picture_as_pdf</span>
+
                         <p class="text-sm font-semibold mb-1 group-hover:text-blue-700">{{ $dokumen->nama_dokumen }}</p>
                         <p class="text-xs text-gray-500 mb-2">{{ $dokumen->deskripsi }}</p>
                         <div class="flex items-center justify-between text-xs text-gray-500">

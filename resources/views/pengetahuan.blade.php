@@ -5,17 +5,22 @@
 <section class="relative pb-16">
     {{-- Background Biru Diperpanjang --}}
     <div class="absolute top-0 left-0 right-0 h-72 bg-[#2b6cb0]"></div>
-    {{-- Konten Header (di atas background biru) --}}
+
+    {{-- Konten Header --}}
     <div class="relative max-w-[1100px] mx-auto px-6 pt-7 pb-28">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-white text-3xl font-black tracking-tight leading-tight">Pengetahuan</h1>
-                <p class="text-white/80 text-sm mt-1 max-w-xl">Jelajahi inovasi teknologi, data statistik terkini, dan program digitalisasi dari Dinas Komunikasi, Informatika, dan Statistik Provinsi Lampung.</p>
+                <p class="text-white/80 text-sm mt-1 max-w-xl">
+                    Jelajahi inovasi teknologi, data statistik terkini, dan program digitalisasi dari Dinas Komunikasi, Informatika, dan Statistik Provinsi Lampung.
+                </p>
             </div>
+
             <!-- FORM PENCARIAN -->
             <form action="{{ route('artikel.search') }}" method="GET" id="searchForm" class="relative mt-4 md:mt-0 w-full max-w-xs">
                 <input name="q" id="searchArtikel" type="text" placeholder="Cari Pengetahuan"
-                    class="w-full bg-transparent placeholder-white/80 text-white border-b-2 border-white/50 py-2 pr-10 pl-2 outline-none focus:border-white transition-colors duration-300 text-base" autocomplete="off" />
+                    class="w-full bg-transparent placeholder-white/80 text-white border-b-2 border-white/50 py-2 pr-10 pl-2 outline-none focus:border-white transition-colors duration-300 text-base"
+                    autocomplete="off" />
                 <button type="submit"
                     class="absolute right-2 top-1/2 -translate-y-1/2 text-white/80 hover:text-white" aria-label="Search">
                     <i class="fas fa-search"></i>
@@ -24,19 +29,36 @@
         </div>
     </div>
 
-    {{-- Main Content (Sidebar & Artikel disatukan dalam satu kartu putih) --}}
+    {{-- Main Content --}}
     <main class="relative -mt-24 max-w-[1100px] mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+
             {{-- Sidebar Bidang --}}
             <aside class="lg:col-span-1 h-fit">
-                <h3 class="font-bold text-lg mb-6 text-gray-800 border-b pb-3">Bidang</h3>
-                <ul class="flex flex-col gap-4" id="listBidang">
+                <h3 class="font-bold text-lg mb-4 text-gray-800 border-b pb-3 lg:block hidden">Bidang</h3>
+
+                {{-- Navigasi Bidang (Mobile - Scroll Horizontal) --}}
+                <div class="lg:hidden overflow-x-auto -mx-4 px-4">
+                    <ul class="flex gap-4 w-max" id="listBidangMobile">
+                        @foreach ($bidangs as $bidang)
+                        <li class="bidang-item flex-shrink-0 flex items-center gap-2 cursor-pointer group px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors border border-gray-200 bg-white"
+                            data-id="{{ $bidang->id }}">
+                            <i class="fas fa-layer-group text-blue-600 group-hover:text-blue-800 text-lg"></i>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-blue-800">
+                                {{ $bidang->nama }}
+                            </span>
+                        </li>
+                        @endforeach
+                    </ul>
+                    <p class="text-xs text-gray-400 mt-2 px-1">← Geser untuk melihat semua bidang</p>
+                </div>
+
+                {{-- Navigasi Bidang (Desktop - Sidebar) --}}
+                <ul class="flex flex-col gap-4 hidden lg:flex" id="listBidang">
                     @foreach ($bidangs as $bidang)
                     <li class="bidang-item flex items-center gap-4 cursor-pointer group px-2 py-2 rounded-lg hover:bg-blue-50 transition-colors"
                         data-id="{{ $bidang->id }}">
                         <span class="bg-blue-100 flex items-center justify-center rounded-lg w-9 h-9 shadow-sm transition-transform group-hover:scale-105 group-hover:bg-blue-500">
-                            {{-- Icon diubah agar bisa ganti warna --}}
                             <i class="fas fa-layer-group text-blue-600 group-hover:text-white transition-colors text-lg"></i>
                         </span>
                         <span class="font-semibold text-gray-700 group-hover:text-blue-800 text-base tracking-tight">
@@ -49,22 +71,20 @@
 
             {{-- Artikel Section --}}
             <section class="lg:col-span-2" id="artikelContainer">
-                {{-- Filter Buttons --}}
-           
+                {{-- Filter Subbidang --}}
                 <div id="subbidangWrapperKanan" class="mb-4 hidden">
                     <h4 class="font-semibold text-gray-700 mb-2">Subbidang</h4>
                     <div id="listSubbidangKanan" class="flex flex-wrap gap-2"></div>
                 </div>
 
-                <div id="listArtikel" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {{-- Pesan default --}}
+                {{-- Artikel --}}
+                <div id="listArtikel" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     <p class="text-gray-500 col-span-full">Silakan pilih bidang atau cari untuk melihat artikel.</p>
-                    {{-- Artikel akan dimuat di sini oleh JavaScript --}}
                 </div>
 
-                {{-- Tombol "Tampilkan lebih banyak" --}}
+                {{-- Tampilkan Lebih Banyak --}}
                 <div class="mt-10 text-center">
-                    <button class="bg-blue-600 text-white font-semibold px-6 py-2.5 rounded-lg shadow hover:bg-blue-700 transition-all duration-200">
+                    <button class="bg-blue-600 text-white font-semibold px-6 py-2.5 rounded-lg shadow hover:bg-blue-700 transition-all duration-200 w-full sm:w-auto">
                         Tampilkan lebih banyak
                     </button>
                 </div>
@@ -74,6 +94,14 @@
 </section>
 @endsection
 
+@push('styles')
+<style>
+    #listBidangMobile::-webkit-scrollbar {
+        display: none;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -82,8 +110,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const listBidang = document.querySelectorAll('.bidang-item');
     const listSubbidangKanan = document.getElementById('listSubbidangKanan');
     const subbidangWrapperKanan = document.getElementById('subbidangWrapperKanan');
-
-    let searchTimeout = null;
 
     function renderArtikels(data) {
         listArtikel.innerHTML = '';
@@ -108,15 +134,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Event listener untuk pencarian live
-
-
-    // Event listener untuk klik bidang
     listBidang.forEach(item => {
         item.addEventListener('click', function () {
             const bidangId = this.dataset.id;
             searchInput.value = '';
-
             listArtikel.innerHTML = '<p class="text-gray-500 col-span-full">Memuat artikel...</p>';
             listSubbidangKanan.innerHTML = '';
             subbidangWrapperKanan.classList.add('hidden');
@@ -162,7 +183,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Tangani submit form search agar navigasi ke halaman pencarian dengan query
     const searchForm = document.getElementById('searchForm');
     searchForm.addEventListener('submit', function (e) {
         const query = searchInput.value.trim();
@@ -170,7 +190,6 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             alert('Masukkan minimal 2 huruf untuk mencari artikel.');
         }
-        // Jika valid, submit form akan langsung navigasi ke /pengetahuan/search?q=...
     });
 });
 </script>
