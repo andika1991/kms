@@ -5,6 +5,49 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+{{-- ALERT Sukses --}}
+@if (session('success'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'success',
+        title: '{{ session("success") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5',
+            title: 'font-bold text-base md:text-lg text-green-800',
+            icon: 'text-green-500'
+        },
+        timer: 2200
+    });
+});
+</script>
+@endif
+
+@if (session('deleted'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'error',
+        title: '{{ session("deleted") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5 border border-red-200',
+            title: 'font-bold text-base md:text-lg text-red-800',
+            icon: 'text-red-600'
+        },
+        timer: 2500
+    });
+});
+</script>
+@endif
+
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full">
         <!-- HEADER -->
@@ -12,7 +55,6 @@ $tanggal = $carbon->format('l, d F Y');
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Forum Diskusi</h2>
-                     
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -60,48 +102,48 @@ $tanggal = $carbon->format('l, d F Y');
                         <i class="fa-solid fa-plus"></i>
                         <span>Tambah Forum</span>
                     </a>
-                    
                 </div>
 
                 @forelse($grupchats as $grupchat)
-                <!-- Forum Card -->
-                <div
-                    class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6 mb-6 hover:shadow-xl hover:border-blue-300 transition-all">
+                <div onclick="window.location='{{ route('kasubbidang.forum.show', $grupchat->id) }}'"
+                    class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6 mb-6 hover:shadow-xl hover:border-blue-300 transition-all cursor-pointer group relative"
+                    style="transition:box-shadow 0.2s, border-color 0.2s">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
-                            <div class="font-bold text-lg md:text-xl text-gray-800 mb-1">{{ $grupchat->nama_grup }}
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-lg md:text-xl text-gray-800 mb-1 group-hover:text-[#2563eb]">
+                                {{ $grupchat->nama_grup }}</div>
+                            <div class="text-gray-600 text-sm mb-1 line-clamp-2">{{ $grupchat->deskripsi }}</div>
+                            @if($grupchat->is_private)
+                            <div
+                                class="inline-block bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1 rounded-lg mb-1">
+                                <i class="fa-solid fa-lock mr-1"></i> Private
                             </div>
-                            <div class="text-gray-600 text-sm mb-2 line-clamp-2">{{ $grupchat->deskripsi }}</div>
+                            @endif
                             <div class="text-xs text-gray-500">Role: <span
                                     class="font-semibold">{{ $grupchat->grup_role ?? '-' }}</span></div>
                         </div>
-                        <div class="flex gap-2 md:gap-4 mt-3 md:mt-0">
-                            <a href="{{ route('kasubbidang.forum.show', $grupchat->id) }}"
-                                class="px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium transition text-sm">
-                                Lihat
-                            </a>
-                       
-
-                            @if($grupchat->pengguna_id == auth()->id())
+                        @if($grupchat->pengguna_id == auth()->id())
+                        <div class="flex-shrink-0 flex items-center gap-2 mt-4 sm:mt-0">
                             <a href="{{ route('kasubbidang.forum.edit', $grupchat->id) }}"
-                                class="px-4 py-2 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-800 font-medium transition text-sm">
-                                Edit
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-white font-semibold transition text-xs shadow">
+                                <i class="fa-solid fa-pencil"></i>
+                                <span>Edit</span>
                             </a>
                             <form action="{{ route('kasubbidang.forum.destroy', $grupchat->id) }}" method="POST"
-                                onsubmit="return confirm('Yakin ingin menghapus?')" class="inline">
+                                onsubmit="return confirm('Yakin ingin menghapus forum ini?')" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 font-medium transition text-sm">
-                                    Hapus
+                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-semibold transition text-xs shadow">
+                                    <i class="fa-solid fa-trash"></i>
+                                    <span>Hapus</span>
                                 </button>
                             </form>
-                            @endif
                         </div>
+                        @endif
                     </div>
                 </div>
                 @empty
-                <!-- Placeholder card jika belum ada forum -->
                 <div
                     class="flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
                     <img src="{{ asset('assets/img/logo_diskominfotik_lampung.png') }}" class="w-48 mb-6 opacity-50"
@@ -111,7 +153,6 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
                 @endforelse
 
-                <!-- Pagination (jika pakai pagination) -->
                 <div class="mt-8">
                     {{-- {{ $grupchats->links() }} --}}
                 </div>
@@ -119,23 +160,19 @@ $tanggal = $carbon->format('l, d F Y');
 
             <!-- SIDEBAR KANAN -->
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                <!-- Tambah Forum Desktop -->
-                <div class="bg-white rounded-2xl shadow-lg p-7 space-y-3 hidden xl:block">
-                    <a href="{{ route('kasubbidang.forum.create') }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Tambah Forum</span>
-                    </a>
-                </div>
-                <!-- Kartu Placeholder/Deskripsi -->
                 <div
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                     <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4">
                         <i class="fa-solid fa-comments text-4xl"></i>
                     </div>
                     <h3 class="font-bold text-lg">Forum Diskusi</h3>
-                    <p class="text-xs mt-2">Diskusi, kolaborasi, dan knowledge sharing.</p>
+                    <p class="text-xs mt-2">Diskusi, kolaborasi, dan knowledge sharing ke seluruh rekan dinas.</p>
                 </div>
+                <a href="{{ route('kasubbidang.forum.create') }}"
+                    class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Forum</span>
+                </a>
                 <div class="bg-white rounded-2xl shadow-lg p-7">
                     <p class="text-sm text-gray-600 leading-relaxed">
                         Forum Diskusi merupakan fitur untuk mempermudah pegawai Dinas Komunikasi, Informatika dan

@@ -86,6 +86,6 @@ class KategoriPengetahuankasubbidangController extends Controller
 
         return redirect()
             ->route('kasubbidang.berbagipengetahuan.index')
-            ->with('success', 'Kategori berhasil dihapus.');
+            ->with('deleted', 'Kategori berhasil dihapus.');
     }
 }

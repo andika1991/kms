@@ -92,10 +92,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             </div>
-            <div class="text-gray-700 text-sm font-medium mt-4">
-                Halo, selamat datang <b>{{ Auth::user()->name }}</b>!
-                Role Anda: <b>{{ Auth::user()->role->nama_role ?? '-' }}</b>
-            </div>
         </div>
 
         {{-- GRID CONTENT --}}
@@ -108,25 +104,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     <a href="{{ route('magang.kegiatan.show', $item->id) }}"
                         class="group bg-white rounded-2xl shadow-md hover:shadow-lg border border-gray-200/80 overflow-hidden flex flex-col transition-all duration-200">
                         {{-- PREVIEW FOTO --}}
-                      @if ($item->fotokegiatan->isNotEmpty())
-    <img src="{{ asset('storage/' . $item->fotokegiatan->first()->path_foto) }}"
-        class="w-full h-48 object-cover object-center" alt="{{ $item->nama_kegiatan }}">
-@else
-    <img src="{{ asset('assets/img/empty-photo.png') }}"
-        class="w-full h-48 object-cover object-center opacity-70" alt="No Image">
-@endif
+                        @if ($item->fotokegiatan->isNotEmpty())
+                        <img src="{{ asset('storage/' . $item->fotokegiatan->first()->path_foto) }}"
+                            class="w-full h-48 object-cover object-center" alt="{{ $item->nama_kegiatan }}">
+                        @else
+                        <img src="{{ asset('assets/img/empty-photo.png') }}"
+                            class="w-full h-48 object-cover object-center opacity-70" alt="No Image">
+                        @endif
 
                         <div class="flex-1 flex flex-col p-5">
-                            <h3 class="font-bold text-base md:text-lg text-gray-900 mb-1 group-hover:text-blue-700 line-clamp-2">
+                            <h3
+                                class="font-bold text-base md:text-lg text-gray-900 mb-1 group-hover:text-blue-700 line-clamp-2">
                                 {{ $item->nama_kegiatan }}
                             </h3>
-                            <div class="text-sm text-gray-500 mb-1">Kategori: <span class="font-semibold">{{ ucfirst($item->kategori_kegiatan) }}</span></div>
+                            <div class="text-sm text-gray-500 mb-1">Kategori: <span
+                                    class="font-semibold">{{ ucfirst($item->kategori_kegiatan) }}</span></div>
                             <div class="text-sm text-gray-600 mb-3 line-clamp-2">{{ $item->deskripsi_kegiatan }}</div>
                             <div class="flex items-center justify-between mt-auto">
                                 <span class="flex items-center text-xs text-gray-500">
                                     <i class="fa fa-eye mr-1"></i> {{ $item->views ?? 0 }}
                                 </span>
-                                <span class="text-xs text-gray-400">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}</span>
+                                <span
+                                    class="text-xs text-gray-400">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}</span>
                             </div>
                         </div>
                     </a>
@@ -141,15 +140,18 @@ document.addEventListener('DOMContentLoaded', function() {
             {{-- SIDEBAR --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-6">
                 {{-- CARD ROLE --}}
-                <div class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+                <div
+                    class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
                     <p class="font-bold text-base leading-tight">{{ Auth::user()->role->nama_role ?? 'Magang' }}</p>
                 </div>
                 {{-- PROGRESS --}}
-                <div class="bg-gradient-to-br from-green-400 to-blue-500 text-white rounded-2xl shadow-lg p-7 mb-2 flex flex-col items-center justify-center text-center">
+                <div
+                    class="bg-gradient-to-br from-green-400 to-blue-500 text-white rounded-2xl shadow-lg p-7 mb-2 flex flex-col items-center justify-center text-center">
                     <i class="fa-solid fa-list-check text-4xl mb-2"></i>
                     <p class="font-bold text-base mb-2">Progress Kegiatan Magang</p>
-                    <p class="text-xs">Pantau dan catat aktivitas harian selama magang. Kegiatan bisa berupa tugas, laporan, atau proyek magang.</p>
+                    <p class="text-xs">Pantau dan catat aktivitas harian selama magang. Kegiatan bisa berupa tugas,
+                        laporan, atau proyek magang.</p>
                 </div>
                 {{-- TOMBOL TAMBAH --}}
                 <a href="{{ route('magang.kegiatan.create') }}"

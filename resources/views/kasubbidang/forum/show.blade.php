@@ -5,6 +5,8 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'View Forum Diskusi Kasubbidang')
+
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full flex flex-col">
         <!-- HEADER -->
@@ -58,7 +60,8 @@ $tanggal = $carbon->format('l, d F Y');
                         {{-- Nama Anggota di atas --}}
                         <div class="flex flex-wrap gap-2 text-sm mb-1 justify-center md:justify-start">
                             @forelse($anggota as $user)
-                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">{{ $user->name }}</span>
+                            <span
+                                class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">{{ $user->name }}</span>
                             @empty
                             <span class="text-gray-400">Belum ada anggota.</span>
                             @endforelse
@@ -79,7 +82,7 @@ $tanggal = $carbon->format('l, d F Y');
                     style="max-height: 430px;">
                     @forelse($messages as $message)
                     <div class="flex {{ $message->pengguna_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
-                        {{-- Jika pesan dari user lain, icon di kiri --}}
+                        {{-- Icon user lain di kiri --}}
                         @if($message->pengguna_id !== auth()->id())
                         <div class="flex-shrink-0 mr-2">
                             <div class="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center">
@@ -109,7 +112,7 @@ $tanggal = $carbon->format('l, d F Y');
                             </div>
                             @endif
                         </div>
-                        {{-- Jika pesan dari diri sendiri, icon di kanan --}}
+                        {{-- Icon user sendiri di kanan --}}
                         @if($message->pengguna_id === auth()->id())
                         <div class="flex-shrink-0 ml-2">
                             <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
@@ -147,14 +150,14 @@ $tanggal = $carbon->format('l, d F Y');
             </div>
 
             <!-- SIDEBAR KANAN -->
-            <aside class="w-full lg:w-80 flex flex-col gap-6">
-                <!-- Kartu Bidang -->
+            <aside class="w-full lg:w-80 flex flex-col gap-6 mt-8 lg:mt-0">
+                <!-- Kartu Role/Info -->
                 <div
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="font-bold text-lg leading-tight">Bidang
-                            {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+                        <p class="font-bold text-lg leading-tight">Bidang {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}
+                        </p>
                     </div>
                 </div>
                 <!-- Kartu Forum List -->

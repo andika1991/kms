@@ -22,14 +22,11 @@
 
 <body class="font-figtree bg-gray-100" style="background-image: url('{{ asset('img/body-bg-pattern.png') }}');">
     {{-- HEADER --}}
-    <header class="bg-white shadow-md sticky top-0 z-20">
-        <div
-            class="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between py-3 md:py-4">
-
+    <header class="bg-white shadow-md sticky top-0 z-20 rounded-b-3xl">
+        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between py-3 md:py-4">
             <a href="/">
                 <img src="{{ asset('assets/img/KMS_Diskominfotik.png') }}" alt="KMS DISKOMINFOTIK" class="h-9" />
             </a>
-
             {{-- Mobile Hamburger Menu --}}
             <div x-data="{ open: false }" class="md:hidden">
                 <button @click="open = !open" aria-label="Toggle navigation"
@@ -45,8 +42,7 @@
                 </button>
 
                 <nav x-show="open" @click.away="open = false"
-                    class="absolute top-full left-0 w-full bg-white shadow-md border-t md:hidden z-30"
-                    x-transition>
+                    class="absolute top-full left-0 w-full bg-white shadow-md border-t md:hidden z-30" x-transition>
                     <a href="{{ route('home') }}"
                         class="{{ request()->routeIs('home') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} block px-6 py-3 border-b border-gray-100 text-sm transition">
                         Beranda
@@ -71,8 +67,7 @@
             </div>
 
             {{-- Desktop Navigation --}}
-            <nav
-                class="hidden md:flex items-center gap-8 whitespace-nowrap text-sm font-medium select-none">
+            <nav class="hidden md:flex items-center gap-8 whitespace-nowrap text-sm font-medium select-none">
                 <a href="{{ route('home') }}"
                     class="{{ request()->routeIs('home') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-700' }} transition">
                     Beranda
@@ -105,8 +100,7 @@
                         <span>{{ Auth::user()->name }}</span>
                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                         </svg>
                     </button>
 
@@ -212,10 +206,8 @@
                         <li><a href="{{ route('home') }}" class="hover:underline hover:text-white">Home</a></li>
                         <li><a href="{{ route('about') }}" class="hover:underline hover:text-white">Tentang Kami</a>
                         </li>
-                        <li><a href="{{ route('pengetahuan') }}"
-                                class="hover:underline hover:text-white">Pengetahuan</a></li>
-                        <li><a href="{{ route('dokumen') }}" class="hover:underline hover:text-white">Dokumen</a></li>
                         <li><a href="{{ route('kegiatan') }}" class="hover:underline hover:text-white">Kegiatan</a></li>
+                        <li><a href="{{ route('dokumen') }}" class="hover:underline hover:text-white">Dokumen</a></li>
                         <li><a href="#" class="hover:underline hover:text-white">Kontak</a></li>
                     </ul>
                 </div>
@@ -250,4 +242,5 @@
 
     @stack('scripts')
 </body>
+
 </html>

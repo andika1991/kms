@@ -5,8 +5,7 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
-@section('title', 'Edit Artikel Kasubbidang')
-
+@section('title', 'Edit Pengetahuan Kasubbidang')
 
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-32">
@@ -20,7 +19,7 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="flex items-center gap-4 w-full sm:w-auto">
                     {{-- Search Bar --}}
                     <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
-                        <input type="text" placeholder="Cari..."
+                        <input type="text" placeholder="Cari artikel pengetahuan..."
                             class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fa fa-search"></i>
@@ -34,8 +33,7 @@ $tanggal = $carbon->format('l, d F Y');
                             <i class="fa-solid fa-user"></i>
                         </button>
                         <div x-show="open" @click.away="open = false"
-                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
-                            style="display: none;">
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition>
                             <div class="py-1">
                                 <a href="{{ route('profile.edit') }}"
                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
@@ -66,9 +64,9 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <label class="block font-semibold text-gray-800 mb-2">Thumbnail</label>
                     <div x-data="{
-            preview: '{{ $artikelpengetahuan->thumbnail ? asset('storage/'.$artikelpengetahuan->thumbnail) : '' }}',
-            original: '{{ $artikelpengetahuan->thumbnail ? asset('storage/'.$artikelpengetahuan->thumbnail) : '' }}'
-        }" class="w-full flex flex-col items-center">
+                        preview: '{{ $artikelpengetahuan->thumbnail ? asset('storage/'.$artikelpengetahuan->thumbnail) : '' }}',
+                        original: '{{ $artikelpengetahuan->thumbnail ? asset('storage/'.$artikelpengetahuan->thumbnail) : '' }}'
+                    }" class="w-full flex flex-col items-center">
                         <div
                             class="w-full h-48 md:h-56 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50 overflow-hidden mb-3">
                             <template x-if="preview">
@@ -87,54 +85,54 @@ $tanggal = $carbon->format('l, d F Y');
                             <button type="button"
                                 class="px-4 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"
                                 @click="Swal.fire({
-                    title: 'Ganti Thumbnail',
-                    text: 'Yakin ingin mengganti gambar?',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ganti',
-                    cancelButtonText: 'Batal',
-                    reverseButtons: true,
-                    customClass: {
-                        confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                        cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded-lg mx-2'
-                    }
-                }).then((result) => {
-                    if(result.isConfirmed) {
-                        document.getElementById('thumbnail').click();
-                    }
-                })">
+                                    title: 'Ganti Thumbnail',
+                                    text: 'Yakin ingin mengganti gambar?',
+                                    icon: 'question',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Ganti',
+                                    cancelButtonText: 'Batal',
+                                    reverseButtons: true,
+                                    customClass: {
+                                        confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
+                                        cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded-lg mx-2'
+                                    }
+                                }).then((result) => {
+                                    if(result.isConfirmed) {
+                                        document.getElementById('thumbnail').click();
+                                    }
+                                })">
                                 Ganti gambar
                             </button>
                             {{-- Hapus --}}
                             <button type="button"
                                 class="px-4 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"
                                 @click="Swal.fire({
-                    title: 'Hapus Thumbnail',
-                    text: 'Yakin ingin menghapus gambar?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Hapus',
-                    cancelButtonText: 'Batal',
-                    reverseButtons: true,
-                    customClass: {
-                        confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                        cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded-lg mx-2'
-                    }
-                }).then((result) => {
-                    if(result.isConfirmed) {
-                        preview = ''; 
-                        document.getElementById('thumbnail').value = '';
-                    }
-                })">
+                                    title: 'Hapus Thumbnail',
+                                    text: 'Yakin ingin menghapus gambar?',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Hapus',
+                                    cancelButtonText: 'Batal',
+                                    reverseButtons: true,
+                                    customClass: {
+                                        confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
+                                        cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded-lg mx-2'
+                                    }
+                                }).then((result) => {
+                                    if(result.isConfirmed) {
+                                        preview = ''; 
+                                        document.getElementById('thumbnail').value = '';
+                                    }
+                                })">
                                 Hapus
                             </button>
                         </div>
                         {{-- Input file hidden --}}
                         <input type="file" name="thumbnail" id="thumbnail" accept="image/*" class="hidden" @change="if($event.target.files.length){
-                        let reader = new FileReader();
-                        reader.onload = e => preview = e.target.result;
-                        reader.readAsDataURL($event.target.files[0]);
-                    }">
+                                let reader = new FileReader();
+                                reader.onload = e => preview = e.target.result;
+                                reader.readAsDataURL($event.target.files[0]);
+                            }">
                         @if($artikelpengetahuan->thumbnail)
                         <div class="text-xs text-gray-500 mt-2 truncate">
                             {{ \Illuminate\Support\Str::afterLast($artikelpengetahuan->thumbnail, '/') }}
@@ -145,7 +143,6 @@ $tanggal = $carbon->format('l, d F Y');
                         @enderror
                     </div>
                 </div>
-
 
                 {{-- Judul Artikel --}}
                 <div class="bg-white rounded-2xl shadow-lg p-6">
@@ -258,7 +255,7 @@ $tanggal = $carbon->format('l, d F Y');
         </footer>
     </x-slot>
 
-    {{-- TinyMCE & SweetAlert2 CDN --}}
+    {{-- TinyMCE CDN --}}
     <script src="https://cdn.tiny.cloud/1/5tsdsuoydzm2f0tjnkrffxszmoas3as1xlmcg5ujs82or4wz/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
@@ -290,21 +287,27 @@ $tanggal = $carbon->format('l, d F Y');
         }
     });
 
-    // SweetAlert2 Confirm Update
+    // SweetAlert2 Modal 
     document.getElementById('btn-update-artikel').addEventListener('click', function(e) {
         Swal.fire({
-            icon: 'success',
+            icon: 'warning',
             title: 'Apakah Anda Yakin',
-            html: '<span class="font-semibold">perubahan akan disimpan</span>',
+            html: '<span class="text-gray-600 text-base">perubahan akan disimpan</span>',
             showCancelButton: true,
             confirmButtonText: 'Ya',
             cancelButtonText: 'Tidak',
             reverseButtons: true,
             buttonsStyling: false,
             customClass: {
-                confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                cancelButton: 'bg-red-700 hover:bg-red-800 text-white font-semibold px-6 py-2 rounded-lg mx-2'
-            }
+                popup: 'rounded-2xl px-8',
+                icon: 'mt-5 mb-3',
+                title: 'mb-1',
+                htmlContainer: 'mb-3',
+                confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
+                cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-10 py-2 rounded-lg text-base',
+                actions: 'flex justify-center gap-4',
+            },
+            buttonsStyling: false,
         }).then((result) => {
             if (result.isConfirmed) {
                 document.getElementById('edit-artikel-form').submit();
@@ -312,25 +315,32 @@ $tanggal = $carbon->format('l, d F Y');
         });
     });
 
-    // SweetAlert2 Confirm Cancel
+    // Batalkan → redirect ke halaman show
     document.getElementById('btn-cancel-artikel').addEventListener('click', function(e) {
+        e.preventDefault();
         Swal.fire({
             icon: 'warning',
             title: 'Apakah Anda Yakin',
-            html: '<span class="font-semibold">perubahan tidak akan disimpan</span>',
+            html: '<span class="text-gray-600 text-base">perubahan tidak akan disimpan</span>',
             showCancelButton: true,
-            confirmButtonText: 'Yakin',
-            cancelButtonText: 'Batal',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Tidak',
             reverseButtons: true,
+            focusCancel: true,
             buttonsStyling: false,
             customClass: {
-                confirmButton: 'bg-blue-700 hover:bg-blue-800 text-white font-semibold px-8 py-2 rounded-lg mx-2',
-                cancelButton: 'bg-blue-300 hover:bg-blue-400 text-white font-semibold px-8 py-2 rounded-lg mx-2'
+                popup: 'rounded-2xl px-8',
+                icon: 'mt-5 mb-3 flex justify-center',
+                title: 'mb-1 text-2xl font-semibold text-gray-700',
+                htmlContainer: 'mb-3',
+                confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
+                cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-10 py-2 rounded-lg text-base',
+                actions: 'flex justify-center gap-4',
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Redirect ke halaman sebelumnya (bisa ganti ke route lain jika perlu)
-                window.location.href = "{{ url()->previous() }}";
+                window.location.href =
+                    "{{ route('kasubbidang.berbagipengetahuan.show', $artikelpengetahuan->id) }}";
             }
         });
     });

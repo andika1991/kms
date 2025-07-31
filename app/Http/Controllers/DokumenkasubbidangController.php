@@ -183,7 +183,7 @@ class DokumenkasubbidangController extends Controller
             $dokumen->delete();
 
             return redirect()->route('kasubbidang.manajemendokumen.index')
-                ->with('success', 'Dokumen berhasil dihapus (soft delete).');
+                ->with('deleted', 'Dokumen berhasil dihapus (soft delete).');
         } catch (\Exception $e) {
             return redirect()->route('kasubbidang.manajemendokumen.index')
                 ->with('error', 'Gagal menghapus dokumen: ' . $e->getMessage());

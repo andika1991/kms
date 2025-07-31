@@ -121,10 +121,10 @@ Route::resource('forum', ForumPegawaiController::class);
     ->middleware(['auth', 'role_group:kasubbidang'])
     ->group(function () {
 Route::get('/', [DashboardController::class, 'kasubbidang'])->name('dashboard');
- Route::resource('kategoripengetahuan', KategoriPengetahuankasubbidangController::class);
+Route::resource('kategoripengetahuan', KategoriPengetahuankasubbidangController::class);
 Route::resource('berbagipengetahuan', PengetahuankasubbidangController::class);
 Route::resource('manajemendokumen', DokumenkasubbidangController::class);
- Route::resource('kegiatan', KegiatankasubidangController::class);
+Route::resource('kegiatan', KegiatankasubidangController::class);
 Route::resource('manajemenpengguna', ManajemenPenggunaKaSubbidangController::class);
 Route::patch('manajemenpengguna/{id}/verifikasi', [ManajemenPenggunaKaSubbidangController::class, 'verifikasi'])
     ->name('manajemenpengguna.verifikasi');
@@ -132,6 +132,8 @@ Route::patch('manajemenpengguna/{id}/verifikasi', [ManajemenPenggunaKaSubbidangC
 Route::resource('forum', ForumKasubbidangController::class);
 Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
+Route::delete('/kegiatan/foto/{foto}', [FotoKegiatanController::class, 'destroy'])
+    ->name('kegiatan.foto.delete');
 Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
     });

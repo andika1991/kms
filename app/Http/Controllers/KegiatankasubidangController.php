@@ -124,6 +124,6 @@ class KegiatankasubidangController extends Controller
         $kegiatan->delete();
 
         return redirect()->route('kasubbidang.kegiatan.index')
-            ->with('success', 'Kegiatan berhasil dihapus.');
+            ->with('deleted', 'Kegiatan berhasil dihapus.');
     }
 }

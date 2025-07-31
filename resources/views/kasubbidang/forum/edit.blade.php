@@ -5,6 +5,8 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'Edit Forum Diskusi Kasubbidang')
+
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full flex flex-col">
         <!-- HEADER -->
@@ -50,16 +52,16 @@ $tanggal = $carbon->format('l, d F Y');
 
         <!-- BODY GRID -->
         <div class="flex flex-col lg:flex-row gap-8 px-4 md:px-12 pt-8 pb-10 flex-1 w-full max-w-7xl mx-auto">
-            <!-- FORM -->
+            <!-- FORM EDIT FORUM -->
             <form method="POST" action="{{ route('kasubbidang.forum.update', $grupchat->id) }}"
                 class="flex-1 max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 flex flex-col gap-8"
-                autocomplete="off">
+                autocomplete="off" id="edit-forum-form">
                 @csrf
                 @method('PUT')
 
                 <div>
-                    <div class="font-bold text-lg md:text-xl text-[#222] mb-1">Informasi Forum Diskusi</div>
-                    <div class="text-gray-500 text-sm mb-5">Tambahkan informasi tentang forum</div>
+                    <div class="font-bold text-lg md:text-xl text-[#222] mb-1">Edit Forum Diskusi</div>
+                    <div class="text-gray-500 text-sm mb-5">Perbarui informasi forum di bawah ini.</div>
 
                     <!-- Nama Grup -->
                     <label class="block text-gray-700 font-semibold mb-2" for="nama_grup">Nama Forum</label>
@@ -131,25 +133,30 @@ $tanggal = $carbon->format('l, d F Y');
             </form>
 
             <!-- SIDEBAR KANAN -->
-            <aside class="w-full lg:w-80 flex flex-col gap-6">
-                <!-- Kartu Bidang -->
+            <aside class="w-full lg:w-80 flex flex-col gap-6 mt-8 lg:mt-0">
+                <!-- Kartu Role/Info -->
                 <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="font-bold text-lg leading-tight">Bidang
-                            {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+                        <p class="font-bold text-lg leading-tight">Bidang {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
                     </div>
                 </div>
-                <!-- Tombol -->
-                <div class="flex gap-3">
-                    <button type="submit"
+                <!-- Tombol Simpan & Batalkan -->
+                <div class="flex gap-3 mt-2">
+                    <button type="submit" form="edit-forum-form"
                         class="flex-1 px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
-                        Update
+                        Simpan
                     </button>
                     <a href="{{ route('kasubbidang.forum.index') }}"
-                        class="flex-1 px-6 py-3 rounded-xl bg-[#ad3a2c] hover:bg-[#992b1e] text-white font-semibold shadow transition text-base text-center">
+                        class="flex-1 px-6 py-3 rounded-xl bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-semibold shadow transition text-base text-center">
                         Batalkan
                     </a>
+                </div>
+                <!-- Deskripsi Forum Diskusi -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        Forum Diskusi merupakan fitur untuk mempermudah pegawai Dinas Komunikasi, Informatika dan Statistik Provinsi Lampung dapat saling berbagi pengetahuan dan mempermudah komunikasi dengan manajemen yang terstruktur dan mudah diakses.
+                    </p>
                 </div>
             </aside>
         </div>
@@ -158,8 +165,7 @@ $tanggal = $carbon->format('l, d F Y');
     <x-slot name="footer">
         <footer class="bg-[#2b6cb0] py-4 mt-8">
             <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
-                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
-                    class="h-10 object-contain">
+                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik" class="h-10 object-contain">
             </div>
         </footer>
     </x-slot>

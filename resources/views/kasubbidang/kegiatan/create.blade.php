@@ -39,6 +39,7 @@ $tanggal = $carbon->format('l, d F Y');
                         <input type="file" id="foto_kegiatan_input" name="foto_kegiatan[]" multiple accept="image/*"
                             class="hidden">
                     </label>
+                    {{-- Preview --}}
                     <div id="preview-foto" class="flex flex-wrap gap-4 mt-2"></div>
                     @error('foto_kegiatan')
                     <span class="text-red-500 text-xs mt-2">{{ $message }}</span>
@@ -50,7 +51,7 @@ $tanggal = $carbon->format('l, d F Y');
                     <label for="nama_kegiatan" class="block font-semibold text-gray-700 mb-1">Nama Kegiatan</label>
                     <input type="text" name="nama_kegiatan" id="nama_kegiatan" value="{{ old('nama_kegiatan') }}"
                         class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2"
-                        placeholder="Contoh: Sosialisasi Inovasi Kerja" required>
+                        placeholder="Contoh: Workshop Data Science" required>
                     @error('nama_kegiatan')
                     <span class="text-red-500 text-xs">{{ $message }}</span>
                     @enderror
@@ -62,7 +63,7 @@ $tanggal = $carbon->format('l, d F Y');
                         Kegiatan</label>
                     <textarea name="deskripsi_kegiatan" id="deskripsi_kegiatan" rows="3"
                         class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2"
-                        placeholder="Jelaskan kegiatan, misal: sharing knowledge, improvement proses, pelatihan, dll."
+                        placeholder="Jelaskan kegiatan yang dilakukan secara singkat..."
                         required>{{ old('deskripsi_kegiatan') }}</textarea>
                     @error('deskripsi_kegiatan')
                     <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -89,11 +90,11 @@ $tanggal = $carbon->format('l, d F Y');
 
                 {{-- Tombol --}}
                 <div class="flex gap-3 mt-2">
-                    <button id="btn-simpan" type="submit"
+                    <button type="submit"
                         class="flex-1 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
                         Simpan
                     </button>
-                    <a href="{{ url()->previous() }}" id="btn-batalkan"
+                    <a href="{{ url()->previous() }}"
                         class="flex-1 px-4 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow transition text-base text-center">
                         Batalkan
                     </a>
@@ -107,32 +108,31 @@ $tanggal = $carbon->format('l, d F Y');
             <div
                 class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                 <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
-                <p class="font-bold text-base leading-tight">{{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+                <p class="font-bold text-base leading-tight">Bidang {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}
+                </p>
             </div>
             {{-- Progress Box --}}
             <div
-                class="rounded-xl shadow-xl bg-gradient-to-r from-green-400 via-blue-500 to-blue-700 p-6 flex flex-col items-center">
-                <i class="fa fa-tasks text-4xl mb-3 text-white drop-shadow"></i>
-                <div class="font-bold text-lg text-white mb-1">Progress Kegiatan Kasubbidang</div>
-                <div class="text-white text-sm opacity-90 text-center">
-                    Dokumentasikan setiap aktivitas kerja, inovasi, knowledge sharing, pelatihan, dan kolaborasi tim di
-                    sini.
-                </div>
+                class="bg-gradient-to-br from-green-400 to-blue-500 text-white rounded-2xl shadow-lg p-7 mb-2 flex flex-col items-center justify-center text-center">
+                <i class="fa-solid fa-list-check text-4xl mb-2"></i>
+                <p class="font-bold text-base mb-2">Progress Kegiatan Kasubbidang</p>
+                <p class="text-xs">Pantau dan catat aktivitas harian selama kegiatan. Kegiatan bisa berupa tugas,
+                    laporan, atau proyek.</p>
             </div>
             {{-- Tips Box --}}
-            <div class="rounded-xl shadow-lg bg-white p-6">
-                <div class="font-semibold text-blue-700 mb-3">Tips Produktif Kasubbidang</div>
-                <ul class="text-gray-700 text-sm space-y-1 pl-4 list-disc">
-                    <li>Update laporan kegiatan secara berkala.</li>
-                    <li>Unggah dokumentasi foto setiap aktivitas.</li>
-                    <li>Laporkan kegiatan inovatif & kolaboratif.</li>
-                    <li>Jaga kualitas dokumentasi pengetahuan.</li>
+            <div class="bg-white rounded-2xl shadow-lg p-7">
+                <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Tips Produktif Kasubbidang</h3>
+                <ul class="list-disc list-inside text-sm text-gray-600 leading-relaxed space-y-1">
+                    <li>Fokus pada tugas dengan dampak terbesar terlebih dahulu.</li>
+                    <li>Beri staf Anda tanggung jawab dan instruksi jelas.</li>
+                    <li>Gunakan tools digital untuk komunikasi dan manajemen tugas.</li>
+                    <li>Alokasikan waktu untuk perencanaan singkat setiap pagi .</li>
                 </ul>
             </div>
         </aside>
     </div>
 
-    {{-- Preview Foto --}}
+    {{-- JS Preview Foto --}}
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const inputFile = document.getElementById('foto_kegiatan_input');
@@ -140,30 +140,39 @@ $tanggal = $carbon->format('l, d F Y');
         let filesToUpload = [];
 
         inputFile.addEventListener('change', function(event) {
-            filesToUpload = Array.from(event.target.files).slice(0, 5);
+            const newFiles = Array.from(event.target.files);
+            const totalFiles = [...filesToUpload, ...newFiles].slice(0, 5); // Batasi max 5
+            filesToUpload = totalFiles;
             renderPreview();
         });
 
         function renderPreview() {
             previewContainer.innerHTML = '';
-            filesToUpload.forEach((file, idx) => {
+            filesToUpload.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const div = document.createElement('div');
                     div.className = "relative";
+
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.className = "h-16 w-16 object-cover rounded-lg border";
+
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.textContent = '×';
                     removeBtn.className =
                         "absolute top-[-7px] right-[-7px] bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700";
+
                     removeBtn.onclick = () => {
-                        filesToUpload.splice(idx, 1);
-                        updateInputFiles();
-                        renderPreview();
+                        const indexToRemove = filesToUpload.findIndex(f => f === file);
+                        if (indexToRemove > -1) {
+                            filesToUpload.splice(indexToRemove, 1);
+                            updateInputFiles();
+                            renderPreview();
+                        }
                     };
+
                     div.appendChild(img);
                     div.appendChild(removeBtn);
                     previewContainer.appendChild(div);
@@ -204,7 +213,7 @@ $tanggal = $carbon->format('l, d F Y');
         btnSimpan.addEventListener('click', function(e) {
             e.preventDefault();
             Swal.fire({
-                icon: 'question',
+                icon: 'success',
                 title: 'Simpan Data?',
                 text: 'Apakah data sudah benar dan ingin disimpan?',
                 showCancelButton: true,

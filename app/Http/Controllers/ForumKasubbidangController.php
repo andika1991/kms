@@ -258,6 +258,6 @@ public function edit($id)
         $grupchat->delete();
 
         return redirect()->route('kasubbidang.forum.index')
-            ->with('success', 'Forum berhasil dihapus.');
+            ->with('deleted', 'Forum berhasil dihapus.');
     }
 }
