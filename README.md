@@ -41,7 +41,7 @@ Ikuti langkah-langkah berikut agar aplikasi bisa berjalan di lingkungan lokal An
 
 ```bash
 git clone https://github.com/andika1991/kms.git
-cd kms-laravel
+cd kms
 ```
 
 ---
