@@ -144,10 +144,10 @@ $tanggal = $carbon->format('l, d F Y');
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl shadow-lg p-7">
-                    <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Tips Produktif Kasubbidang</h3>
+                    <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Tips Produktif Admin</h3>
                     <ul class="list-disc list-inside text-sm text-gray-600 leading-relaxed space-y-1">
                         <li>Catat setiap aktivitas harian kerja.</li>
-                        <li>Laporkan inovasi/kegiatan kolaborasi tim.</li>
+                        <li>Laporkan kegiatan kolaborasi tim.</li>
                         <li>Unggah dokumen/bukti pendukung.</li>
                         <li>Jaga kualitas dokumentasi kegiatan.</li>
                     </ul>
