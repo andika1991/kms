@@ -23,8 +23,8 @@ class DokumenAdminController extends Controller
 
         $dokumen = $dokumenQuery->latest()->get();
       
-    $bidangList = Bidang::all();
-    $subbidangList = SubBidang::all();
+        $bidangList = Bidang::all();
+        $subbidangList = SubBidang::all();
 
 
         $kategori = KategoriDokumen::all(); // Tidak dibatasi bidang/subbidang
@@ -83,12 +83,12 @@ class DokumenAdminController extends Controller
         return view('admin.dokumen.show', compact('dokumen', 'viewers'));
     }
 
- public function edit($id)
-{
-    $manajemendokuman = Dokumen::findOrFail($id);
-    $kategori = KategoriDokumen::all();
-    return view('admin.dokumen.edit', compact('manajemendokuman', 'kategori'));
-}
+    public function edit($id)
+    {
+        $manajemendokuman = Dokumen::findOrFail($id);
+        $kategori = KategoriDokumen::all();
+        return view('admin.dokumen.edit', compact('manajemendokuman', 'kategori'));
+    }
 
 
     public function update(Request $request, $id)

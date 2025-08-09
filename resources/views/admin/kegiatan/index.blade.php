@@ -5,38 +5,55 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
-@section('title', 'Kelola Kegiatan')
+@section('title', 'Kelola Kegiatan Admin')
 
-{{-- SweetAlert2 Notif --}}
-@if(session('success'))
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                toast: true,
-                position: 'top',
-                icon: 'success',
-                title: '{{ session("success") }}',
-                showConfirmButton: false,
-                timer: 2200,
-                background: '#f0fff4',
-                customClass: {
-                    popup: 'rounded-xl shadow-xl mt-6 max-w-xs md:max-w-sm border border-green-300',
-                    title: 'font-bold text-base md:text-lg text-green-800',
-                    icon: 'text-green-500'
-                },
-                didOpen: (toast) => {
-                    toast.style.marginTop = window.innerWidth < 640 ? '0.75rem' : '2rem';
-                }
-            });
-        });
-    </script>
+{{-- ALERT Sukses --}}
+@if (session('success'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'success',
+        title: '{{ session("success") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5',
+            title: 'font-bold text-base md:text-lg text-green-800',
+            icon: 'text-green-500'
+        },
+        timer: 2200
+    });
+});
+</script>
+@endif
+
+@if (session('deleted'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'error',
+        title: '{{ session("deleted") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5 border border-red-200',
+            title: 'font-bold text-base md:text-lg text-red-800',
+            icon: 'text-red-600'
+        },
+        timer: 2500
+    });
+});
+</script>
 @endif
 
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff]">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Kelola Kegiatan || Administrator</h2>
@@ -44,7 +61,8 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">
                     {{-- Search Bar --}}
-                    <form action="{{ route('kasubbidang.kegiatan.index') }}" method="GET" class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                    <form action="{{ route('admin.kegiatan.index') }}" method="GET"
+                        class="relative flex-grow sm:flex-grow-0 sm:w-64">
                         <input type="text" name="search" placeholder="Cari kegiatan..."
                             class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
                             value="{{ request('search') }}">
@@ -68,81 +86,91 @@ $tanggal = $carbon->format('l, d F Y');
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                        Out</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="text-gray-700 text-sm font-medium mt-4">
-                Halo, selamat datang <b>{{ Auth::user()->name }}</b>!
-                Role Anda: <b>{{ Auth::user()->role->nama_role ?? '-' }}</b>
-            </div>
         </div>
 
         {{-- BODY GRID --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
-            {{-- KOLOM UTAMA --}}
+            {{-- KOLOM UTAMA (LIST KEGIATAN) --}}
             <section class="xl:col-span-8 w-full">
-                <div class="flex justify-between items-center mb-6">
-                    <span class="font-bold text-lg text-[#2171b8]">Daftar Kegiatan</span>
-                    <a href="{{ route('admin.kegiatan.create') }}"
-                        class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Tambah Kegiatan</span>
-                    </a>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200/80 overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Kegiatan</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($kegiatan as $item)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $loop->iteration }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-semibold">{{ $item->nama_kegiatan }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ ucfirst($item->kategori_kegiatan) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ Str::limit($item->deskripsi_kegiatan, 50) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        <a href="{{ route('admin.kegiatan.edit', $item->id) }}"
-                                           class="text-yellow-500 hover:underline mr-2">Edit</a>
-                                        <form action="{{ route('admin.kegiatan.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus kegiatan ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:underline ml-2">Hapus</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                                        Belum ada data kegiatan.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div class="font-bold text-lg text-[#2171b8] mb-5">Daftar Kegiatan Admin</div>
+                {{-- WRAPPER PUTIH UNTUK SEMUA DAFTAR --}}
+                <div class="bg-white rounded-2xl shadow-xl px-7 py-8 mb-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-7">
+                        @forelse($kegiatan as $item)
+                        <a href="{{ route('admin.kegiatan.show', $item->id) }}"
+                            class="group rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-200 flex flex-row items-center gap-6 p-4 bg-white">
+                            {{-- PREVIEW FOTO KEGIATAN --}}
+                            <div class="flex-shrink-0 w-40 h-40 sm:w-44 sm:h-44 rounded-xl overflow-hidden bg-gray-200 flex items-center justify-center border transition-all duration-200">
+                                @if ($item->fotokegiatan->isNotEmpty())
+                                    <img src="{{ asset('storage/' . $item->fotokegiatan->first()->path_foto) }}"
+                                        class="object-cover w-full h-full" alt="{{ $item->nama_kegiatan }}">
+                                @else
+                                    <img src="{{ asset('assets/img/empty-photo.png') }}"
+                                        class="object-contain w-14 h-14 opacity-60" alt="No Image">
+                                @endif
+                            </div>
+                            {{-- DETAIL INFO KEGIATAN --}}
+                            <div class="flex flex-col flex-1 h-full justify-between py-2">
+                                <div>
+                                    <h3 class="font-bold text-base md:text-lg text-gray-900 group-hover:text-blue-700 mb-1 line-clamp-2">
+                                        {{ $item->nama_kegiatan }}
+                                    </h3>
+                                    <div class="text-xs sm:text-sm text-gray-600 mb-1">Kategori: <span class="font-semibold">{{ ucfirst($item->kategori_kegiatan) }}</span></div>
+                                    <div class="text-xs sm:text-sm text-gray-500 mb-2 line-clamp-1">
+                                        {{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi_kegiatan), 60) }}
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 mt-2">
+                                    <span class="flex items-center text-xs text-gray-500">
+                                        <i class="fa fa-eye mr-1"></i> {{ $item->views ?? 0 }}
+                                    </span>
+                                    <span class="text-xs text-gray-400 ml-auto">
+                                        {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                        @empty
+                        <div class="col-span-full text-center text-gray-500 py-14">
+                            Belum ada data kegiatan.
+                        </div>
+                        @endforelse
+                    </div>
                 </div>
             </section>
 
             {{-- SIDEBAR --}}
-            <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                <div class="bg-gradient-to-br from-green-400 to-blue-500 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
+            <aside class="xl:col-span-4 w-full flex flex-col gap-6">
+                {{-- CARD ROLE --}}
+                <div
+                    class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
+                    <p class="font-bold text-base leading-tight">Bidang
+                        {{ Auth::user()->role->nama_role ?? 'Administrator' }}
+                    </p>
+                </div>
+                <div
+                    class="bg-gradient-to-br from-green-400 to-blue-500 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <i class="fa-solid fa-list-check text-5xl mb-3"></i>
                     <div>
                         <p class="font-bold text-lg leading-tight mb-2">Tips Kegiatan </p>
-                        <p class="text-xs">Catat, dokumentasikan, dan laporkan kegiatan untuk mendukung Knowledge Management di lingkungan kerja.</p>
+                        <p class="text-xs">Catat, dokumentasikan, dan laporkan kegiatan untuk mendukung Knowledge
+                            Management di lingkungan kerja.</p>
                     </div>
                 </div>
+                <a href="{{ route('admin.kegiatan.create') }}"
+                    class="flex items-center justify-center gap-2 px-5 py-3 mb-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Kegiatan</span>
+                </a>
                 <div class="bg-white rounded-2xl shadow-lg p-7">
                     <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Tips Produktif Admin</h3>
                     <ul class="list-disc list-inside text-sm text-gray-600 leading-relaxed space-y-1">

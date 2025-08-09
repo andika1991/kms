@@ -10,10 +10,10 @@ $tanggal = $carbon->format('l, d F Y');
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full flex flex-col">
         <!-- HEADER -->
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Forum Diskusi</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Tambah Forum Diskusi</h2>
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -40,7 +40,8 @@ $tanggal = $carbon->format('l, d F Y');
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                        Out</button>
                                 </form>
                             </div>
                         </div>
@@ -129,7 +130,8 @@ $tanggal = $carbon->format('l, d F Y');
             <!-- SIDEBAR KANAN -->
             <aside class="w-full lg:w-80 flex flex-col gap-6">
                 <!-- Kartu Bidang -->
-                <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
+                <div
+                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
                         <p class="font-bold text-lg leading-tight">Bidang
@@ -140,7 +142,7 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="flex gap-3 mt-2">
                     <button type="submit"
                         class="flex-1 px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
-                        Simpan
+                        Tambah
                     </button>
                     <a href="{{ route('kadis.forum.index') }}"
                         class="flex-1 px-6 py-3 rounded-xl bg-[#ad3a2c] hover:bg-[#992b1e] text-white font-semibold shadow transition text-base text-center">
@@ -209,4 +211,53 @@ $tanggal = $carbon->format('l, d F Y');
         toggleFields();
     });
     </script>
+
+    <!-- SweetAlert2 (jika belum ada di layout global) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form =
+            document.querySelector('form[action*="/kadis/forum"]') ||
+            document.querySelector('form[action*="/forum"]') ||
+            document.forms[0];
+
+        if (!form) return;
+
+        let allowSubmit = false;
+
+        form.addEventListener('submit', function(e) {
+            if (allowSubmit) return;
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Apakah Anda Yakin',
+                html: '<span class="font-semibold">perubahan akan disimpan</span>',
+                icon: 'success',
+                showCancelButton: true,
+                showConfirmButton: true,
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-2xl p-8',
+                    icon: 'mt-0 mb-3',
+                    title: 'mb-1',
+                    htmlContainer: 'mb-3',
+                    confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-10 py-2 rounded-lg text-base mr-0 sm:mr-2 w-full sm:w-auto',
+                    cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-10 py-2 rounded-lg text-base w-full sm:w-auto',
+                    actions: 'flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full',
+                },
+                buttonsStyling: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    allowSubmit = true;
+                    if (form.requestSubmit) form.requestSubmit();
+                    else form.submit();
+                }
+            });
+        });
+    });
+    </script>
+
 </x-app-layout>

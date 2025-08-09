@@ -5,65 +5,140 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
-@section('title', 'Edit Kegiatan ')
+@section('title', 'Edit Kegiatan Admin')
 
 <x-app-layout>
     {{-- HEADER --}}
-    <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+    <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Edit Kegiatan Kasubbidang</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Edit Kegiatan || Administrator</h2>
                 <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
+            </div>
+            <div class="flex items-center gap-4 w-full sm:w-auto">
+                {{-- Search Bar --}}
+                <form action="{{ route('admin.kegiatan.index') }}" method="GET"
+                    class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                    <input type="text" name="search" placeholder="Cari kegiatan..."
+                        class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
+                        value="{{ request('search') }}">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <i class="fa fa-search"></i>
+                    </span>
+                </form>
+                {{-- Dropdown Profile --}}
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open"
+                        class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
+                        title="Profile">
+                        <i class="fa-solid fa-user"></i>
+                    </button>
+                    <div x-show="open" @click.away="open = false"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
+                        style="display: none;">
+                        <div class="py-1">
+                            <a href="{{ route('profile.edit') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                    Out</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     {{-- MAIN CONTENT --}}
-    <div class="flex flex-col lg:flex-row gap-8 justify-center items-start min-h-[80vh] px-2 py-10 bg-[#eaf5ff]">
-        <div class="w-full max-w-2xl mx-auto">
+    <div class="w-full min-h-[80vh] bg-[#eaf5ff] flex flex-col lg:flex-row gap-8 px-2 py-10 justify-center items-start">
+        {{-- FORM UTAMA --}}
+        <div class="w-full max-w-2xl">
             <form id="form-kegiatan" method="POST" action="{{ route('admin.kegiatan.update', $kegiatan->id) }}" enctype="multipart/form-data"
-                class="bg-white rounded-xl shadow-xl px-7 py-8 flex flex-col gap-6">
+                class="bg-white rounded-xl shadow-xl px-7 py-8 flex flex-col gap-7">
                 @csrf
                 @method('PUT')
 
-                {{-- Nama Kegiatan --}}
+                {{-- THUMBNAIL --}}
                 <div>
-                    <label for="nama_kegiatan" class="block font-semibold text-gray-700 mb-1">Nama Kegiatan</label>
+                    <label class="block font-semibold text-gray-700 mb-1">Thumbnail</label>
+                    <div class="relative mb-3">
+                        @if ($kegiatan->thumbnail)
+                            <img id="preview-thumbnail" src="{{ asset('storage/'.$kegiatan->thumbnail) }}"
+                                class="w-full h-48 object-cover rounded-lg border shadow" alt="Thumbnail Kegiatan">
+                        @else
+                            <img id="preview-thumbnail" src="{{ asset('img/no-image.png') }}"
+                                class="w-full h-48 object-cover rounded-lg border shadow" alt="Thumbnail Kegiatan">
+                        @endif
+                        <div class="absolute right-4 bottom-4 flex gap-2 z-10">
+                            {{-- Ganti Gambar --}}
+                            <label for="thumbnail_kegiatan_input"
+                                class="px-4 py-2 rounded-lg bg-[#2171b8] hover:bg-blue-700 text-white font-semibold text-sm shadow cursor-pointer transition flex items-center gap-2">
+                                <i class="fa fa-refresh"></i>
+                                Ganti gambar
+                                <input type="file" id="thumbnail_kegiatan_input" name="thumbnail_kegiatan" accept="image/*" class="hidden">
+                            </label>
+                            {{-- Hapus Thumbnail (jika ada) --}}
+                            @if ($kegiatan->thumbnail)
+                                <button type="button"
+                                    id="btn-delete-thumbnail"
+                                    class="px-4 py-2 rounded-lg bg-[#e94545] hover:bg-red-700 text-white font-semibold text-sm shadow flex items-center gap-2">
+                                    <i class="fa fa-trash"></i>
+                                    Hapus
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                    @error('thumbnail_kegiatan')
+                    <span class="text-red-500 text-xs mt-2">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                {{-- JUDUL KEGIATAN --}}
+                <div>
+                    <label for="nama_kegiatan" class="block font-semibold text-gray-700 mb-1">Judul Kegiatan</label>
                     <input type="text" name="nama_kegiatan" id="nama_kegiatan"
                         value="{{ old('nama_kegiatan', $kegiatan->nama_kegiatan) }}"
-                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2" required>
+                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2"
+                        required>
                     @error('nama_kegiatan')
-                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                    <span class="text-red-500 text-xs">{{ $message }}</span>
                     @enderror
                 </div>
 
-                {{-- Deskripsi --}}
+                {{-- DESKRIPSI KEGIATAN --}}
                 <div>
                     <label for="deskripsi_kegiatan" class="block font-semibold text-gray-700 mb-1">Deskripsi Kegiatan</label>
-                    <textarea name="deskripsi_kegiatan" id="deskripsi_kegiatan" rows="3"
-                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2" required>{{ old('deskripsi_kegiatan', $kegiatan->deskripsi_kegiatan) }}</textarea>
+                    <textarea name="deskripsi_kegiatan" id="deskripsi_kegiatan" rows="5"
+                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2"
+                        required>{{ old('deskripsi_kegiatan', $kegiatan->deskripsi_kegiatan) }}</textarea>
                     @error('deskripsi_kegiatan')
-                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                    <span class="text-red-500 text-xs">{{ $message }}</span>
                     @enderror
                 </div>
 
-                {{-- Kategori --}}
+                {{-- KATEGORI --}}
                 <div>
                     <label for="kategori_kegiatan" class="block font-semibold text-gray-700 mb-1">Kategori Kegiatan</label>
                     <select name="kategori_kegiatan" id="kategori_kegiatan"
-                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2" required>
+                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2"
+                        required>
                         <option value="">Pilih Kategori</option>
                         <option value="publik" {{ old('kategori_kegiatan', $kegiatan->kategori_kegiatan) == 'publik' ? 'selected' : '' }}>Publik</option>
                         <option value="internal" {{ old('kategori_kegiatan', $kegiatan->kategori_kegiatan) == 'internal' ? 'selected' : '' }}>Internal</option>
                     </select>
                     @error('kategori_kegiatan')
-                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                    <span class="text-red-500 text-xs">{{ $message }}</span>
                     @enderror
                 </div>
 
-                {{-- Upload Foto Baru --}}
+                {{-- DOKUMENTASI KEGIATAN --}}
                 <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Upload Foto Kegiatan Baru (opsional, max 5)</label>
+                    <label class="block font-semibold text-gray-700 mb-1">
+                        Dokumentasi Kegiatan <span class="text-xs text-gray-400">(opsional, max 5)</span>
+                    </label>
                     <label for="foto_kegiatan_input"
                         class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-blue-200 rounded-lg cursor-pointer hover:border-blue-500 bg-blue-50 transition">
                         <i class="fa fa-cloud-upload text-3xl text-blue-400 mb-1"></i>
@@ -73,25 +148,21 @@ $tanggal = $carbon->format('l, d F Y');
                     <div id="preview-foto" class="flex flex-wrap gap-4 mt-2"></div>
                     <div id="hidden-file-inputs"></div>
                     @error('foto_kegiatan')
-                        <span class="text-red-500 text-xs mt-2">{{ $message }}</span>
+                    <span class="text-red-500 text-xs mt-2">{{ $message }}</span>
                     @enderror
-                </div>
 
-                {{-- Foto Lama --}}
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Foto Kegiatan Saat Ini</label>
+                    {{-- Dokumentasi Lama --}}
                     @if($kegiatan->fotokegiatan->count())
-                        <div class="flex flex-wrap gap-4 mt-2">
+                        <div class="mt-4 flex flex-wrap gap-4">
                             @foreach($kegiatan->fotokegiatan as $foto)
-                                <div class="relative">
-                                    <img src="{{ asset('storage/' . $foto->path_foto) }}" class="h-20 w-20 object-cover rounded-lg border" alt="Foto Kegiatan">
+                                <div class="relative group">
+                                    <img src="{{ asset('storage/' . $foto->path_foto) }}"
+                                        class="h-20 w-32 object-cover rounded-lg border" alt="Foto Kegiatan">
                                     <a href="#" onclick="event.preventDefault(); if(confirm('Hapus foto ini?')) document.getElementById('delete-foto-{{ $foto->id }}').submit();"
-                                        class="absolute top-[-7px] right-[-7px] bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700">&times;</a>
+                                        class="absolute top-[-7px] right-[-7px] bg-[#e94545] text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 opacity-90 group-hover:opacity-100 transition">&times;</a>
                                 </div>
                             @endforeach
                         </div>
-                    @else
-                        <p class="text-gray-500 mt-2">Belum ada foto kegiatan.</p>
                     @endif
                 </div>
 
@@ -102,109 +173,189 @@ $tanggal = $carbon->format('l, d F Y');
                     </form>
                 @endforeach
 
-                {{-- Tombol --}}
-                <div class="flex gap-3 mt-2">
-                    <button id="btn-update-kegiatan" type="button"
-                        class="flex-1 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
-                        <i class="fa-solid fa-save"></i> Update Perubahan
-                    </button>
-                    <button id="btn-cancel-kegiatan" type="button"
-                        class="flex-1 px-4 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow transition text-base text-center">
-                        <i class="fa-solid fa-times"></i> Batal
-                    </button>
-                </div>
             </form>
         </div>
 
         {{-- SIDEBAR --}}
-        <div class="flex flex-col gap-6 w-full max-w-sm mx-auto mt-10 lg:mt-0">
-            <div class="rounded-xl shadow-xl bg-gradient-to-r from-green-400 via-blue-500 to-blue-700 p-6 flex flex-col items-center">
-                <i class="fa fa-tasks text-4xl mb-3 text-white drop-shadow"></i>
-                <div class="font-bold text-lg text-white mb-1">Progress Kegiatan Kasubbidang</div>
-                <div class="text-white text-sm opacity-90 text-center">
-                    Dokumentasikan setiap aktivitas kerja, inovasi, knowledge sharing, pelatihan, dan kolaborasi tim di sini.
-                </div>
+        <aside class="flex flex-col gap-6 w-full max-w-sm mt-10 lg:mt-0">
+            <div class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+                <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
+                <p class="font-bold text-base leading-tight">Bidang {{ Auth::user()->role->nama_role ?? 'Administrator' }}</p>
             </div>
-            <div class="rounded-xl shadow-lg bg-white p-6">
-                <div class="font-semibold text-blue-700 mb-3">Tips Produktif Kasubbidang</div>
-                <ul class="text-gray-700 text-sm space-y-1 pl-4 list-disc">
-                    <li>Update laporan kegiatan secara berkala.</li>
-                    <li>Unggah dokumentasi foto setiap aktivitas.</li>
-                    <li>Laporkan kegiatan inovatif & kolaboratif.</li>
-                    <li>Jaga kualitas dokumentasi pengetahuan.</li>
+            {{-- Tombol Simpan & Batalkan --}}
+            <div class="flex gap-3 w-full">
+                <button type="button" id="btn-update-kegiatan"
+                    class="flex-1 px-4 py-2 rounded-lg bg-[#2171b8] hover:bg-blue-700 text-white font-semibold shadow transition text-base">
+                    Edit
+                </button>
+                <button type="button" id="btn-cancel-kegiatan"
+                    class="flex-1 px-4 py-2 rounded-lg bg-[#e94545] hover:bg-red-700 text-white font-semibold shadow transition text-base text-center">
+                    Batalkan
+                </button>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-7">
+                <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Tips Produktif Admin</h3>
+                <ul class="list-disc list-inside text-sm text-gray-600 leading-relaxed space-y-1">
+                    <li>Catat setiap aktivitas harian kerja.</li>
+                    <li>Laporkan kegiatan kolaborasi tim.</li>
+                    <li>Unggah dokumen/bukti pendukung.</li>
+                    <li>Jaga kualitas dokumentasi kegiatan.</li>
                 </ul>
             </div>
-        </div>
+        </aside>
     </div>
 
-    {{-- PREVIEW & UPLOAD VALIDATION --}}
+    {{-- JS PREVIEW --}}
     <script>
-        let filesToUpload = [];
-
-        const inputFile = document.getElementById('foto_kegiatan_input');
-        const previewContainer = document.getElementById('preview-foto');
-        const hiddenInputsContainer = document.getElementById('hidden-file-inputs');
-
-        inputFile.addEventListener('change', (event) => {
-            for (const file of event.target.files) {
-                if (!file.type.startsWith('image/')) continue;
-
-                if (filesToUpload.length >= 5) {
-                    alert("Maksimal 5 foto yang dapat diunggah.");
-                    break;
-                }
-
-                if (!filesToUpload.some(f => f.name === file.name && f.size === file.size)) {
-                    filesToUpload.push(file);
-                }
+    // Preview Thumbnail
+    document.getElementById('thumbnail_kegiatan_input')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('preview-thumbnail');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                preview.src = evt.target.result;
             }
-            renderPreview();
-            inputFile.value = '';
-        });
-
-        function renderPreview() {
-            previewContainer.innerHTML = '';
-            hiddenInputsContainer.innerHTML = '';
-
-            filesToUpload.forEach((file, index) => {
-                const reader = new FileReader();
-
-                reader.onload = (e) => {
-                    const div = document.createElement('div');
-                    div.classList.add('relative');
-
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.classList.add('h-24', 'w-24', 'object-cover', 'rounded-md', 'border');
-
-                    const btnRemove = document.createElement('button');
-                    btnRemove.type = 'button';
-                    btnRemove.textContent = '×';
-                    btnRemove.classList.add('absolute', 'top-0', 'right-0', 'bg-red-600', 'text-white', 'rounded-full', 'w-6', 'h-6', 'flex', 'items-center', 'justify-center', 'hover:bg-red-700');
-                    btnRemove.addEventListener('click', () => {
-                        filesToUpload.splice(index, 1);
-                        renderPreview();
-                    });
-
-                    div.appendChild(img);
-                    div.appendChild(btnRemove);
-                    previewContainer.appendChild(div);
-                };
-                reader.readAsDataURL(file);
-
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-
-                const newInput = document.createElement('input');
-                newInput.type = 'file';
-                newInput.name = 'foto_kegiatan[]';
-                newInput.files = dataTransfer.files;
-                newInput.style.display = 'none';
-                hiddenInputsContainer.appendChild(newInput);
-            });
+            reader.readAsDataURL(file);
         }
+    });
+
+    // Hapus Thumbnail
+    document.getElementById('btn-delete-thumbnail')?.addEventListener('click', function () {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Hapus Thumbnail?',
+            text: 'Thumbnail akan dihapus dari kegiatan ini. Lanjutkan?',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'bg-[#e94545] hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
+                cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold px-6 py-2 rounded-lg mx-2'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Mark to remove thumbnail (let controller handle)
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'delete_thumbnail';
+                input.value = '1';
+                document.getElementById('form-kegiatan').appendChild(input);
+                document.getElementById('form-kegiatan').submit();
+            }
+        });
+    });
+
+    // Preview & Remove Dokumentasi Baru (Multiple)
+    let filesToUpload = [];
+    const inputFile = document.getElementById('foto_kegiatan_input');
+    const previewContainer = document.getElementById('preview-foto');
+    const hiddenInputsContainer = document.getElementById('hidden-file-inputs');
+
+    inputFile?.addEventListener('change', (event) => {
+        for (const file of event.target.files) {
+            if (!file.type.startsWith('image/')) continue;
+            if (filesToUpload.length >= 5) {
+                alert("Maksimal 5 foto yang dapat diunggah.");
+                break;
+            }
+            if (!filesToUpload.some(f => f.name === file.name && f.size === file.size)) {
+                filesToUpload.push(file);
+            }
+        }
+        renderPreview();
+        inputFile.value = '';
+    });
+
+    function renderPreview() {
+        previewContainer.innerHTML = '';
+        hiddenInputsContainer.innerHTML = '';
+        filesToUpload.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const div = document.createElement('div');
+                div.classList.add('relative');
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = "h-16 w-16 object-cover rounded-lg border";
+                const btnRemove = document.createElement('button');
+                btnRemove.type = 'button';
+                btnRemove.textContent = '×';
+                btnRemove.className =
+                    "absolute top-[-7px] right-[-7px] bg-[#e94545] text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700";
+                btnRemove.addEventListener('click', () => {
+                    filesToUpload.splice(index, 1);
+                    renderPreview();
+                });
+                div.appendChild(img);
+                div.appendChild(btnRemove);
+                previewContainer.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            const newInput = document.createElement('input');
+            newInput.type = 'file';
+            newInput.name = 'foto_kegiatan[]';
+            newInput.files = dataTransfer.files;
+            newInput.style.display = 'none';
+            hiddenInputsContainer.appendChild(newInput);
+        });
+    }
     </script>
 
+    {{-- SweetAlert2 & Tombol Sidebar --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Konfirmasi Edit
+        document.getElementById('btn-update-kegiatan').addEventListener('click', function () {
+            Swal.fire({
+                icon: 'question',
+                title: 'Simpan Perubahan?',
+                text: 'Apakah Anda yakin ingin menyimpan perubahan?',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Edit',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'bg-[#2171b8] hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
+                    cancelButton: 'bg-[#e94545] hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mx-2'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-kegiatan').submit();
+                }
+            });
+        });
+        // Konfirmasi Batal
+        document.getElementById('btn-cancel-kegiatan').addEventListener('click', function () {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Batalkan Edit?',
+                text: 'Perubahan tidak akan disimpan. Lanjutkan?',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Batalkan',
+                cancelButtonText: 'Kembali',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'bg-[#e94545] hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
+                    cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold px-6 py-2 rounded-lg mx-2'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('admin.kegiatan.index') }}";
+                }
+            });
+        });
+    });
+    </script>
+
+    {{-- FOOTER --}}
     <x-slot name="footer">
         <footer class="bg-[#2b6cb0] py-4 mt-8">
             <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
@@ -212,53 +363,4 @@ $tanggal = $carbon->format('l, d F Y');
             </div>
         </footer>
     </x-slot>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Konfirmasi Simpan
-            document.getElementById('btn-update-kegiatan').addEventListener('click', function () {
-                Swal.fire({
-                    icon: 'question',
-                    title: 'Simpan Perubahan?',
-                    text: 'Apakah Anda yakin ingin menyimpan perubahan?',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya, Simpan',
-                    cancelButtonText: 'Batal',
-                    reverseButtons: true,
-                    customClass: {
-                        confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                        cancelButton: 'bg-red-700 hover:bg-red-800 text-white font-semibold px-6 py-2 rounded-lg mx-2'
-                    },
-                    buttonsStyling: false
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('form-kegiatan').submit();
-                    }
-                });
-            });
-
-            // Konfirmasi Batal
-            document.getElementById('btn-cancel-kegiatan').addEventListener('click', function () {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Batalkan Edit?',
-                    text: 'Perubahan tidak akan disimpan. Lanjutkan?',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya, Batalkan',
-                    cancelButtonText: 'Kembali',
-                    reverseButtons: true,
-                    customClass: {
-                        confirmButton: 'bg-red-700 hover:bg-red-800 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                        cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold px-6 py-2 rounded-lg mx-2'
-                    },
-                    buttonsStyling: false
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('admin.kegiatan.index') }}";
-                    }
-                });
-            });
-        });
-    </script>
 </x-app-layout>

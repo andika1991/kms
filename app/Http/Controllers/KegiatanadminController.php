@@ -91,51 +91,50 @@ class KegiatanadminController extends Controller
 
         $kegiatan->delete();
 
-        return redirect()->route('admin.kegiatan.index')->with('success', 'Kegiatan berhasil dihapus.');
+        return redirect()->route('admin.kegiatan.index')->with('deleted', 'Kegiatan berhasil dihapus.');
     }
 
-// Form tambah kegiatan
-public function create(Request $request)
-{
-    $subbidangId = $request->input('subbidang_id');
-    $subbidangList = Subbidang::with('bidang')->get(); // jika kamu ingin menampilkan pilihan
+    // Form tambah kegiatan
+    public function create(Request $request)
+    {
+        $subbidangId = $request->input('subbidang_id');
+        $subbidangList = Subbidang::with('bidang')->get(); // jika kamu ingin menampilkan pilihan
 
-    return view('admin.kegiatan.create', compact('subbidangId', 'subbidangList'));
-}
+        return view('admin.kegiatan.create', compact('subbidangId', 'subbidangList'));
+    }
 
 
-// Simpan kegiatan baru
-public function store(Request $request)
-{
-    $request->validate([
-        'nama_kegiatan' => 'required|string|max:255',
-        'deskripsi_kegiatan' => 'required|string',
-        'kategori_kegiatan' => 'required|in:publik,internal',
-        'subbidang_id' => 'nullable|exists:subbidang,id',
-        'foto_kegiatan.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    ]);
+    // Simpan kegiatan baru
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama_kegiatan' => 'required|string|max:255',
+            'deskripsi_kegiatan' => 'required|string',
+            'kategori_kegiatan' => 'required|in:publik,internal',
+            'subbidang_id' => 'nullable|exists:subbidang,id',
+            'foto_kegiatan.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
 
-    $kegiatan = Kegiatan::create([
-        'nama_kegiatan' => $request->nama_kegiatan,
-        'deskripsi_kegiatan' => $request->deskripsi_kegiatan,
-        'kategori_kegiatan' => $request->kategori_kegiatan,
-        'subbidang_id' => $request->subbidang_id,
-        'pengguna_id' => auth()->id(),
-    ]);
+        $kegiatan = Kegiatan::create([
+            'nama_kegiatan' => $request->nama_kegiatan,
+            'deskripsi_kegiatan' => $request->deskripsi_kegiatan,
+            'kategori_kegiatan' => $request->kategori_kegiatan,
+            'subbidang_id' => $request->subbidang_id,
+            'pengguna_id' => auth()->id(),
+        ]);
 
-    if ($request->hasFile('foto_kegiatan')) {
-        foreach ($request->file('foto_kegiatan') as $file) {
-            $path = $file->store('foto_kegiatan', 'public');
+        if ($request->hasFile('foto_kegiatan')) {
+            foreach ($request->file('foto_kegiatan') as $file) {
+                $path = $file->store('foto_kegiatan', 'public');
 
-            FotoKegiatan::create([
-                'kegiatan_id' => $kegiatan->id,
-                'path_foto' => $path,
-            ]);
+                FotoKegiatan::create([
+                    'kegiatan_id' => $kegiatan->id,
+                    'path_foto' => $path,
+                ]);
+            }
         }
+
+        return redirect()->route('admin.kegiatan.index')->with('success', 'Kegiatan berhasil ditambahkan.');
     }
-
-    return redirect()->route('admin.kegiatan.index')->with('success', 'Kegiatan berhasil ditambahkan.');
-}
-
 
 }

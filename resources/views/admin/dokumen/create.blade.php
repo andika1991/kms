@@ -10,7 +10,7 @@ $tanggal = $carbon->format('l, d F Y');
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] flex flex-col pb-10">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen</h2>
@@ -109,8 +109,8 @@ $tanggal = $carbon->format('l, d F Y');
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
                         <p class="font-bold text-lg leading-tight mb-2">
-                            {{ Auth::user()->role->nama_role ?? 'Sekretaris' }}</p>
-                        <p class="text-xs">Upload, simpan, dan kelola dokumen kegiatan, inovasi, dan knowledge sharing
+                            {{ Auth::user()->role->nama_role ?? 'Administrator' }}</p>
+                        <p class="text-xs">Upload, simpan, dan kelola dokumen kegiatan atau knowledge sharing
                             di sini.</p>
                     </div>
                 </div>
@@ -119,7 +119,7 @@ $tanggal = $carbon->format('l, d F Y');
                         <i class="fa-solid fa-save"></i>
                         <span>Simpan</span>
                     </button>
-                    <a href="{{ route('sekretaris.manajemendokumen.index') }}" class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
+                    <a href="{{ route('admin.manajemendokumen.index') }}" class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-times"></i>
                         <span>Batalkan</span>
                     </a>

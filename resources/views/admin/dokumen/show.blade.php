@@ -13,7 +13,7 @@ $viewers = $viewers ?? [];
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-12">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen</h2>
@@ -59,7 +59,7 @@ $viewers = $viewers ?? [];
                 <div class="bg-white rounded-2xl shadow-lg p-4 md:p-10 flex flex-col gap-4">
                     {{-- Breadcrumb --}}
                     <nav class="mb-1 text-xs text-gray-400">
-                        <a href="{{ route('sekretaris.manajemendokumen.index') }}" class="hover:underline">Beranda &gt;
+                        <a href="{{ route('admin.manajemendokumen.index') }}" class="hover:underline">Beranda &gt;
                             Daftar Dokumen</a>
                     </nav>
                     {{-- Judul --}}
@@ -150,13 +150,15 @@ $viewers = $viewers ?? [];
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="font-bold text-lg leading-tight">
-                            {{ Auth::user()->role->nama_role ?? 'Sekretaris' }}
+                        <p class="font-bold text-lg leading-tight mb-2">
+                            {{ Auth::user()->role->nama_role ?? 'Administrator' }}
                         </p>
+                        <p class="text-xs">Lihat dokumen kegiatan atau knowledge sharing
+                            di sini.</p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4">
-                    <a href="{{ route('sekretaris.manajemendokumen.index') }}"
+                    <a href="{{ route('admin.manajemendokumen.index') }}"
                         class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold shadow-sm transition text-base text-center">
                         <i class="fa-solid fa-arrow-left"></i>
                         <span>Kembali ke Daftar</span>
