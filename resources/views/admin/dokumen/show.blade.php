@@ -10,6 +10,8 @@ $namaFile = $dokumen->path_dokumen ? basename($dokumen->path_dokumen) : null;
 $viewers = $viewers ?? [];
 @endphp
 
+@section('title', 'Lihat Dokumen Admin')
+
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-12">
         {{-- HEADER --}}

@@ -25,7 +25,7 @@ class KategoriDokumensekreController extends Controller
         $kategori->nama_kategoridokumen = $request->nama_kategori;
         $kategori->save();
 
-        return redirect()->route('sekretaris.manajemendokumen.index')->with('success', 'Kategori berhasil diupdate!');
+        return redirect()->route('sekretaris.manajemendokumen.index')->with('success', 'Kategori Dokumen berhasil diupdate!');
     }
 
     // Menghapus kategori
@@ -34,7 +34,7 @@ class KategoriDokumensekreController extends Controller
         $kategori = KategoriDokumen::findOrFail($id);
         $kategori->delete();
 
-        return redirect()->route('sekretaris.manajemendokumen.index')->with('deleted', 'Kategori berhasil dihapus!');
+        return redirect()->route('sekretaris.manajemendokumen.index')->with('deleted', 'Kategori Dokumen berhasil dihapus!');
     }
     
     public function store(Request $request)

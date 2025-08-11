@@ -5,10 +5,12 @@
     $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'Edit Manajemen Agenda Sekretaris')
+
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full flex flex-col">
         <!-- HEADER -->
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Agenda</h2>
@@ -33,7 +35,7 @@
                             style="display: none;">
                             <div class="py-1">
                                 <a href="{{ route('profile.edit') }}"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
@@ -51,7 +53,7 @@
             <!-- FORM EDIT AGENDA -->
             <form action="{{ route('sekretaris.agenda.update', $agenda->id) }}" method="POST"
                   class="flex-1 max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 flex flex-col gap-8"
-                  autocomplete="off">
+                  autocomplete="off" id="editAgendaForm">
                 @csrf
                 @method('PUT')
 
@@ -69,9 +71,9 @@
                     <div class="flex-1">
                         <label class="block font-bold text-base md:text-lg mb-2" for="date_agenda">Tanggal</label>
                         <input id="date_agenda" name="date_agenda" type="date"
-                            value="{{ old('date_agenda', $agenda->date_agenda) }}"
-                            class="w-full rounded-xl border border-gray-300 px-5 py-3 bg-white shadow focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                            required>
+                               value="{{ old('date_agenda', $agenda->date_agenda) }}"
+                               class="w-full rounded-xl border border-gray-300 px-5 py-3 bg-white shadow focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                               required>
                     </div>
                     <div class="flex-1">
                         <label class="block font-bold text-base md:text-lg mb-2" for="waktu_agenda">Mulai</label>
@@ -104,12 +106,10 @@
                         @endforeach
                     </select>
                 </div>
-                <!-- Tombol aksi simpan & batal di sidebar kanan (lihat bawah) -->
             </form>
 
             <!-- SIDEBAR KANAN -->
             <aside class="w-full lg:w-80 flex flex-col gap-6 mt-8 lg:mt-0">
-                <!-- Kartu Role/Info -->
                 <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
@@ -117,19 +117,17 @@
                     </div>
                 </div>
 
-                <!-- Tombol Simpan & Batal -->
                 <div class="flex gap-3">
-                    <button type="submit" form="__form__"
+                    <button type="submit" form="editAgendaForm"
                         class="flex-1 px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
                         Simpan
                     </button>
                     <a href="{{ route('sekretaris.agenda.index') }}"
-                        class="flex-1 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow transition text-base text-center">
+                       class="btn-cancel flex-1 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow transition text-base text-center">
                         Batalkan
                     </a>
                 </div>
 
-                <!-- Deskripsi Agenda -->
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <p class="text-sm text-gray-700 leading-relaxed">
                         Edit agenda pimpinan untuk memperbarui jadwal kegiatan, waktu, dan pimpinan yang bertanggung jawab sesuai kebutuhan.
@@ -147,7 +145,73 @@
         </footer>
     </x-slot>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
     <script>
-        // Responsive, bisa tambahkan custom JS jika ingin
+    document.addEventListener('DOMContentLoaded', function () {
+        // SIMPAN (Hijau / Merah)
+        const form = document.getElementById('editAgendaForm');
+        if (form) {
+            let allowSubmit = false;
+            form.addEventListener('submit', function (e) {
+                if (allowSubmit) return;
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Apakah Anda Yakin',
+                    html: '<span class="font-semibold">perubahan akan disimpan</span>',
+                    icon: 'success',
+                    showCancelButton: true,
+                    buttonsStyling: false,
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    customClass: {
+                        popup: 'rounded-2xl p-8',
+                        icon: 'mt-0 mb-3',
+                        title: 'mb-1',
+                        htmlContainer: 'mb-3',
+                        confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-10 py-2 rounded-lg text-base w-full sm:w-auto',
+                        cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-10 py-2 rounded-lg text-base w-full sm:w-auto',
+                        actions: 'flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full'
+                    }
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        allowSubmit = true;
+                        if (form.requestSubmit) form.requestSubmit();
+                        else form.submit();
+                    }
+                });
+            });
+        }
+
+        // BATAL (Biru / Biru)
+        document.querySelectorAll('.btn-cancel').forEach((btn) => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const url = this.getAttribute('href') || '#';
+
+                Swal.fire({
+                    title: 'Apakah Anda Yakin',
+                    html: '<span class="font-semibold">perubahan tidak akan disimpan</span>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    buttonsStyling: false,
+                    confirmButtonText: 'Yakin',
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        popup: 'rounded-2xl p-8',
+                        icon: 'mt-0 mb-3',
+                        title: 'mb-1',
+                        htmlContainer: 'mb-3',
+                        confirmButton: 'bg-[#1e4776] hover:bg-[#16355a] text-white font-semibold px-10 py-2 rounded-lg text-base w-full sm:w-auto',
+                        cancelButton: 'bg-[#2563a9] hover:bg-[#1f4f86] text-white font-semibold px-10 py-2 rounded-lg text-base w-full sm:w-auto',
+                        actions: 'flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full'
+                    }
+                }).then((res) => {
+                    if (res.isConfirmed) window.location.href = url;
+                });
+            });
+        });
+    });
     </script>
 </x-app-layout>

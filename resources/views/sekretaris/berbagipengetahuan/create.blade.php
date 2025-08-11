@@ -10,7 +10,7 @@ $tanggal = $carbon->format('l, d F Y');
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-32">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Artikel Pengetahuan</h2>
@@ -51,6 +51,20 @@ $tanggal = $carbon->format('l, d F Y');
             </div>
         </div>
 
+        {{-- PESAN ERROR VALIDASI --}}
+        @if ($errors->any())
+            <div class="max-w-4xl mx-auto mt-6 mb-2">
+                <div class="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm shadow">
+                    <strong>Periksa kembali inputan Anda:</strong>
+                    <ul class="list-disc pl-5 mt-1">
+                        @foreach ($errors->all() as $error)
+                            <li class="mb-1">{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
         {{-- FORM TAMBAH ARTIKEL --}}
         <form id="form-tambah-artikel" method="POST" action="{{ route('sekretaris.berbagipengetahuan.store') }}"
             enctype="multipart/form-data" class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
@@ -58,6 +72,7 @@ $tanggal = $carbon->format('l, d F Y');
 
             {{-- KOLOM KIRI FORM --}}
             <div class="xl:col-span-8 w-full flex flex-col gap-8">
+
                 {{-- THUMBNAIL --}}
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <label for="thumbnail" class="block font-semibold text-gray-800 mb-2">Thumbnail</label>
@@ -78,7 +93,7 @@ $tanggal = $carbon->format('l, d F Y');
                                 @change="if($event.target.files.length){let reader=new FileReader();reader.onload=e=>preview=e.target.result;reader.readAsDataURL($event.target.files[0]);}">
                         </label>
                         @error('thumbnail')
-                        <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                            <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -86,9 +101,12 @@ $tanggal = $carbon->format('l, d F Y');
                 {{-- JUDUL --}}
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <label for="judul" class="block font-semibold text-gray-800 mb-1">Judul Artikel</label>
-                    <input type="text" id="judul" name="judul" value="{{ old('judul') }}" required
-                        class="w-full rounded-xl border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Masukkan Judul">
+                    <input type="text" id="judul" name="judul" value="{{ old('judul') }}"
+                        class="w-full rounded-xl border @error('judul') border-red-400 @else border-gray-300 @enderror bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Masukkan Judul" required>
+                    @error('judul')
+                        <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 {{-- SLUG & KATEGORI --}}
@@ -98,7 +116,7 @@ $tanggal = $carbon->format('l, d F Y');
                         <label for="kategori_pengetahuan_id"
                             class="block font-semibold text-gray-800 mb-1">Kategori</label>
                         <select name="kategori_pengetahuan_id" id="kategori_pengetahuan_id"
-                            class="w-full rounded-xl border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full rounded-xl border @error('kategori_pengetahuan_id') border-red-400 @else border-gray-300 @enderror bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required>
                             <option value="">Pilih Kategori</option>
                             @foreach($kategori as $kat)
@@ -108,13 +126,19 @@ $tanggal = $carbon->format('l, d F Y');
                             </option>
                             @endforeach
                         </select>
+                        @error('kategori_pengetahuan_id')
+                            <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                        @enderror
                     </div>
                     {{-- SLUG --}}
                     <div class="bg-white rounded-2xl shadow-lg p-6 w-full">
                         <label for="slug" class="block font-semibold text-gray-800 mb-1">Slug</label>
-                        <input type="text" id="slug" name="slug" value="{{ old('slug') }}" required
-                            class="w-full rounded-xl border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Masukkan Slug">
+                        <input type="text" id="slug" name="slug" value="{{ old('slug') }}"
+                            class="w-full rounded-xl border @error('slug') border-red-400 @else border-gray-300 @enderror bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Masukkan Slug" required>
+                        @error('slug')
+                            <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
@@ -122,8 +146,11 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <label for="isi" class="block font-semibold text-gray-800 mb-2">Isi Artikel</label>
                     <textarea id="isi" name="isi" rows="10"
-                        class="w-full rounded-xl border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full rounded-xl border @error('isi') border-red-400 @else border-gray-300 @enderror bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Masukkan isi artikel">{{ old('isi') }}</textarea>
+                    @error('isi')
+                        <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 {{-- FILE DOKUMEN --}}
@@ -184,31 +211,30 @@ $tanggal = $carbon->format('l, d F Y');
         </footer>
     </x-slot>
 
-    {{-- TinyMCE --}}
-    <script src="https://cdn.tiny.cloud/1/5tsdsuoydzm2f0tjnkrffxszmoas3as1xlmcg5ujs82or4wz/tinymce/6/tinymce.min.js"
-        referrerpolicy="origin"></script>
+    {{-- TinyMCE CDN --}}
+    <script src="https://cdn.tiny.cloud/1/5tsdsuoydzm2f0tjnkrffxszmoas3as1xlmcg5ujs82or4wz/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
-    tinymce.init({
-        selector: '#isi',
-        height: 300,
-        plugins: 'lists link image preview',
-        toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | preview',
-        menubar: false,
-        content_css: false,
-        skin: "oxide-dark",
-    });
+        tinymce.init({
+            selector: '#isi',
+            height: 300,
+            plugins: 'lists link image preview',
+            toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | preview',
+            menubar: false,
+            content_css: false,
+            skin: "oxide-dark",
+        });
 
-    // Generate slug otomatis
-    document.getElementById('judul').addEventListener('keyup', function() {
-        let judul = this.value;
-        let slug = judul
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '') // hilangkan karakter aneh
-            .trim()
-            .replace(/\s+/g, '-') // ganti spasi dengan -
-            .replace(/-+/g, '-'); // hapus double -
-        document.getElementById('slug').value = slug;
-    });
+        // Generate slug otomatis
+        document.getElementById('judul').addEventListener('keyup', function () {
+            let judul = this.value;
+            let slug = judul
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')  // hilangkan karakter aneh
+                .trim()
+                .replace(/\s+/g, '-')          // ganti spasi dengan -
+                .replace(/-+/g, '-');          // hapus double -
+            document.getElementById('slug').value = slug;
+        });
     </script>
 
     <!-- SweetAlert2 CDN -->

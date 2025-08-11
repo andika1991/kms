@@ -17,7 +17,7 @@ class PengetahuansekretarisController extends Controller
             $query->where('judul', 'like', '%' . $request->search . '%');
         }
 
-        $artikels = $query->latest()->get();
+        $artikels = $query->latest()->paginate(9);
 
         $kategoriPengetahuans = KategoriPengetahuan::all(); // Tidak filter subbidang
 
@@ -134,7 +134,7 @@ class PengetahuansekretarisController extends Controller
 
         return redirect()
             ->route('sekretaris.berbagipengetahuan.index')
-            ->with('success', 'Artikel berhasil dihapus.');
+            ->with('deleted', 'Artikel berhasil dihapus.');
     }
 
     public function show($id)

@@ -7,15 +7,60 @@ $tanggal = $carbon->format('l, d F Y');
 
 @section('title', 'Forum Diskusi Sekretaris')
 
+{{-- ALERT Sukses --}}
+@if (session('success'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'success',
+        title: @json(session('success')),
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5',
+            title: 'font-bold text-base md:text-lg text-green-800',
+            icon: 'text-green-500'
+        },
+        timer: 2200
+    });
+});
+</script>
+@endif
+
+{{-- ALERT Terhapus --}}
+@if (session('deleted'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'error',
+        title: @json(session('deleted')),
+        showConfirmButton: false,
+        background: '#fff0f0',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5 border border-red-200',
+            title: 'font-bold text-base md:text-lg text-red-800',
+            icon: 'text-red-600'
+        },
+        timer: 2500
+    });
+});
+</script>
+@endif
+
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Forum Diskusi</h2>
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
+
                 <div class="flex items-center gap-4 w-full sm:w-auto">
                     <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
                         <input type="text" placeholder="Cari Forum..."
@@ -24,6 +69,7 @@ $tanggal = $carbon->format('l, d F Y');
                             <i class="fa fa-search"></i>
                         </span>
                     </div>
+
                     {{-- Dropdown Profile --}}
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open"
@@ -33,7 +79,7 @@ $tanggal = $carbon->format('l, d F Y');
                         </button>
                         <div x-show="open" @click.away="open = false"
                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
-                            style="display: none;">
+                            style="display:none;">
                             <div class="py-1">
                                 <a href="{{ route('profile.edit') }}"
                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
@@ -52,9 +98,9 @@ $tanggal = $carbon->format('l, d F Y');
 
         {{-- BODY GRID --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 max-w-7xl mx-auto">
-            {{-- KOLOM UTAMA (FORUM CARD LIST) --}}
+            {{-- KOLOM UTAMA --}}
             <section class="xl:col-span-8 w-full">
-                {{-- Tambah Forum Mobile --}}
+                {{-- Tambah Forum (mobile) --}}
                 <div class="block xl:hidden mb-4">
                     <a href="{{ route('sekretaris.forum.create') }}"
                         class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
@@ -64,34 +110,57 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
 
                 @forelse($grupchats as $grupchat)
-                {{-- Forum Card --}}
+                {{-- Forum Card (klik judul/deskripsi untuk Lihat) --}}
                 <div
                     class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6 mb-6 hover:shadow-xl hover:border-blue-300 transition-all">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
-                            <div class="font-bold text-lg md:text-xl text-gray-800 mb-1">{{ $grupchat->nama_grup }}
-                            </div>
-                            <div class="text-gray-600 text-sm mb-2 line-clamp-2">{{ $grupchat->deskripsi }}</div>
-                            <div class="text-xs text-gray-500">Role: <span
-                                    class="font-semibold">{{ $grupchat->grup_role ?? '-' }}</span></div>
-                        </div>
-                        <div class="flex gap-2 md:gap-4 mt-3 md:mt-0">
-                            <a href="{{ route('sekretaris.forum.show', $grupchat->id) }}"
-                                class="px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium transition text-sm">
-                                Lihat
+                        {{-- Konten (klik ke detail) --}}
+                        <div class="flex-1">
+                            <a href="{{ route('sekretaris.forum.show', $grupchat->id) }}" class="group block">
+                                <div
+                                    class="font-bold text-lg md:text-xl text-gray-800 mb-1 group-hover:text-blue-700 transition-colors">
+                                    {{ $grupchat->nama_grup }}
+                                </div>
+                                <div class="text-gray-600 text-sm mb-2 line-clamp-2">
+                                    {{ $grupchat->deskripsi }}
+                                </div>
                             </a>
+
+                            {{-- Meta --}}
+                            <div class="text-xs text-gray-500">
+                                @if(optional($grupchat->bidang)->nama_bidang ?? optional($grupchat->bidang)->nama ??
+                                null)
+                                <span>Bidang: <span class="font-semibold">
+                                        {{ $grupchat->bidang->nama_bidang ?? $grupchat->bidang->nama }}
+                                    </span></span>
+                                @endif
+
+                                @if(!empty($grupchat->is_private) && $grupchat->is_private)
+                                <span
+                                    class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 text-[11px]">
+                                    <i class="fa-solid fa-lock mr-1"></i> Private
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Aksi (Edit/Hapus) --}}
+                        <div class="flex gap-2 md:gap-3 mt-3 md:mt-0">
                             @if($grupchat->pengguna_id == auth()->id())
                             <a href="{{ route('sekretaris.forum.edit', $grupchat->id) }}"
-                                class="px-4 py-2 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-800 font-medium transition text-sm">
-                                Edit
+                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-white bg-yellow-500 hover:bg-yellow-600 shadow-sm text-sm font-semibold">
+                                <i class="fa-solid fa-pen-to-square text-[13px]"></i>
+                                <span>Edit</span>
                             </a>
+
                             <form action="{{ route('sekretaris.forum.destroy', $grupchat->id) }}" method="POST"
-                                onsubmit="return confirm('Yakin ingin menghapus?')" class="inline">
+                                class="inline form-hapus">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 font-medium transition text-sm">
-                                    Hapus
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 shadow-sm text-sm font-semibold">
+                                    <i class="fa-solid fa-trash text-[13px]"></i>
+                                    <span>Hapus</span>
                                 </button>
                             </form>
                             @endif
@@ -99,7 +168,7 @@ $tanggal = $carbon->format('l, d F Y');
                     </div>
                 </div>
                 @empty
-                {{-- Placeholder card jika belum ada forum --}}
+                {{-- Empty state --}}
                 <div
                     class="flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
                     <img src="{{ asset('assets/img/logo_diskominfotik_lampung.png') }}" class="w-48 mb-6 opacity-50"
@@ -112,7 +181,6 @@ $tanggal = $carbon->format('l, d F Y');
 
             {{-- SIDEBAR KANAN --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                {{-- Kartu Placeholder/Deskripsi --}}
                 <div
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                     <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4">
@@ -121,7 +189,7 @@ $tanggal = $carbon->format('l, d F Y');
                     <h3 class="font-bold text-lg">Forum Diskusi</h3>
                     <p class="text-xs mt-2">Diskusi, kolaborasi, dan knowledge sharing sekretaris.</p>
                 </div>
-                {{-- Tambah Forum Desktop --}}
+
                 <a href="{{ route('sekretaris.forum.create') }}"
                     class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
                     <i class="fa-solid fa-plus"></i>
@@ -131,8 +199,10 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="bg-white rounded-2xl shadow-lg p-7">
                     <p class="text-sm text-gray-600 leading-relaxed">
                         Forum Diskusi merupakan fitur untuk mempermudah pegawai Dinas Komunikasi, Informatika dan
-                        Statistik Provinsi Lampung dapat saling berbagi pengetahuan dan mempermudah komunikasi dengan
-                        manajemen yang terstruktur dan mudah diakses.
+                        Statistik
+                        Provinsi Lampung dapat saling berbagi pengetahuan dan mempermudah komunikasi dengan manajemen
+                        yang
+                        terstruktur dan mudah diakses.
                     </p>
                 </div>
             </aside>
@@ -147,4 +217,37 @@ $tanggal = $carbon->format('l, d F Y');
             </div>
         </footer>
     </x-slot>
+
+    {{-- SweetAlert2 Confirm Delete --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('form.form-hapus').forEach((form) => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Hapus forum ini?',
+                    text: 'Tindakan ini tidak dapat dibatalkan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl p-8',
+                        title: 'mb-1',
+                        actions: 'flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full',
+                        confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-2 rounded-lg',
+                        cancelButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-2 rounded-lg'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) form.submit();
+                });
+            });
+        });
+    });
+    </script>
+
 </x-app-layout>

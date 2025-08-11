@@ -72,7 +72,7 @@ class KategoriPengetahuankadisController extends Controller
             'subbidang_id' => $request->subbidang_id,
         ]);
 
-        return redirect()->route('kadis.kategoripengetahuan.index')->with('success', 'Kategori berhasil diperbarui.');
+        return redirect()->route('kadis.kategoripengetahuan.index')->with('success', 'Kategori Pengetahuan berhasil diperbarui.');
     }
 
 
@@ -80,6 +80,6 @@ class KategoriPengetahuankadisController extends Controller
     {
         $kategoripengetahuan->delete();
 
-        return redirect()->route('kadis.berbagipengetahuan.index')->with('deleted', 'Kategori berhasil dihapus.');
+        return redirect()->route('kadis.berbagipengetahuan.index')->with('deleted', 'Kategori Pengetahuan berhasil dihapus.');
     }
 }

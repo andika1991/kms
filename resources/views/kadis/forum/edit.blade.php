@@ -234,7 +234,7 @@ $tanggal = $carbon->format('l, d F Y');
                 if (result.isConfirmed) {
                     allowSubmit = true;
                     if (form.requestSubmit) form
-                .requestSubmit(); // tetap panggil validasi & event lain
+                        .requestSubmit(); // tetap panggil validasi & event lain
                     else form.submit();
                 }
             });

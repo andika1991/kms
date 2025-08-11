@@ -310,47 +310,67 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-    // Total
-    $jumlahKegiatan = Kegiatan::where('pengguna_id', $userId)->count();
-    $jumlahDokumen = Dokumen::where('pengguna_id', $userId)->count();
-    $jumlahForum = GrupChatUser::where('pengguna_id', $userId)->count();
-    $jumlahArtikel = ArtikelPengetahuan::where('pengguna_id', $userId)->count();
+        // Total
+        $jumlahKegiatan = Kegiatan::where('pengguna_id', $userId)->count();
+        $jumlahDokumen = Dokumen::where('pengguna_id', $userId)->count();
+        $jumlahForum = GrupChatUser::where('pengguna_id', $userId)->count();
+        $jumlahArtikel = ArtikelPengetahuan::where('pengguna_id', $userId)->count();
 
-    // Data bulanan (12 bulan terakhir)
-    $bulan = collect(range(1, 12))->map(function ($m) {
-        return Carbon::create()->month($m)->translatedFormat('F');
-    });
+        // Data bulanan (12 bulan terakhir)
+        $bulan = collect(range(1, 12))->map(function ($m) {
+            return Carbon::create()->month($m)->translatedFormat('F');
+        });
 
-    $dokumenPerBulan = Dokumen::select(
-        DB::raw('MONTH(created_at) as bulan'),
-        DB::raw('COUNT(*) as total')
-    )->where('pengguna_id', $userId)
-     ->whereYear('created_at', date('Y'))
-     ->groupBy('bulan')
-     ->pluck('total', 'bulan');
+        $dokumenPerBulan = Dokumen::select(
+            DB::raw('MONTH(created_at) as bulan'),
+            DB::raw('COUNT(*) as total')
+        )->where('pengguna_id', $userId)
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
 
-    $artikelPerBulan = ArtikelPengetahuan::select(
-        DB::raw('MONTH(created_at) as bulan'),
-        DB::raw('COUNT(*) as total')
-    )->where('pengguna_id', $userId)
-     ->whereYear('created_at', date('Y'))
-     ->groupBy('bulan')
-     ->pluck('total', 'bulan');
+        $artikelPerBulan = ArtikelPengetahuan::select(
+            DB::raw('MONTH(created_at) as bulan'),
+            DB::raw('COUNT(*) as total')
+        )->where('pengguna_id', $userId)
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
 
-    // Buat array jumlah berdasarkan bulan (0 jika tidak ada)
-    $dataDokumen = [];
-    $dataArtikel = [];
-    for ($i = 1; $i <= 12; $i++) {
-        $dataDokumen[] = $dokumenPerBulan[$i] ?? 0;
-        $dataArtikel[] = $artikelPerBulan[$i] ?? 0;
-    }
-    $dokumenTerbaru = Dokumen::where('pengguna_id', $userId)
-    ->orderBy('created_at', 'desc')
-    ->take(5)
-    ->get();
+        // Buat array jumlah berdasarkan bulan (0 jika tidak ada)
+        $dataDokumen = [];
+        $dataArtikel = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $dataDokumen[] = $dokumenPerBulan[$i] ?? 0;
+            $dataArtikel[] = $artikelPerBulan[$i] ?? 0;
+        }
+        $dokumenTerbaru = Dokumen::where('pengguna_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
+
+        // ===== agregat per Bidang (untuk 2 bar chart) =====
+        $bidangIds   = Bidang::orderBy('nama')->pluck('id')->all();
+        $bidangNames = Bidang::orderBy('nama')->pluck('nama')->all();
+
+        $dataDokumenBidang = [];
+        foreach ($bidangIds as $bidangId) {
+            $dataDokumenBidang[] = Dokumen::whereHas('kategoriDokumen', function ($q) use ($bidangId) {
+                $q->where('bidang_id', $bidangId);
+            })->count();
+        }
+
+            $dataArtikelBidang = [];
+        foreach ($bidangIds as $bidangId) {
+            $dataArtikelBidang[] = ArtikelPengetahuan::whereHas('kategoriPengetahuan', function ($q) use ($bidangId) {
+                $q->where('bidang_id', $bidangId);
+            })->count();
+        }
+
         return view('sekretaris.dashboard', compact(
             'jumlahKegiatan', 'jumlahDokumen', 'jumlahForum', 'jumlahArtikel',
-            'bulan', 'dataDokumen', 'dataArtikel','dokumenTerbaru'
+            'bulan', 'dataDokumen', 'dataArtikel','dokumenTerbaru',
+            'bidangNames', 'dataDokumenBidang', 'dataArtikelBidang'
         ));
     }
 

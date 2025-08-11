@@ -83,7 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                        Out</button>
                                 </form>
                             </div>
                         </div>
@@ -106,68 +107,74 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 @forelse($grupchats as $grupchat)
-                    {{-- Forum Card --}}
-                    <div class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6 mb-6 hover:shadow-xl hover:border-blue-300 transition-all">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            {{-- Konten klik ke detail --}}
-                            <div class="flex-1">
-                                <a href="{{ route('kadis.forum.show', $grupchat->id) }}" class="group block">
-                                    <div class="font-bold text-lg md:text-xl text-gray-800 mb-1 group-hover:text-blue-700 transition-colors">
-                                        {{ $grupchat->nama_grup }}
-                                    </div>
-                                    <div class="text-gray-600 text-sm mb-2 line-clamp-2">
-                                        {{ $grupchat->deskripsi }}
-                                    </div>
-                                </a>
-
-                                <div class="text-xs text-gray-500">
-                                    Bidang:
-                                    <span class="font-semibold">
-                                        {{ optional($grupchat->bidang)->nama_bidang ?? ($grupchat->grup_role ?: '-') }}
-                                    </span>
-
-                                    @if($grupchat->is_private)
-                                        <span class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 text-[11px]">
-                                            <i class="fa-solid fa-lock mr-1"></i> Private
-                                        </span>
-                                    @endif
+                {{-- Forum Card --}}
+                <div
+                    class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6 mb-6 hover:shadow-xl hover:border-blue-300 transition-all">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        {{-- Konten klik ke detail --}}
+                        <div class="flex-1">
+                            <a href="{{ route('kadis.forum.show', $grupchat->id) }}" class="group block">
+                                <div
+                                    class="font-bold text-lg md:text-xl text-gray-800 mb-1 group-hover:text-blue-700 transition-colors">
+                                    {{ $grupchat->nama_grup }}
                                 </div>
-                            </div>
+                                <div class="text-gray-600 text-sm mb-2 line-clamp-2">
+                                    {{ $grupchat->deskripsi }}
+                                </div>
+                            </a>
 
-                            {{-- Aksi --}}
-                            <div class="flex gap-2 md:gap-3 mt-3 md:mt-0">
-                                @if($grupchat->pengguna_id == auth()->id())
-                                    <a href="{{ route('kadis.forum.edit', $grupchat->id) }}"
-                                       class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border text-yellow-800 bg-yellow-50 border-yellow-200 hover:bg-yellow-100 text-sm font-semibold">
-                                        <i class="fa-solid fa-pen-to-square text-[13px]"></i>
-                                        <span>Edit</span>
-                                    </a>
-                                    <form action="{{ route('kadis.forum.destroy', $grupchat->id) }}" method="POST"
-                                          onsubmit="return confirm('Yakin ingin menghapus?')" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border text-red-700 bg-red-50 border-red-200 hover:bg-red-100 text-sm font-semibold">
-                                            <i class="fa-solid fa-trash text-[13px]"></i>
-                                            <span>Hapus</span>
-                                        </button>
-                                    </form>
+                            <div class="text-xs text-gray-500">
+                                Bidang:
+                                <span class="font-semibold">
+                                    {{ optional($grupchat->bidang)->nama_bidang ?? ($grupchat->grup_role ?: '-') }}
+                                </span>
+
+                                @if($grupchat->is_private)
+                                <span
+                                    class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 text-[11px]">
+                                    <i class="fa-solid fa-lock mr-1"></i> Private
+                                </span>
                                 @endif
                             </div>
                         </div>
+
+                        {{-- Aksi --}}
+                        <div class="flex gap-2 md:gap-3 mt-3 md:mt-0">
+                            @if($grupchat->pengguna_id == auth()->id())
+                            <a href="{{ route('kadis.forum.edit', $grupchat->id) }}"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border text-yellow-800 bg-yellow-50 border-yellow-200 hover:bg-yellow-100 text-sm font-semibold">
+                                <i class="fa-solid fa-pen-to-square text-[13px]"></i>
+                                <span>Edit</span>
+                            </a>
+                            <form action="{{ route('kadis.forum.destroy', $grupchat->id) }}" method="POST"
+                                onsubmit="return confirm('Yakin ingin menghapus?')" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border text-red-700 bg-red-50 border-red-200 hover:bg-red-100 text-sm font-semibold">
+                                    <i class="fa-solid fa-trash text-[13px]"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </form>
+                            @endif
+                        </div>
                     </div>
+                </div>
                 @empty
-                    <div class="flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
-                        <img src="{{ asset('assets/img/logo_diskominfotik_lampung.png') }}" class="w-48 mb-6 opacity-50" alt="Logo Diskominfotik" />
-                        <h3 class="text-xl font-bold text-gray-700">Belum ada forum</h3>
-                        <p class="text-gray-500 mt-2">Mulai buat diskusi anda.</p>
-                    </div>
+                <div
+                    class="flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
+                    <img src="{{ asset('assets/img/logo_diskominfotik_lampung.png') }}" class="w-48 mb-6 opacity-50"
+                        alt="Logo Diskominfotik" />
+                    <h3 class="text-xl font-bold text-gray-700">Belum ada forum</h3>
+                    <p class="text-gray-500 mt-2">Mulai buat diskusi anda.</p>
+                </div>
                 @endforelse
             </section>
 
             {{-- SIDEBAR KANAN --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+                <div
+                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                     <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4">
                         <i class="fa-solid fa-comments text-4xl"></i>
                     </div>
@@ -176,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 <a href="{{ route('kadis.forum.create') }}"
-                   class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                    class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
                     <i class="fa-solid fa-plus"></i>
                     <span>Tambah Forum</span>
                 </a>
@@ -196,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <footer class="bg-[#2b6cb0] py-4 mt-8">
             <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
                 <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
-                     class="h-10 object-contain">
+                    class="h-10 object-contain">
             </div>
         </footer>
     </x-slot>

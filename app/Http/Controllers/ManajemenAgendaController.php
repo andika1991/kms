@@ -147,6 +147,6 @@ public function showAllUsersWithAgenda()
         $agenda = AgendaPimpinan::findOrFail($id);
         $agenda->delete();
 
-        return redirect()->route('sekretaris.agenda.index')->with('success', 'Agenda berhasil dihapus.');
+        return redirect()->route('sekretaris.agenda.index')->with('deleted', 'Agenda berhasil dihapus.');
     }
 }

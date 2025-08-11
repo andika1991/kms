@@ -86,7 +86,7 @@ class KategoriPengetahuankasekretarisController extends Controller
 
         // Redirect ke index dengan pesan sukses
         return redirect()->route('sekretaris.berbagipengetahuan.index')
-            ->with('success', 'Kategori berhasil diperbarui.');
+            ->with('success', 'Kategori Pengetahuan berhasil diperbarui.');
     }
 
     /**
@@ -99,6 +99,6 @@ class KategoriPengetahuankasekretarisController extends Controller
 
         // Redirect ke index dengan pesan sukses
         return redirect()->route('sekretaris.berbagipengetahuan.index')
-            ->with('success', 'Kategori berhasil dihapus.');
+            ->with('deleted', 'Kategori Pengetahuan berhasil dihapus.');
     }
 }
