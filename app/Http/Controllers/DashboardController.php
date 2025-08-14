@@ -210,49 +210,73 @@ class DashboardController extends Controller
 
     public function pegawai()
     {
-         $userId = Auth::id();
 
-    // Total
-    $jumlahKegiatan = Kegiatan::where('pengguna_id', $userId)->count();
-    $jumlahDokumen = Dokumen::where('pengguna_id', $userId)->count();
-    $jumlahForum = GrupChatUser::where('pengguna_id', $userId)->count();
-    $jumlahArtikel = ArtikelPengetahuan::where('pengguna_id', $userId)->count();
+        $userId = Auth::id();
 
-    // Data bulanan (12 bulan terakhir)
-    $bulan = collect(range(1, 12))->map(function ($m) {
-        return Carbon::create()->month($m)->translatedFormat('F');
-    });
+        // Total
+        $jumlahKegiatan = Kegiatan::where('pengguna_id', $userId)->count();
+        $jumlahDokumen = Dokumen::where('pengguna_id', $userId)->count();
+        $jumlahForum = GrupChatUser::where('pengguna_id', $userId)->count();
+        $jumlahArtikel = ArtikelPengetahuan::where('pengguna_id', $userId)->count();
 
-    $dokumenPerBulan = Dokumen::select(
-        DB::raw('MONTH(created_at) as bulan'),
-        DB::raw('COUNT(*) as total')
-    )->where('pengguna_id', $userId)
-     ->whereYear('created_at', date('Y'))
-     ->groupBy('bulan')
-     ->pluck('total', 'bulan');
+        // ===== Agregat per Bidang untuk grafik (khusus data milik user aktif) =====
+        $bidangIds   = \App\Models\Bidang::orderBy('nama')->pluck('id')->all();
+        $bidangNames = \App\Models\Bidang::orderBy('nama')->pluck('nama')->all();
 
-    $artikelPerBulan = ArtikelPengetahuan::select(
-        DB::raw('MONTH(created_at) as bulan'),
-        DB::raw('COUNT(*) as total')
-    )->where('pengguna_id', $userId)
-     ->whereYear('created_at', date('Y'))
-     ->groupBy('bulan')
-     ->pluck('total', 'bulan');
+        // Bar chart: jumlah artikel pengetahuan user per Bidang (via relasi kategoriPengetahuan)
+        $dataPengetahuanBidang = [];
+        foreach ($bidangIds as $bidangId) {
+            $dataPengetahuanBidang[] = \App\Models\ArtikelPengetahuan::where('pengguna_id', $userId)
+                ->whereHas('kategoriPengetahuan', function ($q) use ($bidangId) {
+                    $q->where('bidang_id', $bidangId);
+                })
+                ->count();
+        }
 
-    // Buat array jumlah berdasarkan bulan (0 jika tidak ada)
-    $dataDokumen = [];
-    $dataArtikel = [];
-    for ($i = 1; $i <= 12; $i++) {
-        $dataDokumen[] = $dokumenPerBulan[$i] ?? 0;
-        $dataArtikel[] = $artikelPerBulan[$i] ?? 0;
-    }
-    $dokumenTerbaru = Dokumen::where('pengguna_id', $userId)
-    ->orderBy('created_at', 'desc')
-    ->take(5)
-    ->get();
-        return view('pegawai.dashboard', compact(
-            'jumlahKegiatan', 'jumlahDokumen', 'jumlahForum', 'jumlahArtikel',
-            'bulan', 'dataDokumen', 'dataArtikel','dokumenTerbaru'
+        // Line chart: jumlah kegiatan user per Bidang (kolom bidang_id di tabel kegiatan)
+        $dataKegiatanBidang = [];
+        foreach ($bidangIds as $bidangId) {
+            $dataKegiatanBidang[] = \App\Models\Kegiatan::where('pengguna_id', $userId)
+                ->where('bidang_id', $bidangId)
+                ->count();
+        }
+
+        // Data bulanan (12 bulan terakhir)
+        $bulan = collect(range(1, 12))->map(function ($m) {
+            return Carbon::create()->month($m)->translatedFormat('F');
+        });
+
+        $dokumenPerBulan = Dokumen::select(
+            DB::raw('MONTH(created_at) as bulan'),
+            DB::raw('COUNT(*) as total')
+        )->where('pengguna_id', $userId)
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
+
+        $artikelPerBulan = ArtikelPengetahuan::select(
+            DB::raw('MONTH(created_at) as bulan'),
+            DB::raw('COUNT(*) as total')
+        )->where('pengguna_id', $userId)
+        ->whereYear('created_at', date('Y'))
+        ->groupBy('bulan')
+        ->pluck('total', 'bulan');
+
+        // Buat array jumlah berdasarkan bulan (0 jika tidak ada)
+        $dataDokumen = [];
+        $dataArtikel = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $dataDokumen[] = $dokumenPerBulan[$i] ?? 0;
+            $dataArtikel[] = $artikelPerBulan[$i] ?? 0;
+        }
+        $dokumenTerbaru = Dokumen::where('pengguna_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
+            return view('pegawai.dashboard', compact(
+                'jumlahKegiatan', 'jumlahDokumen', 'jumlahForum', 'jumlahArtikel',
+                'bulan', 'dataDokumen', 'dataArtikel','dokumenTerbaru', 'bidangNames',
+                'dataPengetahuanBidang', 'dataKegiatanBidang'
         ));
     }
 

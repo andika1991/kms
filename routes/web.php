@@ -14,6 +14,7 @@ use App\Http\Controllers\DokumenmagangController;
 use App\Http\Controllers\FotoKegiatanController;
 use App\Http\Controllers\ForumMagangController;
 use App\Http\Controllers\PengetahuanpegawaiController;
+use App\Http\Controllers\KategoriPengetahuanPegawaiController;
 use App\Http\Controllers\KegiatanpegawaiController;
 use App\Http\Controllers\DokumenpegawaiController;
 use App\Http\Controllers\ForumPegawaiController;
@@ -107,6 +108,8 @@ Route::prefix('pegawai')
     ->group(function () {
 Route::get('/', [DashboardController::class, 'pegawai'])->name('dashboard');
 Route::resource('berbagipengetahuan', PengetahuanpegawaiController::class);
+Route::resource('kategoripengetahuan', KategoriPengetahuanPegawaiController::class)
+     ->only(['update','destroy']); 
 Route::resource('kegiatan', KegiatanpegawaiController::class);
 Route::delete('/pegawai/kegiatan/foto/{foto}', [FotoKegiatanController::class, 'destroy'])
     ->name('kegiatan.foto.delete');
