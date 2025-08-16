@@ -5,12 +5,12 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
-@section('title', 'Edit Pengetahuan Sekretaris')
+@section('title', 'Edit Pengetahuan Administrator')
 
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-32">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Edit Artikel Pengetahuan</h2>
@@ -224,7 +224,7 @@ $tanggal = $carbon->format('l, d F Y');
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Sekretaris' }}
+                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Administrator' }}
                         </p>
                     </div>
                 </div>
@@ -340,7 +340,7 @@ $tanggal = $carbon->format('l, d F Y');
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href =
-                    "{{ route('sekretaris.berbagipengetahuan.show', $artikelpengetahuan->id) }}";
+                    "{{ route('admin.berbagipengetahuan.show', $artikelpengetahuan->id) }}";
             }
         });
     });

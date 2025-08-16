@@ -7,24 +7,72 @@ $tanggal = $carbon->format('l, d F Y');
 
 @section('title', 'Berbagi Pengetahuan Pegawai')
 
+{{-- ALERT Sukses --}}
+@if (session('success'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'success',
+        title: @json(session('success')),
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5',
+            title: 'font-bold text-base md:text-lg text-green-800',
+            icon: 'text-green-500'
+        },
+        timer: 2200
+    });
+});
+</script>
+@endif
+
+{{-- ALERT Hapus --}}
+@if (session('deleted'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'error',
+        title: @json(session('deleted')),
+        showConfirmButton: false,
+        background: '#fef2f2',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5 border border-red-200',
+            title: 'font-bold text-base md:text-lg text-red-800',
+            icon: 'text-red-600'
+        },
+        timer: 2500
+    });
+});
+</script>
+@endif
+
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff]">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Berbagi Pengetahuan</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Artikel Pengetahuan</h2>
                     <p class="text-gray-500 text-sm font-normal">{{ $tanggal }}</p>
                 </div>
+
                 <div class="flex items-center gap-4 mt-4 sm:mt-0 w-full sm:w-auto">
-                    <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                    {{-- Search Bar (GET) --}}
+                    <form method="GET" action="{{ route('pegawai.berbagipengetahuan.index') }}"
+                        class="relative flex-grow sm:flex-grow-0 sm:w-64">
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari judul pengetahuan..."
+                            placeholder="Cari artikel pengetahuan..."
                             class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fa fa-search"></i>
                         </span>
-                    </div>
+                    </form>
+
                     {{-- Dropdown Profile --}}
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open"
@@ -32,7 +80,6 @@ $tanggal = $carbon->format('l, d F Y');
                             title="Profile">
                             <i class="fa-solid fa-user"></i>
                         </button>
-                        {{-- Dropdown Menu --}}
                         <div x-show="open" @click.away="open = false"
                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20"
                             x-transition:enter="transition ease-out duration-100"
@@ -40,7 +87,7 @@ $tanggal = $carbon->format('l, d F Y');
                             x-transition:enter-end="transform opacity-100 scale-100"
                             x-transition:leave="transition ease-in duration-75"
                             x-transition:leave-start="transform opacity-100 scale-100"
-                            x-transition:leave-end="transform opacity-0 scale-95" style="display: none;">
+                            x-transition:leave-end="transform opacity-0 scale-95" style="display:none;">
                             <div class="py-1">
                                 <a href="{{ route('profile.edit') }}"
                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
@@ -58,78 +105,122 @@ $tanggal = $carbon->format('l, d F Y');
             </div>
         </div>
 
-        {{-- CONTENT GRID --}}
-        <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
-            {{-- KOLOM KIRI (GRID ARTIKEL/SHARE) --}}
+        {{-- BODY --}}
+        <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 bg-[#eaf5ff] min-h-[calc(100vh-120px)]">
+            {{-- LIST ARTIKEL --}}
             <section class="xl:col-span-8 w-full">
-                @if($artikels->count())
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    @foreach($artikels as $artikel)
+                <div class="flex flex-col gap-6">
+                    @forelse($artikels as $artikel)
+                    <a href="{{ route('pegawai.berbagipengetahuan.show', $artikel->id) }}"
+                        class="block bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-4 border-4 border-white group">
+                        <div class="flex flex-col sm:flex-row gap-5">
+                            @php
+                            $thumb = $artikel->thumbnail ? asset('storage/'.$artikel->thumbnail)
+                            : asset('assets/img/artikel-elemen.png');
+                            @endphp
+                            <img src="{{ $thumb }}" alt="{{ $artikel->judul }}"
+                                class="w-full sm:w-48 h-40 sm:h-auto object-cover rounded-lg flex-shrink-0" />
+
+                            <div class="flex flex-col flex-grow">
+                                <h3 class="font-bold text-lg text-gray-800 group-hover:text-blue-700 transition-colors mb-2 line-clamp-2"
+                                    title="{{ $artikel->judul }}">
+                                    {{ $artikel->judul }}
+                                </h3>
+
+                                <p class="text-xs font-semibold text-blue-600 mb-2">
+                                    Kategori: {{ $artikel->kategoriPengetahuan->nama_kategoripengetahuan ?? '-' }}
+                                </p>
+
+                                <p class="text-sm text-gray-600 line-clamp-2">
+                                    {{ \Illuminate\Support\Str::limit(strip_tags($artikel->isi), 150) }}
+                                </p>
+
+                                <div class="flex justify-between items-center text-xs text-gray-500 mt-auto pt-4">
+                                    <span class="flex items-center gap-1.5" title="Dilihat">
+                                        <i class="fas fa-eye"></i> {{ $artikel->views ?? 0 }}
+                                    </span>
+                                    <span>{{ \Carbon\Carbon::parse($artikel->created_at)->translatedFormat('d M Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    @empty
                     <div
-                        class="bg-white rounded-xl shadow-lg border border-gray-200/80 hover:shadow-xl hover:border-blue-300 transition-all duration-300 flex flex-col overflow-hidden group">
-                        {{-- Thumbnail --}}
-                        <div class="h-44 w-full flex items-center justify-center bg-gray-100 overflow-hidden">
-                            <a href="{{ route('pegawai.berbagipengetahuan.show', $artikel->id) }}">
-                                @if($artikel->thumbnail)
-                                <img src="{{ asset('storage/' . $artikel->thumbnail) }}" alt="{{ $artikel->judul }}"
-                                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                                @else
-                                <img src="{{ asset('assets/img/artikel-elemen.png') }}" alt="No Image"
-                                    class="w-24 h-24 object-contain opacity-40" />
-                                @endif
-                            </a>
-                        </div>
-                        {{-- Konten Teks --}}
-                        <div class="flex-1 flex flex-col p-4">
-                            <h3 class="font-bold text-base text-gray-800 leading-tight mb-2 line-clamp-2">
-                                <a href="{{ route('pegawai.berbagipengetahuan.show', $artikel->id) }}"
-                                    class="hover:text-blue-700">{{ $artikel->judul }}</a>
-                            </h3>
-                            <div class="text-xs text-gray-500 mb-2">
-                                Kategori: <span
-                                    class="font-semibold">{{ $artikel->kategoriPengetahuan->nama_kategoripengetahuan ?? '-' }}</span>
-                            </div>
-                            <div class="flex items-center gap-2 text-gray-400 text-xs mt-auto pt-2">
-                                <span><i class="fa fa-eye mr-1"></i> {{ $artikel->views ?? 0 }}</span>
-                                <span>·</span>
-                                <span>{{ \Carbon\Carbon::parse($artikel->created_at)->format('d/m/Y') }}</span>
-                            </div>
-                        </div>
+                        class="col-span-full flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
+                        <img src="{{ asset('assets/img/empty-state.svg') }}" class="mx-auto w-40 opacity-70 mb-4"
+                            alt="Empty">
+                        <h3 class="text-xl font-bold text-gray-700">Belum Ada Artikel Pengetahuan</h3>
+                        <p class="text-gray-500 mt-2">Silakan tambahkan artikel baru untuk memulai.</p>
                     </div>
-                    @endforeach
-                </div>
-                @else
-                <div
-                    class="flex flex-col items-center justify-center text-center py-20 px-6 bg-white rounded-2xl shadow-lg border">
-                    <img src="{{ asset('assets/img/empty-state.svg') }}" class="w-40 mb-6 opacity-80"
-                        alt="Data Kosong" />
-                    <h3 class="text-xl font-bold text-gray-700">Belum Ada Artikel</h3>
-                    <p class="text-gray-500 mt-2 max-w-sm">Saat ini belum ada artikel pengetahuan yang tersedia. Silakan
-                        tambahkan artikel baru.</p>
-                </div>
-                @endif
-                {{-- Pagination --}}
-                <div class="mt-8">
-                    {{-- {{ $artikels->links() }} --}}
+                    @endforelse
                 </div>
             </section>
 
-            {{-- KOLOM KANAN (SIDEBAR) --}}
-            <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                {{-- Kartu Role --}}
+            {{-- SIDEBAR --}}
+            <aside class="xl:col-span-4 w-full flex flex-col gap-8 xl:pl-2">
+                {{-- Card Role --}}
                 <div
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
+                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Pegawai' }}</p>
                     </div>
                 </div>
+
                 {{-- Tambah Artikel --}}
-                <a href="{{ route('pegawai.berbagipengetahuan.create') }}"
-                    class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Tambah Artikel</span>
-                </a>
+                <div class="flex flex-col gap-3 mt-2">
+                    <a href="{{ route('pegawai.berbagipengetahuan.create') }}"
+                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Tambah Artikel</span>
+                    </a>
+                </div>
+
+                {{-- Kategori Pengetahuan (LIST + Edit/Delete) --}}
+                <div class="bg-white rounded-2xl shadow-lg p-7 mt-4">
+                    <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Kategori Pengetahuan</h3>
+
+                    <ul class="space-y-2 max-h-80 overflow-auto pr-1">
+                        @forelse ($kategori as $kat)
+                        <li class="flex items-center justify-between gap-3">
+                            <span class="text-sm text-gray-700 truncate">{{ $kat->nama_kategoripengetahuan }}</span>
+
+                            <div class="flex items-center gap-1.5">
+                                {{-- EDIT --}}
+                                <button type="button" title="Edit"
+                                    class="btn-edit-kat p-1.5 rounded-lg hover:bg-blue-50 text-blue-600"
+                                    data-id="{{ $kat->id }}" data-name="{{ e($kat->nama_kategoripengetahuan) }}">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+
+                                {{-- DELETE --}}
+                                <button type="button" title="Hapus"
+                                    class="btn-del-kat p-1.5 rounded-lg hover:bg-red-50 text-red-600"
+                                    data-id="{{ $kat->id }}" data-name="{{ e($kat->nama_kategoripengetahuan) }}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+
+                            {{-- FORM EDIT (hidden) --}}
+                            <form id="form-edit-kat-{{ $kat->id }}" method="POST"
+                                action="{{ route('pegawai.kategoripengetahuan.update', $kat->id) }}" class="hidden">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="nama_kategoripengetahuan" value="">
+                            </form>
+
+                            {{-- FORM DELETE (hidden) --}}
+                            <form id="form-del-kat-{{ $kat->id }}" method="POST"
+                                action="{{ route('pegawai.kategoripengetahuan.destroy', $kat->id) }}" class="hidden">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                        </li>
+                        @empty
+                        <li class="text-gray-500 text-sm">Belum ada kategori terdaftar.</li>
+                        @endforelse
+                    </ul>
+                </div>
             </aside>
         </div>
     </div>
@@ -142,4 +233,74 @@ $tanggal = $carbon->format('l, d F Y');
             </div>
         </footer>
     </x-slot>
+
+    {{-- SweetAlert2 (wajib untuk tombol Edit/Delete) --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
+
+    {{-- Style jarak tombol SweetAlert --}}
+    <style>
+    .swal2-actions {
+        gap: 14px !important
+    }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
+    <script>
+    document.querySelectorAll('.btn-edit-kat').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            const name = btn.dataset.name || '';
+            const form = document.getElementById(`form-edit-kat-${id}`);
+
+            const res = await Swal.fire({
+                title: 'Edit Kategori',
+                input: 'text',
+                inputLabel: 'Nama kategori',
+                inputValue: name,
+                showCancelButton: true,
+                confirmButtonText: 'Simpan',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg',
+                    cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg'
+                },
+                buttonsStyling: false,
+                inputValidator: (v) => (!v || !v.trim()) ?
+                    'Nama kategori tidak boleh kosong' : undefined
+            });
+
+            if (res.isConfirmed) {
+                form.querySelector('input[name=nama_kategoripengetahuan]').value = res.value.trim();
+                form.submit();
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-del-kat').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            const name = btn.dataset.name || '';
+            const form = document.getElementById(`form-del-kat-${id}`);
+
+            const res = await Swal.fire({
+                title: 'Hapus Kategori?',
+                html: 'Kategori <b>' + name.replace(/</g, '&lt;').replace(/>/g, '&gt;') +
+                    '</b> akan dihapus.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true,
+                customClass: {
+                    // sesuai permintaan: Batal merah, Hapus hijau
+                    cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg',
+                    confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg'
+                },
+                buttonsStyling: false
+            });
+
+            if (res.isConfirmed) form.submit();
+        });
+    });
+    </script>
 </x-app-layout>

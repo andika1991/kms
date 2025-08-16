@@ -5,60 +5,62 @@ namespace App\Http\Controllers;
 use App\Models\ArtikelPengetahuan;
 use App\Models\KategoriPengetahuan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class PengetahuanpegawaiController extends Controller
 {
-   public function index(Request $request)
-{
-    $query = ArtikelPengetahuan::query();
-    $query->where('pengguna_id', auth()->id());
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $role = $user->role;
+        $bidangId = $role->bidang_id ?? null;
+        $subbidangId = $role->subbidang_id ?? null;
 
-    if ($request->filled('search')) {
-        $query->where('judul', 'like', '%' . $request->search . '%');
+        $artikels = ArtikelPengetahuan::where('pengguna_id', $user->id)
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where('judul', 'like', '%' . $request->search . '%');
+            })
+            ->with('kategoriPengetahuan')
+            ->latest()
+            ->get();
+
+        $kategori = KategoriPengetahuan::query()
+            ->when(($bidangId || $subbidangId), function ($q) use ($bidangId, $subbidangId) {
+                $q->where(function ($qq) use ($bidangId, $subbidangId) {
+                    if ($bidangId)     $qq->orWhere('bidang_id', $bidangId);
+                    if ($subbidangId)  $qq->orWhere('subbidang_id', $subbidangId);
+                    $qq->orWhereNull('bidang_id'); // kategori umum
+                });
+            })
+            ->orderBy('nama_kategoripengetahuan')
+            ->get();
+
+        return view('pegawai.berbagipengetahuan.index', compact('artikels', 'kategori'));
     }
 
-    $artikels = $query->latest()->get();
+    public function create()
+    {
+        $user = Auth::user();
+        $role = $user->role;
+        $bidangId = $role->bidang_id ?? null;
+        $subbidangId = $role->subbidang_id ?? null;
 
-    $user = auth()->user();
-    $role = $user->role;
-    $bidangId = $role->bidang_id ?? null;
-    $subbidangId = $role->subbidang_id ?? null;
+        $kategori = KategoriPengetahuan::query()
+            ->when(($bidangId || $subbidangId), function ($q) use ($bidangId, $subbidangId) {
+                $q->where(function ($qq) use ($bidangId, $subbidangId) {
+                    if ($bidangId)     $qq->orWhere('bidang_id', $bidangId);
+                    if ($subbidangId)  $qq->orWhere('subbidang_id', $subbidangId);
+                    $qq->orWhereNull('bidang_id');
+                });
+            })
+            ->orderBy('nama_kategoripengetahuan')
+            ->get();
 
-    $kategoriQuery = KategoriPengetahuan::query();
-    if ($bidangId) $kategoriQuery->where('bidang_id', $bidangId);
-    if ($subbidangId) $kategoriQuery->where('subbidang_id', $subbidangId);
-    $kategori = $kategoriQuery->get();
-
-    return view('pegawai.berbagipengetahuan.index', compact('artikels', 'kategori'));
-}
-
- public function create()
-{
-    $user = auth()->user();
-
-    $role = $user->role;
-
-    $bidangId = $role->bidang_id ?? null;
-    $subbidangId = $role->subbidang_id ?? null;
-
-    $query = KategoriPengetahuan::query();
-
-    if ($bidangId) {
-        $query->where('bidang_id', $bidangId);
+        return view('pegawai.berbagipengetahuan.create', compact('kategori'));
     }
 
-    if ($subbidangId) {
-        $query->where('subbidang_id', $subbidangId);
-    }
-
-    $kategori = $query->get();
-
-    return view('pegawai.berbagipengetahuan.create', compact('kategori'));
-}
-
-
-public function store(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'judul' => ['required', 'string', 'max:255'],
@@ -77,7 +79,7 @@ public function store(Request $request)
             $validated['filedok'] = $request->file('filedok')->store('filedok', 'public');
         }
 
-        $validated['pengguna_id'] = auth()->id();
+        $validated['pengguna_id'] = Auth::id();
 
         ArtikelPengetahuan::create($validated);
 
@@ -85,101 +87,108 @@ public function store(Request $request)
             ->route('pegawai.berbagipengetahuan.index')
             ->with('success', 'Artikel berhasil ditambahkan.');
     }
-public function edit($id)
-{
-    $userId = auth()->id();
 
-    $artikelpengetahuan = ArtikelPengetahuan::where('id', $id)
-        ->where('pengguna_id', $userId)
-        ->firstOrFail();
-$user = auth()->user();
- $role = $user->role;
+    public function edit($id)
+    {
+        $user = Auth::user();
+        $role = $user->role;
+        $bidangId = $role->bidang_id ?? null;
+        $subbidangId = $role->subbidang_id ?? null;
 
-    $bidangId = $role->bidang_id ?? null;
-    $subbidangId = $role->subbidang_id ?? null;
+        $artikelpengetahuan = ArtikelPengetahuan::where('id', $id)
+            ->where('pengguna_id', $user->id)
+            ->firstOrFail();
 
-    $query = KategoriPengetahuan::query();
+        $kategori = KategoriPengetahuan::query()
+            ->when(($bidangId || $subbidangId), function ($q) use ($bidangId, $subbidangId) {
+                $q->where(function ($qq) use ($bidangId, $subbidangId) {
+                    if ($bidangId)     $qq->orWhere('bidang_id', $bidangId);
+                    if ($subbidangId)  $qq->orWhere('subbidang_id', $subbidangId);
+                    $qq->orWhereNull('bidang_id');
+                });
+            })
+            ->orderBy('nama_kategoripengetahuan')
+            ->get();
 
-    if ($bidangId) {
-        $query->where('bidang_id', $bidangId);
+        return view('pegawai.berbagipengetahuan.edit', compact('artikelpengetahuan', 'kategori'));
     }
 
-    if ($subbidangId) {
-        $query->where('subbidang_id', $subbidangId);
+    public function update(Request $request, $id)
+    {
+        $userId = Auth::id();
+
+        $artikelpengetahuan = ArtikelPengetahuan::where('id', $id)
+            ->where('pengguna_id', $userId)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'judul' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:artikelpengetahuan,slug,' . $artikelpengetahuan->id,
+            'kategori_pengetahuan_id' => 'required|exists:kategori_pengetahuan,id',
+            'thumbnail' => 'nullable|image|max:2048',
+            'filedok' => 'nullable|mimes:pdf,doc,docx|max:5120',
+            'isi' => 'required|string',
+        ]);
+
+        if ($request->hasFile('thumbnail')) {
+            if ($artikelpengetahuan->thumbnail && Storage::disk('public')->exists($artikelpengetahuan->thumbnail)) {
+                Storage::disk('public')->delete($artikelpengetahuan->thumbnail);
+            }
+            $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+        } else {
+            $validated['thumbnail'] = $artikelpengetahuan->thumbnail;
+        }
+
+        if ($request->hasFile('filedok')) {
+            if ($artikelpengetahuan->filedok && Storage::disk('public')->exists($artikelpengetahuan->filedok)) {
+                Storage::disk('public')->delete($artikelpengetahuan->filedok);
+            }
+            $validated['filedok'] = $request->file('filedok')->store('filedok', 'public');
+        } else {
+            $validated['filedok'] = $artikelpengetahuan->filedok;
+        }
+
+        $artikelpengetahuan->update($validated);
+
+        return redirect()
+            ->route('pegawai.berbagipengetahuan.index')
+            ->with('success', 'Artikel pengetahuan berhasil diperbarui.');
     }
 
-    $kategori = $query->get();
+    public function destroy($id)
+    {
+        $userId = Auth::id();
 
-    return view('pegawai.berbagipengetahuan.edit', compact('artikelpengetahuan', 'kategori'));
-}
+        $artikelpengetahuan = ArtikelPengetahuan::where('id', $id)
+            ->where('pengguna_id', $userId)
+            ->firstOrFail();
 
-
- public function update(Request $request, $id)
-{
-    $userId = auth()->id();
-
-    $artikelpengetahuan = ArtikelPengetahuan::where('id', $id)
-        ->where('pengguna_id', $userId)
-        ->firstOrFail();
-
-    $validated = $request->validate([
-        'judul' => 'required|string|max:255',
-        'slug' => 'required|string|max:255|unique:artikelpengetahuan,slug,' . $artikelpengetahuan->id,
-        'kategori_pengetahuan_id' => 'required|exists:kategori_pengetahuan,id',
-        'thumbnail' => 'nullable|image|max:2048',
-        'filedok' => 'nullable|mimes:pdf,doc,docx|max:5120',
-        'isi' => 'required|string',
-    ]);
-
-    // Thumbnail
-    if ($request->hasFile('thumbnail')) {
         if ($artikelpengetahuan->thumbnail && Storage::disk('public')->exists($artikelpengetahuan->thumbnail)) {
             Storage::disk('public')->delete($artikelpengetahuan->thumbnail);
         }
-        $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
-    } else {
-        $validated['thumbnail'] = $artikelpengetahuan->thumbnail;
-    }
 
-    // Filedok
-    if ($request->hasFile('filedok')) {
         if ($artikelpengetahuan->filedok && Storage::disk('public')->exists($artikelpengetahuan->filedok)) {
             Storage::disk('public')->delete($artikelpengetahuan->filedok);
         }
-        $validated['filedok'] = $request->file('filedok')->store('filedok', 'public');
-    } else {
-        $validated['filedok'] = $artikelpengetahuan->filedok;
+
+        $artikelpengetahuan->delete();
+
+        return redirect()
+            ->route('pegawai.berbagipengetahuan.index')
+            ->with('deleted', 'Artikel pengetahuan berhasil dihapus.');
     }
 
-    $artikelpengetahuan->update($validated);
+    public function show($id)
+    {
+        $user = Auth::user();
 
-    return redirect()
-        ->route('pegawai.berbagipengetahuan.index')
-        ->with('success', 'Artikel berhasil diperbarui.');
-}
+        // Pastikan artikel milik user yang login
+        $artikel = ArtikelPengetahuan::with('kategoriPengetahuan')
+            ->where('id', $id)
+            ->where('pengguna_id', $user->id)
+            ->firstOrFail();
 
-public function destroy($id)
-{
-    $userId = auth()->id();
-
-    $artikelpengetahuan = ArtikelPengetahuan::where('id', $id)
-        ->where('pengguna_id', $userId)
-        ->firstOrFail();
-
-    if ($artikelpengetahuan->thumbnail && Storage::disk('public')->exists($artikelpengetahuan->thumbnail)) {
-        Storage::disk('public')->delete($artikelpengetahuan->thumbnail);
+        return view('pegawai.berbagipengetahuan.show', compact('artikel'));
     }
-
-    if ($artikelpengetahuan->filedok && Storage::disk('public')->exists($artikelpengetahuan->filedok)) {
-        Storage::disk('public')->delete($artikelpengetahuan->filedok);
-    }
-
-    $artikelpengetahuan->delete();
-
-    return redirect()
-        ->route('pegawai.berbagipengetahuan.index')
-        ->with('success', 'Artikel berhasil dihapus.');
-}
-
 
 }

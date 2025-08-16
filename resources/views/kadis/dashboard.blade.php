@@ -5,6 +5,8 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'Dashboard Kepala Dinas')
+
 <x-app-layout>
     {{-- Wrapper untuk seluruh konten di sebelah kanan sidebar --}}
     <div class="w-full min-h-screen bg-[#eaf5ff]">
@@ -58,44 +60,48 @@ $tanggal = $carbon->format('l, d F Y');
         {{-- BODY KONTEN --}}
         <div class="p-6 md:p-8">
             {{-- STATS CARDS --}}
-          {{-- STATS CARDS --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    {{-- Total Dokumen --}}
-    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
-        <div class="flex-1">
-            <div class="text-3xl font-bold">{{ $totalDokumen }}</div>
-            <div class="text-sm mt-1 opacity-90">Total Dokumen</div>
-        </div>
-        <i class="fa-solid fa-file-arrow-down text-4xl opacity-50"></i>
-    </div>
+            {{-- STATS CARDS --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {{-- Total Dokumen --}}
+                <div
+                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold">{{ $totalDokumen }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Dokumen</div>
+                    </div>
+                    <i class="fa-solid fa-file-arrow-down text-4xl opacity-50"></i>
+                </div>
 
-    {{-- Total Artikel --}}
-    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
-        <div class="flex-1">
-            <div class="text-3xl font-bold">{{ $totalArtikel }}</div>
-            <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
-        </div>
-        <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
-    </div>
+                {{-- Total Artikel --}}
+                <div
+                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-blue-500 to-blue-600 transition-transform hover:scale-105">
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold">{{ $totalArtikel }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Artikel Dibagikan</div>
+                    </div>
+                    <i class="fa-solid fa-share-nodes text-4xl opacity-50"></i>
+                </div>
 
-    {{-- Total Pegawai --}}
-    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-red-500 to-red-600 transition-transform hover:scale-105">
-        <div class="flex-1">
-            <div class="text-3xl font-bold">{{ $totalPegawai }}</div>
-            <div class="text-sm mt-1 opacity-90">Total Pegawai</div>
-        </div>
-        <i class="fa-solid fa-user-tie text-4xl opacity-50"></i>
-    </div>
+                {{-- Total Pegawai --}}
+                <div
+                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-red-500 to-red-600 transition-transform hover:scale-105">
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold">{{ $totalPegawai }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Pegawai</div>
+                    </div>
+                    <i class="fa-solid fa-user-tie text-4xl opacity-50"></i>
+                </div>
 
-    {{-- Total Magang --}}
-    <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
-        <div class="flex-1">
-            <div class="text-3xl font-bold">{{ $totalMagang }}</div>
-            <div class="text-sm mt-1 opacity-90">Total Magang</div>
-        </div>
-        <i class="fa-solid fa-user-graduate text-4xl opacity-50"></i>
-    </div>
-</div>
+                {{-- Total Magang --}}
+                <div
+                    class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-yellow-500 to-yellow-600 transition-transform hover:scale-105">
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold">{{ $totalMagang }}</div>
+                        <div class="text-sm mt-1 opacity-90">Total Magang</div>
+                    </div>
+                    <i class="fa-solid fa-user-graduate text-4xl opacity-50"></i>
+                </div>
+            </div>
 
 
             {{-- MAIN GRID (Charts, Lists, etc) --}}
@@ -103,93 +109,205 @@ $tanggal = $carbon->format('l, d F Y');
                 {{-- Kolom Kiri (Lebih besar) --}}
                 <div class="lg:col-span-2 flex flex-col gap-8">
                     <div class="bg-white rounded-2xl shadow-lg p-6">
-{{-- Pengguna Teraktif Berdasarkan Artikel --}}
-<div class="bg-white rounded-2xl shadow-lg p-6 mt-8">
-    <h3 class="font-bold text-lg text-gray-800 mb-4">🏆 Top 5 Pengguna Aktif - Artikel</h3>
-    <ul class="space-y-2 text-sm text-gray-700">
-        @forelse ($penggunaTeraktifArtikel as $user)
-            <li class="flex justify-between items-center">
-                <span>{{ $user->pengguna->name ?? 'Tidak diketahui' }}</span>
-                <span class="font-semibold text-gray-500">{{ $user->total_artikel }} artikel</span>
-            </li>
-        @empty
-            <li>Tidak ada data pengguna aktif artikel.</li>
-        @endforelse
-    </ul>
-</div>
-
-{{-- Pengguna Teraktif Berdasarkan Dokumen --}}
-<div class="bg-white rounded-2xl shadow-lg p-6 mt-6">
-    <h3 class="font-bold text-lg text-gray-800 mb-4">📤 Top 5 Pengguna Aktif - Dokumen</h3>
-    <ul class="space-y-2 text-sm text-gray-700">
-        @forelse ($penggunaTeraktifDokumen as $user)
-            <li class="flex justify-between items-center">
-                <span>{{ $user->pengguna->name ?? 'Tidak diketahui' }}</span>
-                <span class="font-semibold text-gray-500">{{ $user->total_dokumen }} dokumen</span>
-            </li>
-        @empty
-            <li>Tidak ada data pengguna aktif dokumen.</li>
-        @endforelse
-    </ul>
-</div>
-
+                        {{-- Pengguna Teraktif Berdasarkan Artikel --}}
+                        <div class="bg-white rounded-2xl shadow-lg p-6 mt-8">
+                            <h3 class="font-bold text-lg text-gray-800 mb-4">🏆 Top 5 Pengguna Aktif - Artikel</h3>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                @forelse ($penggunaTeraktifArtikel as $user)
+                                <li class="flex justify-between items-center">
+                                    <span>{{ $user->pengguna->name ?? 'Tidak diketahui' }}</span>
+                                    <span class="font-semibold text-gray-500">{{ $user->total_artikel }} artikel</span>
+                                </li>
+                                @empty
+                                <li>Tidak ada data pengguna aktif artikel.</li>
+                                @endforelse
+                            </ul>
                         </div>
-                    </div>
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Knowledge Management System</h3>
-                        <p class="text-sm text-gray-700 leading-relaxed">
-                            Dashboard Manajemen Pengetahuan Diskominfotik ini dirancang untuk menjadi pusat integrasi
-                            informasi dan dokumentasi strategis bagi seluruh pegawai di lingkungan instansi. Melalui
-                            tampilan yang intuitif, dashboard ini memuat statistik real-time.
-                        </p>
-                        <p class="text-sm text-gray-600 leading-relaxed mt-4">
-                            Seperti total dokumen resmi yang tersimpan (1.238 dokumen), artikel pengetahuan yang
-                            dipublikasikan (312 artikel), serta permintaan akses terbaru dari pengguna internal. Setiap
-                            dokumen dikelompokkan berdasarkan kategori seperti Regulasi, Pedoman.
-                        </p>
+
+                        {{-- Pengguna Teraktif Berdasarkan Dokumen --}}
+                        <div class="bg-white rounded-2xl shadow-lg p-6 mt-6">
+                            <h3 class="font-bold text-lg text-gray-800 mb-4">📤 Top 5 Pengguna Aktif - Dokumen</h3>
+                            <ul class="space-y-2 text-sm text-gray-700">
+                                @forelse ($penggunaTeraktifDokumen as $user)
+                                <li class="flex justify-between items-center">
+                                    <span>{{ $user->pengguna->name ?? 'Tidak diketahui' }}</span>
+                                    <span class="font-semibold text-gray-500">{{ $user->total_dokumen }} dokumen</span>
+                                </li>
+                                @empty
+                                <li>Tidak ada data pengguna aktif dokumen.</li>
+                                @endforelse
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
-                {{-- Kolom Kanan (Lebih kecil) --}}
-                <div class="lg:col-span-1 flex flex-col gap-8">
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Dokumen Teratas</h3>
-                        <ul class="space-y-3">
-                            <li class="flex justify-between items-center text-sm text-gray-700">
-                                <span>Renja Diskominfotik 2025</span>
-                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">56 <i
-                                        class="fa-solid fa-eye text-xs"></i></span>
-                            </li>
-                            <li class="flex justify-between items-center text-sm text-gray-700">
-                                <span>LKJ Diskominfotik 2025</span>
-                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">23 <i
-                                        class="fa-solid fa-eye text-xs"></i></span>
-                            </li>
-                            <li class="flex justify-between items-center text-sm text-gray-700">
-                                <span>Renstra Diskominfotik 2025</span>
-                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">19 <i
-                                        class="fa-solid fa-eye text-xs"></i></span>
-                            </li>
-                            <li class="flex justify-between items-center text-sm text-gray-700">
-                                <span>Rencana Aksi Diskominfotik 2025</span>
-                                <span class="font-semibold flex items-center gap-1.5 text-gray-500">12 <i
-                                        class="fa-solid fa-eye text-xs"></i></span>
-                            </li>
-                        </ul>
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-lg text-blue-600 mb-4">Knowledge Management System</h3>
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        Dashboard Manajemen Pengetahuan Diskominfotik ini dirancang untuk menjadi pusat integrasi
+                        informasi dan dokumentasi strategis bagi seluruh pegawai di lingkungan instansi. Melalui
+                        tampilan yang intuitif, dashboard ini memuat statistik real-time.
+                    </p>
+                    <p class="text-sm text-gray-600 leading-relaxed mt-4">
+                        Seperti total dokumen resmi yang tersimpan (1.238 dokumen), artikel pengetahuan yang
+                        dipublikasikan (312 artikel), serta permintaan akses terbaru dari pengguna internal. Setiap
+                        dokumen dikelompokkan berdasarkan kategori seperti Regulasi, Pedoman.
+                    </p>
+                </div>
+            </div>
+            {{-- Kolom Kanan (Lebih kecil) --}}
+            <div class="lg:col-span-1 flex flex-col gap-8">
+                <div class="bg-white rounded-2xl shadow-lg p-6 mt-8 sm:mt-10 lg:mt-12">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4">Dokumen Teratas</h3>
+                    <ul class="divide-y divide-gray-100">
+                        @forelse($topDokumen as $doc)
+                        <li class="py-2 flex items-center justify-between">
+                            <a href="{{ route('dokumen.show', $doc->id) }}"
+                                class="text-sm sm:text-base text-gray-700 hover:text-blue-600 truncate pr-3"
+                                title="{{ $doc->nama_dokumen }}">
+                                {{ $doc->nama_dokumen }}
+                            </a>
+                            <span class="shrink-0 font-semibold flex items-center gap-1.5 text-gray-500">
+                                {{ number_format($doc->total_views) }}
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </span>
+                        </li>
+                        @empty
+                        <li class="py-4 text-sm text-gray-500">Belum ada data tampilan dokumen.</li>
+                        @endforelse
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Pengetahuan</h3>
+                    <div class="w-full h-56 md:h-64">
+                        <canvas id="chart-pengetahuan"></canvas>
                     </div>
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Pengetahuan</h3>
-                        <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                            <span class="text-gray-400 text-sm">[Bar Chart]</span>
-                        </div>
+                    <p class="mt-3 text-xs text-gray-500">Total dokumen per Bidang (termasuk seluruh subbidang).</p>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Artikel</h3>
+                    <div class="w-full h-56 md:h-64">
+                        <canvas id="chart-artikel"></canvas>
                     </div>
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Artikel</h3>
-                        <div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg">
-                            <span class="text-gray-400 text-sm">[Bar Chart]</span>
-                        </div>
-                    </div>
+                    <p class="mt-3 text-xs text-gray-500">Total artikel pengetahuan per Bidang (termasuk seluruh
+                        subbidang).</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <x-slot name="footer">
+        <footer class="bg-[#2b6cb0] py-4 mt-8">
+            <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
+                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
+                    class="h-10 object-contain">
+            </div>
+        </footer>
+    </x-slot>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Data dari controller
+        const labels = @json($bidangNames ?? []);
+        const dataDokumen = @json($dataDokumenBidang ?? []);
+        const dataArtikel = @json($dataArtikelBidang ?? []);
+
+        // Palet warna nuansa merah (dinamis, ramah mata & mirip desain Figma)
+        const makeReds = (n) => Array.from({
+            length: n
+        }, (_, i) => {
+            const hue = 0; // merah
+            const sat = 70; // saturasi stabil
+            const light = 40 + (i % 6) * 6; // variasi terang
+            return `hsl(${hue} ${sat}% ${light}%)`;
+        });
+
+        const commonOpts = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 500
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        boxWidth: 12,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${ctx.dataset.label}: ${ctx.formattedValue}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 0,
+                        autoSkip: true
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    },
+                    grid: {
+                        color: 'rgba(0,0,0,0.05)'
+                    }
+                }
+            }
+        };
+
+        // Perkembangan Pengetahuan (Dokumen per Bidang)
+        const ctx1 = document.getElementById('chart-pengetahuan');
+        if (ctx1) {
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Dokumen',
+                        data: dataDokumen,
+                        backgroundColor: makeReds(labels.length),
+                        borderRadius: 8,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    }]
+                },
+                options: commonOpts
+            });
+        }
+
+        // Perkembangan Artikel (Artikel Pengetahuan per Bidang)
+        const ctx2 = document.getElementById('chart-artikel');
+        if (ctx2) {
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Artikel',
+                        data: dataArtikel,
+                        backgroundColor: makeReds(labels.length).map(c => c.replace('%',
+                        '%')), // tetap nuansa merah
+                        borderRadius: 8,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    }]
+                },
+                options: commonOpts
+            });
+        }
+    });
+    </script>
+
 </x-app-layout>

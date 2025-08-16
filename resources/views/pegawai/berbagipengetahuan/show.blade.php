@@ -5,7 +5,7 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
-@section('title', 'View Pengetahuan Kadis')
+@section('title', 'View Pengetahuan Pegawai')
 
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-12">
@@ -16,32 +16,35 @@ $tanggal = $carbon->format('l, d F Y');
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Artikel Pengetahuan</h2>
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
+
                 <div class="flex items-center gap-4 w-full sm:w-auto">
-                    {{-- Search Bar --}}
+                    {{-- Search dummy (biar konsisten tampilan sekretaris) --}}
                     <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
                         <input type="text" placeholder="Cari artikel pengetahuan..."
-                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
+                               class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fa fa-search"></i>
                         </span>
                     </div>
+
                     {{-- Dropdown Profile --}}
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open"
-                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
-                            title="Profile">
+                                class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
+                                title="Profile">
                             <i class="fa-solid fa-user"></i>
                         </button>
                         <div x-show="open" @click.away="open = false"
-                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition>
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition>
                             <div class="py-1">
                                 <a href="{{ route('profile.edit') }}"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
-                                        Out</button>
+                                            class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Log Out
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -50,20 +53,22 @@ $tanggal = $carbon->format('l, d F Y');
             </div>
         </div>
 
-        {{-- KONTEN ARTIKEL --}}
+        {{-- KONTEN --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
             {{-- KONTEN UTAMA --}}
             <section class="xl:col-span-8 w-full">
                 <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 flex flex-col gap-6">
                     {{-- Thumbnail --}}
-                    @if($artikel->thumbnail)
-                    <img src="{{ asset('storage/'.$artikel->thumbnail) }}" alt="{{ $artikel->judul }}"
-                        class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-xl border mb-4" />
+                    @if ($artikel->thumbnail)
+                        <img src="{{ asset('storage/'.$artikel->thumbnail) }}" alt="{{ $artikel->judul }}"
+                             class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-xl border mb-4" />
                     @endif
 
                     {{-- Judul & Info --}}
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 leading-tight mb-2">{{ $artikel->judul }}
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 leading-tight mb-2">
+                        {{ $artikel->judul }}
                     </h1>
+
                     <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 mb-2">
                         <div>
                             <span>Kategori:</span>
@@ -79,53 +84,52 @@ $tanggal = $carbon->format('l, d F Y');
                     </div>
 
                     {{-- Isi Artikel --}}
-                    <div
-                        class="prose max-w-none prose-img:rounded-xl prose-p:my-2 text-gray-800 text-base leading-relaxed">
+                    <div class="prose max-w-none prose-img:rounded-xl prose-p:my-2 text-gray-800 text-base leading-relaxed">
                         {!! $artikel->isi !!}
                     </div>
 
                     {{-- Dokumen Terkait --}}
-                    @if($artikel->filedok)
-                    <div class="mt-6">
-                        <label class="font-semibold text-gray-800 mb-2 block">Dokumen Terkait</label>
-                        <a href="{{ asset('storage/' . $artikel->filedok) }}"
-                            class="flex items-center gap-3 rounded-lg bg-gray-100 p-3 hover:bg-blue-50 transition group w-max"
-                            target="_blank" download>
-                            <i class="fa-solid fa-file-pdf text-2xl text-red-500 group-hover:text-red-700"></i>
-                            <span class="text-sm font-medium text-blue-700 underline">
-                                {{ \Illuminate\Support\Str::afterLast($artikel->filedok, '/') }}
-                            </span>
-                        </a>
-                    </div>
+                    @if ($artikel->filedok)
+                        <div class="mt-6">
+                            <label class="font-semibold text-gray-800 mb-2 block">Dokumen Terkait</label>
+                            <a href="{{ asset('storage/' . $artikel->filedok) }}" target="_blank" download
+                               class="flex items-center gap-3 rounded-lg bg-gray-100 p-3 hover:bg-blue-50 transition group w-max">
+                                <i class="fa-solid fa-file-pdf text-2xl text-red-500 group-hover:text-red-700"></i>
+                                <span class="text-sm font-medium text-blue-700 underline">
+                                    {{ \Illuminate\Support\Str::afterLast($artikel->filedok, '/') }}
+                                </span>
+                            </a>
+                        </div>
                     @endif
                 </div>
             </section>
 
             {{-- SIDEBAR --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8 mt-8 xl:mt-0">
-                <div
-                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Kadis' }}
-                        </p>
+                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Pegawai' }}</p>
                     </div>
                 </div>
-                {{-- Tombol Aksi --}}
+
+                {{-- Tombol Aksi (samakan dengan sekretaris, tapi rute pegawai) --}}
                 <div class="flex flex-col gap-4">
-                    <a href="{{ route('kadis.berbagipengetahuan.edit', $artikel->id) }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
+                    <a href="{{ route('pegawai.berbagipengetahuan.edit', $artikel->id) }}"
+                       class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-pen-to-square"></i>
                         <span>Edit Artikel</span>
                     </a>
+
                     <button id="btn-hapus-artikel"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
+                            class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-trash"></i>
                         <span>Hapus Artikel</span>
                     </button>
+
                     <form id="delete-artikel-form"
-                        action="{{ route('kadis.berbagipengetahuan.destroy', $artikel->id) }}" method="POST"
-                        class="hidden">
+                          action="{{ route('pegawai.berbagipengetahuan.destroy', $artikel->id) }}"
+                          method="POST" class="hidden">
                         @csrf
                         @method('DELETE')
                     </form>
@@ -137,13 +141,13 @@ $tanggal = $carbon->format('l, d F Y');
         <x-slot name="footer">
             <footer class="bg-[#2b6cb0] py-4 mt-8">
                 <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
-                    <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
-                        class="h-10 object-contain">
+                    <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik" class="h-10 object-contain">
                 </div>
             </footer>
         </x-slot>
     </div>
 
+    {{-- SweetAlert2 seperti di sekretaris --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
     <script>
     document.getElementById('btn-hapus-artikel').addEventListener('click', function(e) {
@@ -169,11 +173,9 @@ $tanggal = $carbon->format('l, d F Y');
             buttonsStyling: false,
         }).then((result) => {
             if (result.isConfirmed) {
-                // Hapus artikel
                 document.getElementById('delete-artikel-form').submit();
             }
         });
     });
     </script>
-
 </x-app-layout>

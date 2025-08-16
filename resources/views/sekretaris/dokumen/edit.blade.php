@@ -11,7 +11,7 @@ $allowedExtensions = ['pdf','doc','docx','xls','xlsx','ppt','pptx','txt'];
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] flex flex-col pb-10">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Edit Dokumen</h2>

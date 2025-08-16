@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff]">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen</h2>
@@ -226,15 +226,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     <ul class="space-y-2">
                         @foreach($kategori as $kat)
                         <li class="flex items-center justify-between group">
-                            <span class="text-sm text-gray-700">{{ $kat->nama_kategoridokumen }}— {{ $kat->Subbidang->nama ?? '-' }}</span>
+                            <span class="text-sm text-gray-700">{{ $kat->nama_kategoridokumen }}—
+                                {{ $kat->Subbidang->nama ?? '-' }}</span>
                             <span class="flex gap-1 opacity-70 group-hover:opacity-100 transition">
                                 <button onclick="openEditKategoriModal({{ $kat->id }})"
                                     class="inline-flex items-center justify-center w-7 h-7 rounded hover:bg-yellow-100 text-yellow-600"
                                     title="Edit">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <form action="{{ route('admin.kategori-dokumen.destroy', $kat->id) }}"
-                                    method="POST" class="inline" onsubmit="return confirm('Hapus kategori ini?');">
+                                <form action="{{ route('admin.kategori-dokumen.destroy', $kat->id) }}" method="POST"
+                                    class="inline" onsubmit="return confirm('Hapus kategori ini?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button"
@@ -263,43 +264,44 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <h2 class="font-bold text-lg text-gray-800 mb-2 text-center">Tambah Kategori Dokumen</h2>
                 </div>
-               <form action="{{ route('admin.kategori-dokumen.store') }}" method="POST"
-    class="w-full flex flex-col items-center gap-4">
-    @csrf
-    
-    <input type="text" name="nama_kategori" id="nama_kategori"
-        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-4 py-3 text-base text-center"
-        placeholder="Masukkan nama kategori" required>
+                <form action="{{ route('admin.kategori-dokumen.store') }}" method="POST"
+                    class="w-full flex flex-col items-center gap-4">
+                    @csrf
 
-    {{-- Dropdown Bidang --}}
-    <select name="bidang_id" required
-        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base">
-        <option value="" disabled selected>Pilih Bidang</option>
-        @foreach ($bidangList as $bidang)
-            <option value="{{ $bidang->id }}">{{ $bidang->nama_bidang }}</option>
-        @endforeach
-    </select>
+                    <input type="text" name="nama_kategori" id="nama_kategori"
+                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-4 py-3 text-base text-center"
+                        placeholder="Masukkan nama kategori" required>
 
-    {{-- Dropdown Subbidang --}}
-    <select name="subbidang_id"
-        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base">
-        <option value="">(Opsional) Pilih Subbidang</option>
-        @foreach ($subbidangList as $sub)
-            <option value="{{ $sub->id }}">{{ $sub->nama_subbidang }}</option>
-        @endforeach
-    </select>
+                    {{-- Dropdown Bidang --}}
+                    <select name="bidang_id" required
+                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base">
+                        <option value="" disabled selected>Pilih Bidang</option>
+                        @foreach ($bidangList as $bidang)
+                        <option value="{{ $bidang->id }}">{{ $bidang->nama }}</option>
+                        @endforeach
+                    </select>
 
-    <div class="flex w-full gap-2 mt-2 justify-end">
-        <button type="button" onclick="closeKategoriModal()"
-            class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold">
-            Batal
-        </button>
-        <button type="submit"
-            class="px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">
-            Simpan
-        </button>
-    </div>
-</form>
+                    {{-- Dropdown Subbidang --}}
+                    <select name="subbidang_id"
+                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base">
+                        <option value="">(Opsional) Pilih Subbidang</option>
+                        @foreach ($subbidangList as $sub)
+                        <option value="{{ $sub->id }}">{{ $sub->nama }}</option>
+                        @endforeach
+                    </select>
+
+
+                    <div class="flex w-full gap-2 mt-2 justify-end">
+                        <button type="button" onclick="closeKategoriModal()"
+                            class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">
+                            Simpan
+                        </button>
+                    </div>
+                </form>
 
             </div>
         </div>

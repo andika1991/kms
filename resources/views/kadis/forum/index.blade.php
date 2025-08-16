@@ -7,10 +7,53 @@ $tanggal = $carbon->format('l, d F Y');
 
 @section('title', 'Forum Diskusi Kepala Dinas')
 
+{{-- ALERT Sukses --}}
+@if (session('success'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'success',
+        title: '{{ session("success") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5',
+            title: 'font-bold text-base md:text-lg text-green-800',
+            icon: 'text-green-500'
+        },
+        timer: 2200
+    });
+});
+</script>
+@endif
+
+@if (session('deleted'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'error',
+        title: '{{ session("deleted") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5 border border-red-200',
+            title: 'font-bold text-base md:text-lg text-red-800',
+            icon: 'text-red-600'
+        },
+        timer: 2500
+    });
+});
+</script>
+@endif
+
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Forum Diskusi</h2>
@@ -68,30 +111,49 @@ $tanggal = $carbon->format('l, d F Y');
                 <div
                     class="bg-white rounded-2xl shadow-lg border border-gray-200/80 p-6 mb-6 hover:shadow-xl hover:border-blue-300 transition-all">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
-                            <div class="font-bold text-lg md:text-xl text-gray-800 mb-1">{{ $grupchat->nama_grup }}
-                            </div>
-                            <div class="text-gray-600 text-sm mb-2 line-clamp-2">{{ $grupchat->deskripsi }}</div>
-                            <div class="text-xs text-gray-500">Role: <span
-                                    class="font-semibold">{{ $grupchat->grup_role ?? '-' }}</span></div>
-                        </div>
-                        <div class="flex gap-2 md:gap-4 mt-3 md:mt-0">
-                            <a href="{{ route('kadis.forum.show', $grupchat->id) }}"
-                                class="px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium transition text-sm">
-                                Lihat
+                        {{-- Konten klik ke detail --}}
+                        <div class="flex-1">
+                            <a href="{{ route('kadis.forum.show', $grupchat->id) }}" class="group block">
+                                <div
+                                    class="font-bold text-lg md:text-xl text-gray-800 mb-1 group-hover:text-blue-700 transition-colors">
+                                    {{ $grupchat->nama_grup }}
+                                </div>
+                                <div class="text-gray-600 text-sm mb-2 line-clamp-2">
+                                    {{ $grupchat->deskripsi }}
+                                </div>
                             </a>
+
+                            <div class="text-xs text-gray-500">
+                                Bidang:
+                                <span class="font-semibold">
+                                    {{ optional($grupchat->bidang)->nama_bidang ?? ($grupchat->grup_role ?: '-') }}
+                                </span>
+
+                                @if($grupchat->is_private)
+                                <span
+                                    class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 text-[11px]">
+                                    <i class="fa-solid fa-lock mr-1"></i> Private
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Aksi --}}
+                        <div class="flex gap-2 md:gap-3 mt-3 md:mt-0">
                             @if($grupchat->pengguna_id == auth()->id())
                             <a href="{{ route('kadis.forum.edit', $grupchat->id) }}"
-                                class="px-4 py-2 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-800 font-medium transition text-sm">
-                                Edit
+                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border text-yellow-800 bg-yellow-50 border-yellow-200 hover:bg-yellow-100 text-sm font-semibold">
+                                <i class="fa-solid fa-pen-to-square text-[13px]"></i>
+                                <span>Edit</span>
                             </a>
                             <form action="{{ route('kadis.forum.destroy', $grupchat->id) }}" method="POST"
                                 onsubmit="return confirm('Yakin ingin menghapus?')" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 font-medium transition text-sm">
-                                    Hapus
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border text-red-700 bg-red-50 border-red-200 hover:bg-red-100 text-sm font-semibold">
+                                    <i class="fa-solid fa-trash text-[13px]"></i>
+                                    <span>Hapus</span>
                                 </button>
                             </form>
                             @endif
@@ -99,7 +161,6 @@ $tanggal = $carbon->format('l, d F Y');
                     </div>
                 </div>
                 @empty
-                
                 <div
                     class="flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
                     <img src="{{ asset('assets/img/logo_diskominfotik_lampung.png') }}" class="w-48 mb-6 opacity-50"
@@ -112,7 +173,6 @@ $tanggal = $carbon->format('l, d F Y');
 
             {{-- SIDEBAR KANAN --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                {{-- Kartu Placeholder/Deskripsi --}}
                 <div
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                     <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4">
@@ -121,7 +181,7 @@ $tanggal = $carbon->format('l, d F Y');
                     <h3 class="font-bold text-lg">Forum Diskusi</h3>
                     <p class="text-xs mt-2">Diskusi, kolaborasi, dan knowledge sharing kepala dinas.</p>
                 </div>
-                {{-- Tambah Forum Desktop --}}
+
                 <a href="{{ route('kadis.forum.create') }}"
                     class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
                     <i class="fa-solid fa-plus"></i>

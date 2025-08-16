@@ -31,6 +31,8 @@
                         class="text-gray-600 text-sm hover:text-blue-700 transition">Pengetahuan</a>
                     <a href="{{ route('dokumen') }}"
                         class="text-gray-600 text-sm hover:text-blue-700 transition">Dokumen</a>
+                    <a href="{{ route('kegiatan') }}"
+                        class="text-gray-600 text-sm hover:text-blue-700 transition">Kegiatan</a>
                 </nav>
                 {{-- Tombol Masuk --}}
                 <a href="{{ route('login') }}"

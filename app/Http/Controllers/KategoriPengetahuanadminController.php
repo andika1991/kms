@@ -67,6 +67,6 @@ class KategoriPengetahuanadminController extends Controller
         $kategoripengetahuan->delete();
 
         return redirect()->route('admin.berbagipengetahuan.index')
-                         ->with('success', 'Kategori Pengetahuan berhasil dihapus.');
+                         ->with('deleted', 'Kategori Pengetahuan berhasil dihapus.');
     }
 }

@@ -192,7 +192,7 @@ class ForumsekreController extends Controller
         $grupChat = GrupChat::findOrFail($id);
         $grupChat->delete();
 
-        return redirect()->route('sekretaris.forum.index')->with('success', 'Forum berhasil dihapus.');
+        return redirect()->route('sekretaris.forum.index')->with('deleted', 'Forum berhasil dihapus.');
     }
 
     public function edit($id)

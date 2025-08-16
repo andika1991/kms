@@ -249,6 +249,6 @@ class ForumKadisController extends Controller
         $grupchat->delete();
 
         return redirect()->route('kadis.forum.index')
-            ->with('success', 'Forum berhasil dihapus.');
+            ->with('deleted', 'Forum berhasil dihapus.');
     }
 }

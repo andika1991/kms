@@ -5,28 +5,46 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
-@section('title', 'Artikel Pengetahuan Kasubbidang')
+@section('title', 'Artikel Pengetahuan Admin')
 
-@if(session('success'))
+{{-- ALERT Sukses --}}
+@if (session('success'))
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     Swal.fire({
-        toast: true,
         position: 'top',
         icon: 'success',
         title: '{{ session("success") }}',
         showConfirmButton: false,
-        timer: 2200,
         background: '#f0fff4',
         customClass: {
-            popup: 'rounded-xl shadow-xl mt-6 max-w-xs md:max-w-sm border border-green-300',
+            popup: 'rounded-xl shadow-md px-8 py-5',
             title: 'font-bold text-base md:text-lg text-green-800',
             icon: 'text-green-500'
         },
-        didOpen: (toast) => {
-            toast.style.marginTop = window.innerWidth < 640 ? '0.75rem' : '2rem';
-        }
+        timer: 2200
+    });
+});
+</script>
+@endif
+
+@if (session('deleted'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        position: 'top',
+        icon: 'error',
+        title: '{{ session("deleted") }}',
+        showConfirmButton: false,
+        background: '#f0fff4',
+        customClass: {
+            popup: 'rounded-xl shadow-md px-8 py-5 border border-red-200',
+            title: 'font-bold text-base md:text-lg text-red-800',
+            icon: 'text-red-600'
+        },
+        timer: 2500
     });
 });
 </script>
@@ -84,70 +102,54 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
 
-        {{-- BODY KONTEN GRID --}}
+        {{-- BODY KONTEN --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
             {{-- KOLOM KIRI (GRID ARTIKEL) --}}
-          <section class="xl:col-span-8 w-full">
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full table-auto border-collapse">
-                <thead class="bg-blue-600 text-white text-sm font-semibold">
-                    <tr>
-                        <th class="px-4 py-3 text-left">Judul</th>
-                        <th class="px-4 py-3 text-left">Kategori</th>
-                        <th class="px-4 py-3 text-center">Dilihat</th>
-                        <th class="px-4 py-3 text-center">Tanggal</th>
-                        <th class="px-4 py-3 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="text-sm text-gray-700 divide-y divide-gray-200">
+            <section class="xl:col-span-8 w-full">
+                <div class="flex flex-col gap-6">
                     @forelse($artikels as $artikel)
-                    <tr class="hover:bg-blue-50 transition">
-                        <td class="px-4 py-3 font-semibold">
-                            <a href="{{ route('kasubbidang.berbagipengetahuan.show', $artikel->id) }}"
-                               class="hover:text-blue-700">
-                                {{ $artikel->judul }}
-                            </a>
-                        </td>
-                        <td class="px-4 py-3">
-                            {{ $artikel->kategoriPengetahuan->nama_kategoripengetahuan ?? '-' }}
-                        </td>
-                        <td class="px-4 py-3 text-center">{{ $artikel->views ?? 0 }}</td>
-                        <td class="px-4 py-3 text-center">{{ \Carbon\Carbon::parse($artikel->created_at)->format('d/m/Y') }}</td>
-                        <td class="px-4 py-3 text-center space-x-2">
-                            <a href="{{ route('admin.berbagipengetahuan.edit', $artikel->id) }}"
-                               class="inline-block text-blue-600 hover:text-blue-800" title="Edit">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </a>
-                            <form action="{{ route('admin.berbagipengetahuan.destroy', $artikel->id) }}"
-                                  method="POST" class="inline-block"
-                                  onsubmit="return confirm('Yakin ingin menghapus artikel ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800" title="Hapus">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                    <!-- Card Artikel Horizontal -->
+                    <a href="{{ route('admin.berbagipengetahuan.show', $artikel->id) }}" class="block bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-4 border-4 border-white group">
+                        <div class="flex flex-col sm:flex-row gap-5">
+                            <!-- Gambar Artikel -->
+                            <img src="{{ asset('storage/' . ($artikel->thumbnail ?? 'default.jpg')) }}" 
+                                 class="w-full sm:w-48 h-40 sm:h-auto object-cover rounded-lg flex-shrink-0" alt="{{ $artikel->judul }}">
+                            
+                            <!-- Konten Teks -->
+                            <div class="flex flex-col flex-grow">
+                                <h3 class="font-bold text-lg text-gray-800 group-hover:text-blue-700 transition-colors mb-2 line-clamp-2" title="{{ $artikel->judul }}">{{ $artikel->judul }}</h3>
+                                <p class="text-xs font-semibold text-blue-600 mb-2">
+                                    Kategori: {{ $artikel->kategoriPengetahuan->nama_kategoripengetahuan ?? '-' }}
+                                </p>
+                                <p class="text-sm text-gray-600 line-clamp-2">
+                                    {{ \Illuminate\Support\Str::limit(strip_tags($artikel->isi), 150) }}
+                                </p>
+                                
+                                <!-- Footer Card -->
+                                <div class="flex justify-between items-center text-xs text-gray-500 mt-auto pt-4">
+                                    <span class="flex items-center gap-1.5" title="Dilihat">
+                                        <i class="fas fa-eye"></i>
+                                        {{ $artikel->views ?? 0 }}
+                                    </span>
+                                    <span>{{ \Carbon\Carbon::parse($artikel->created_at)->translatedFormat('d M Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
                     @empty
-                    <tr>
-                        <td colspan="5" class="text-center py-8 text-gray-500">
-                            <img src="{{ asset('assets/img/empty-state.svg') }}" class="mx-auto w-32 opacity-70 mb-3" alt="Empty">
-                            <p>Belum ada artikel pengetahuan.</p>
-                        </td>
-                    </tr>
+                    <div class="col-span-full flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
+                        <img src="{{ asset('assets/img/empty-state.svg') }}" class="mx-auto w-40 opacity-70 mb-4" alt="Empty">
+                        <h3 class="text-xl font-bold text-gray-700">Belum Ada Artikel Pengetahuan</h3>
+                        <p class="text-gray-500 mt-2">Silakan tambahkan artikel baru untuk memulai.</p>
+                    </div>
                     @endforelse
-                </tbody>
-            </table>
-        </div>
+                </div>
 
-        {{-- Pagination --}}
-        <div class="p-4 border-t">
-            {{-- {{ $artikels->links() }} --}}
-        </div>
-    </div>
-</section>
+                <!-- Pagination -->
+                <div class="mt-8">
+                    {{ $artikels->appends(request()->query())->links() }}
+                </div>
+            </section>
 
             {{-- KOLOM KANAN (SIDEBAR) + MODAL DELETE --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
@@ -159,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             class="h-16 w-16 mb-4">
                         <div>
                             <p class="font-bold text-lg leading-tight">
-                                {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+                                {{ Auth::user()->role->nama_role ?? 'Administrator' }}</p>
                         </div>
                     </div>
 
