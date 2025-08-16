@@ -180,4 +180,46 @@ $tanggal = $carbon->format('l, d F Y');
             </footer>
         </x-slot>
     </div>
+
+      <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const lihatButtons = document.querySelectorAll('.lihat-dokumen');
+    const modal = document.getElementById('modal-kunci');
+    const form = document.getElementById('form-kunci');
+    const dokumenIdInput = document.getElementById('dokumen_id');
+    const batalModal = document.getElementById('batal-modal');
+
+    let dokumenId = null;
+
+    lihatButtons.forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            dokumenId = this.dataset.id;
+
+            if (this.dataset.rahasia === '1') {
+                // Tampilkan modal input kunci
+                dokumenIdInput.value = dokumenId;
+                modal.classList.remove('hidden');
+            } else {
+                // Jika bukan rahasia, langsung redirect
+                window.location.href = `/magang/manajemendokumen/${dokumenId}`;
+            }
+        });
+    });
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const key = form.encrypted_key.value;
+        const id = dokumenIdInput.value;
+
+        const url = `/magang/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(key)}`;
+        window.location.href = url;
+    });
+
+    batalModal.addEventListener('click', function () {
+        modal.classList.add('hidden');
+        form.reset();
+    });
+});
+</script>
 </x-app-layout>
