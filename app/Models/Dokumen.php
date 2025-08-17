@@ -56,8 +56,24 @@ class Dokumen extends Model
     }
 
     public function aksesDokumenPengguna()
-{
-    return $this->hasMany(AksesDokumenPengguna::class, 'dokumen_id', 'id');
-}
+    {
+        return $this->hasMany(AksesDokumenPengguna::class, 'dokumen_id', 'id');
+    }
+
+    public function views()
+    {
+        return $this->hasMany(\App\Models\DocumentView::class, 'dokumen_id');
+    }
+
+    public function viewers() // opsional kalau mau ambil daftar user yang melihat
+    {
+        return $this->belongsToMany(
+            \App\Models\User::class,
+            'document_views',
+            'dokumen_id',
+            'user_id'
+        )->withPivot('viewed_at')->withTimestamps();
+    }
+
 
 }

@@ -13,7 +13,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 class DashboardController extends Controller
 {
-  public function admin()
+
+    public function admin()
     {
         // Hitung total seluruh data di sistem (tidak terbatas pengguna tertentu)
         $jumlahKegiatan = Kegiatan::count();
@@ -78,9 +79,7 @@ class DashboardController extends Controller
         ));
     }
 
-
-
-  public function kepalabagian()
+    public function kepalabagian()
     {
         $user = Auth::user();
         $bidangId = $user->role->bidang_id; // Ambil bidang_id dari role
@@ -280,7 +279,7 @@ class DashboardController extends Controller
         ));
     }
 
-   public function magang()
+    public function magang()
     {
         $userId = Auth::id();
 
@@ -323,10 +322,36 @@ class DashboardController extends Controller
         ->take(5)
         ->get();
 
+        // ===== Bar charts per Bidang (sesuai struktur bidang/subbidang) =====
+        // Ambil semua Bidang untuk label
+        $bidangIds   = Bidang::orderBy('nama')->pluck('id')->all();
+        $bidangNames = Bidang::orderBy('nama')->pluck('nama')->all();
+
+        // Artikel Pengetahuan per Bidang (kategori_pengetahuan -> bidang_id)
+        $dataArtikelBidang = [];
+        foreach ($bidangIds as $bidangId) {
+            $dataArtikelBidang[] = ArtikelPengetahuan::where('pengguna_id', $userId)
+                ->whereHas('kategoriPengetahuan', function ($q) use ($bidangId) {
+                    $q->where('bidang_id', $bidangId);
+                    // Jika ingin spesifik subbidang: ->whereNotNull('subbidang_id') / ->where('subbidang_id', X);
+                })
+                ->count();
+        }
+
+        // Dokumen per Bidang (kategori_dokumen -> bidang_id)
+        $dataDokumenBidang = [];
+        foreach ($bidangIds as $bidangId) {
+            $dataDokumenBidang[] = Dokumen::where('pengguna_id', $userId)
+                ->whereHas('kategoriDokumen', function ($q) use ($bidangId) {
+                    $q->where('bidang_id', $bidangId);
+                })
+                ->count();
+        }
 
         return view('magang.dashboard', compact(
             'jumlahKegiatan', 'jumlahDokumen', 'jumlahForum', 'jumlahArtikel',
-            'bulan', 'dataDokumen', 'dataArtikel','dokumenTerbaru'
+            'bulan', 'dataDokumen', 'dataArtikel','dokumenTerbaru', 'bidangNames',
+            'dataDokumenBidang', 'dataArtikelBidang'
         ));
     }
 
@@ -398,7 +423,7 @@ class DashboardController extends Controller
         ));
     }
 
-  public function kadis()
+    public function kadis()
     {
         // Top 5 pengguna teraktif menulis artikel
         $penggunaTeraktifArtikel = \App\Models\ArtikelPengetahuan::select('pengguna_id')
