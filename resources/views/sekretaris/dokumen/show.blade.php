@@ -25,7 +25,7 @@ $viewers = $viewers ?? collect();
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">
                     <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
-                        <input type="text" placeholder="Cari..."
+                        <input type="text" placeholder="Cari Dokumen..."
                                class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"/>
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fa fa-search"></i>

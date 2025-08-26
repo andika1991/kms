@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArtikelPengetahuan;
+use App\Models\ArticleView;
 use App\Models\KategoriPengetahuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -188,6 +189,12 @@ class PengetahuankasubbidangController extends Controller
             ->where('pengguna_id', $userId)
             ->firstOrFail();
 
+        if (auth()->check()) {
+            ArticleView::updateOrCreate(
+                ['artikel_id' => $artikel->id, 'user_id' => auth()->id()],
+                ['viewed_at' => now()]
+            );
+        }
         return view('kasubbidang.berbagipengetahuan.show', compact('artikel'));
     }
 

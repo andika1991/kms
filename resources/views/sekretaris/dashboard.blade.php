@@ -85,7 +85,7 @@ if (Auth::check()) {
                 <div class="flex items-center p-5 rounded-2xl shadow-lg text-white bg-gradient-to-br from-green-500 to-green-600 transition-transform hover:scale-105">
                     <div class="flex-1">
                         <div class="text-3xl font-bold">{{ $jumlahKegiatan }}</div>
-                        <div class="text-sm mt-1 opacity-90">Total Kegiatan Magang</div>
+                        <div class="text-sm mt-1 opacity-90">Total Kegiatan Sekretaris</div>
                     </div>
                     <i class="fa-solid fa-clipboard-list text-4xl opacity-50"></i>
                 </div>

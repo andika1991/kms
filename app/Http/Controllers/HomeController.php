@@ -18,10 +18,14 @@ class HomeController extends Controller
         $totalDokumen = Dokumen::count();
         $totalArtikel = ArtikelPengetahuan::count();
 
+        // ⬇ Hanya tampilkan dokumen non-rahasia di beranda
         $dokumens = Dokumen::with(['kategoriDokumen', 'user'])
-                    ->latest()
-                    ->take(4)
-                    ->get();
+            ->whereHas('kategoriDokumen', function ($q) {
+                $q->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
+            })
+            ->latest()
+            ->take(4)
+            ->get();
 
         $artikels = ArtikelPengetahuan::with(['kategoriPengetahuan', 'pengguna'])
                     ->latest()
@@ -140,18 +144,50 @@ class HomeController extends Controller
 
     public function getDokumenByBidang($bidang_id)
     {
-        $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($bidang_id) {
-            $query->where('bidang_id', $bidang_id);
-        })->with('user')->get();
+        $dokumens = Dokumen::whereHas('kategoriDokumen', function ($q) use ($bidang_id) {
+            $q->where('bidang_id', $bidang_id)
+              ->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']); // ⬅ filter rahasia
+        })
+        ->with(['user:id,name', 'kategoriDokumen:id,nama_kategoridokumen'])
+        ->latest()
+        ->get()
+        ->map(function ($d) {
+            return [
+                'id'            => $d->id,
+                'nama_dokumen'  => $d->nama_dokumen,
+                'deskripsi'     => (string) $d->deskripsi,
+                'created_at'    => optional($d->created_at)->toISOString(),
+                'user'          => ['name' => optional($d->user)->name],
+                // ⬇️ inilah yang dibaca oleh JS-mu
+                'kategori_nama' => optional($d->kategoriDokumen)->nama_kategoridokumen,
+                // opsional jika punya relasi views()
+                'views_count'   => method_exists($d, 'views') ? $d->views()->count() : 0,
+            ];
+        });
 
         return response()->json($dokumens);
     }
 
     public function getDokumenBySubbidang($subbidang_id)
     {
-        $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($subbidang_id) {
-            $query->where('subbidang_id', $subbidang_id);
-        })->with('user')->get();
+         $dokumens = Dokumen::whereHas('kategoriDokumen', function ($q) use ($subbidang_id) {
+            $q->where('subbidang_id', $subbidang_id)
+              ->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']); // ⬅ filter rahasia
+        })
+        ->with(['user:id,name', 'kategoriDokumen:id,nama_kategoridokumen'])
+        ->latest()
+        ->get()
+        ->map(function ($d) {
+            return [
+                'id'            => $d->id,
+                'nama_dokumen'  => $d->nama_dokumen,
+                'deskripsi'     => (string) $d->deskripsi,
+                'created_at'    => optional($d->created_at)->toISOString(),
+                'user'          => ['name' => optional($d->user)->name],
+                'kategori_nama' => optional($d->kategoriDokumen)->nama_kategoridokumen,
+                'views_count'   => method_exists($d, 'views') ? $d->views()->count() : 0,
+            ];
+        });
 
         return response()->json($dokumens);
     }
@@ -189,8 +225,8 @@ class HomeController extends Controller
         }
 
         $dokumens = Dokumen::with(['kategoriDokumen', 'user'])
-            ->whereHas('kategoriDokumen', function ($query) {
-                $query->where('nama_kategoridokumen', '!=', 'Rahasia');
+            ->whereHas('kategoriDokumen', function ($q) {
+                $q->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
             })
             ->where(function ($query) use ($keyword) {
                 $query->where('nama_dokumen', 'like', "%{$keyword}%")

@@ -131,13 +131,15 @@
                     @foreach($dokumens as $dokumen)
                     <a href="{{ route('dokumen.show', $dokumen->id) }}"
                         class="border rounded-lg p-3 shadow hover:shadow-md transition block group focus:outline-none focus:ring-2 focus:ring-blue-500">
-                     <span class="material-icons text-red-600 text-3xl">picture_as_pdf</span>
+                        <span class="material-icons text-red-600 text-3xl">picture_as_pdf</span>
 
                         <p class="text-sm font-semibold mb-1 group-hover:text-blue-700">{{ $dokumen->nama_dokumen }}</p>
                         <p class="text-xs text-gray-500 mb-2">{{ $dokumen->deskripsi }}</p>
                         <div class="flex items-center justify-between text-xs text-gray-500">
                             <span>{{ $dokumen->created_at->format('d/m/Y') }}</span>
-                            <span><i class="fas fa-eye"></i> {{ $dokumen->views }}</span>
+                            <span class="inline-flex items-center gap-1">
+                                <i class="fas fa-eye"></i> {{ number_format($dokumen->views_count) }}
+                            </span>
                         </div>
                     </a>
                     @endforeach
@@ -168,7 +170,9 @@
                         <div class="flex items-center justify-between text-xs text-gray-500">
                             <a href="{{ route('artikel.show', $artikel->slug) }}"
                                 class="text-blue-700 hover:underline">Lihat</a>
-                            <span><i class="fas fa-eye"></i> {{ $artikel->views }}</span>
+                            <span class="inline-flex items-center gap-1">
+                                <i class="fas fa-eye"></i> {{ number_format($artikel->views_total) }}
+                            </span>
                         </div>
                     </div>
                     @endforeach

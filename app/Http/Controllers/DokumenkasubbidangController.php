@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DocumentView;
 use Spatie\PdfToImage\Pdf;
 use App\Models\Dokumen;
 use App\Models\KategoriDokumen;
@@ -13,22 +14,22 @@ use Illuminate\Http\Request;
 class DokumenkasubbidangController extends Controller
 {
     public function index(Request $request)
-{
-    $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
-        ->where('pengguna_id', auth()->id());
+    {
+        $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
+            ->where('pengguna_id', auth()->id());
 
-    if ($request->filled('search')) {
-        $search = strtolower($request->search);
-        $dokumenQuery->whereRaw('LOWER(nama_dokumen) LIKE ?', ["%{$search}%"]);
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $dokumenQuery->whereRaw('LOWER(nama_dokumen) LIKE ?', ["%{$search}%"]);
+        }
+
+        $dokumen = $dokumenQuery->latest()->get();
+
+        
+        $kategori = KategoriDokumen::where('subbidang_id', auth()->user()->role->subbidang_id)->get();
+
+        return view('kasubbidang.dokumen.index', compact('dokumen', 'kategori'));
     }
-
-    $dokumen = $dokumenQuery->latest()->get();
-
-    
-    $kategori = KategoriDokumen::where('subbidang_id', auth()->user()->role->subbidang_id)->get();
-
-    return view('kasubbidang.dokumen.index', compact('dokumen', 'kategori'));
-}
 
     public function create()
     {
@@ -103,31 +104,38 @@ class DokumenkasubbidangController extends Controller
     {
         $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
-         $isRahasia = $dokumen->kategoriDokumen 
+        $isRahasia = $dokumen->kategoriDokumen 
         && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
 
-    if ($isRahasia) {
-        $inputKey = $request->encrypted_key;
+        if ($isRahasia) {
+            $inputKey = $request->encrypted_key;
 
-        if (!$inputKey) {
-            return redirect()->route('pegawai.manajemendokumen.index')
-                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
+            if (!$inputKey) {
+                return redirect()->route('pegawai.manajemendokumen.index')
+                    ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
+            }
+
+            // Dekripsi key dari DB
+            try {
+                $decryptedKey = decrypt($dokumen->encrypted_key);
+            } catch (\Exception $e) {
+                // Jika gagal dekripsi, berarti ada masalah data
+                return redirect()->route('kasubbidang.manajemendokumen.index')
+                    ->with('error', 'Data kunci dokumen tidak valid.');
+            }
+
+            if ($inputKey !== $decryptedKey) {
+                return redirect()->route('kasubbidang.manajemendokumen.index')
+                    ->with('error', 'Kunci dokumen salah.');
+            }
         }
 
-        // Dekripsi key dari DB
-        try {
-            $decryptedKey = decrypt($dokumen->encrypted_key);
-        } catch (\Exception $e) {
-            // Jika gagal dekripsi, berarti ada masalah data
-            return redirect()->route('kasubbidang.manajemendokumen.index')
-                ->with('error', 'Data kunci dokumen tidak valid.');
+        if (auth()->check()) {
+            DocumentView::updateOrCreate(
+                ['dokumen_id' => $dokumen->id, 'user_id' => auth()->id()],
+                ['viewed_at' => now()]
+            );
         }
-
-        if ($inputKey !== $decryptedKey) {
-            return redirect()->route('kasubbidang.manajemendokumen.index')
-                ->with('error', 'Kunci dokumen salah.');
-        }
-    }
 
 
         return view('kasubbidang.dokumen.show', compact('dokumen'));

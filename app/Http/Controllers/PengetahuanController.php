@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArtikelPengetahuan;
+use App\Models\ArticleView;
 use App\Models\KategoriPengetahuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -141,6 +142,13 @@ class PengetahuanController extends Controller
         }
 
         $berbagipengetahuan->load(['kategoriPengetahuan', 'pengguna']);
+
+        if (auth()->check()) {
+            ArticleView::updateOrCreate(
+                ['artikel_id' => $artikel->id, 'user_id' => auth()->id()],
+                ['viewed_at' => now()]
+            );
+        }
 
         // Kirim ke view dengan nama variabel yang sama seperti sebelumnya agar tidak merusak view
         return view('magang.berbagipengetahuan-show', [

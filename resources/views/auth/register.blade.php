@@ -12,8 +12,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-figtree bg-gray-100"
-    style="background-image: url('{{ asset('assets/img/body-bg-pattern.png') }}'); background-repeat: repeat; background-size: auto;">
+<body class="font-figtree"
+    style="background-image: url('{{ asset('/img/body-bg-pattern.png') }}'); background-repeat: repeat; background-size: auto;">
 
     {{-- HEADER --}}
     <header class="bg-white shadow-md sticky top-0 z-20 rounded-b-3xl">

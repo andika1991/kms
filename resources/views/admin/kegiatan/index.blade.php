@@ -5,7 +5,7 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
-@section('title', 'Kelola Kegiatan Admin')
+@section('title', 'Manajemen Kegiatan Admin')
 
 {{-- ALERT Sukses --}}
 @if (session('success'))
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Kelola Kegiatan || Administrator</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Kegiatan || Administrator</h2>
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">

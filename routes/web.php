@@ -207,15 +207,15 @@ Route::get('/pengetahuan/search', [HomeController::class, 'search'])->name('arti
 Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
 Route::get('/kegiatan/bidang/{bidang_id}', [KegiatanController::class, 'getByBidang'])->name('kegiatan.byBidang');
 Route::get('/kegiatan/subbidang/{subbidang_id}', [KegiatanController::class, 'getBySubbidang'])->name('kegiatan.bySubbidang');
-Route::get('/dokumen', function () { 
-    return view('dokumen');
-})->name('dokumen');
 
 Route::get('/dokumen', [HomeController::class, 'dokumen'])->name('dokumen');
 Route::get('/dokumen/bidang/{bidangId}', [HomeController::class, 'getDokumenByBidang']);
 Route::get('/dokumen/subbidang/{subbidangId}', [HomeController::class, 'getDokumenBySubbidang']);
 Route::get('/dokumen/search', [HomeController::class, 'searchDokumen'])->name('dokumen.search');
 Route::get('/dokumen/detail/{id}', [HomeController::class, 'showDokumenById'])->name('dokumen.show');
+// Alias: dukung juga /dokumen/{id} agar klik lama tidak 404
+Route::get('/dokumen/{id}', [HomeController::class, 'showDokumenById'])
+    ->whereNumber('id');
 
 // Route utama untuk daftar kegiatan
 Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');

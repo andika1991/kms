@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\ViewsCountScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -75,5 +76,19 @@ class Dokumen extends Model
         )->withPivot('viewed_at')->withTimestamps();
     }
 
+    // ===== Pasang Global Scope sekali untuk semua query Dokumen =====
+    protected static function booted()
+    {
+        static::addGlobalScope(new ViewsCountScope); // -> otomatis ada attribute views_count
+    }
+
+    // Opsional: accessor yang selalu mengembalikan angka aman (dengan fallback)
+    protected $appends = ['views_total'];
+
+    public function getViewsTotalAttribute(): int
+    {
+        // Jika views_count sudah ada (dari scope), pakai itu, jika tidak hitung langsung
+        return (int) ($this->attributes['views_count'] ?? $this->getAttribute('views_count') ?? $this->views()->count());
+    }
 
 }

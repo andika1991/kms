@@ -16,25 +16,31 @@ class DashboardController extends Controller
 
     public function admin()
     {
+        $userId = Auth::id(); 
         // Hitung total seluruh data di sistem (tidak terbatas pengguna tertentu)
         $jumlahKegiatan = Kegiatan::count();
         $jumlahDokumen  = Dokumen::count();
         $jumlahForum    = GrupChatUser::count();
         $jumlahArtikel  = ArtikelPengetahuan::count();
 
-        // Nama bulan (Januari - Desember)
-        $bulan = collect(range(1, 12))->map(fn($m) => Carbon::create()->month($m)->translatedFormat('F'));
+        // Data bulanan (12 bulan terakhir)
+        $bulan = collect(range(1, 12))->map(fn ($m) => Carbon::create()->month($m)->translatedFormat('F'));
 
-        // Data dokumen per bulan
-        $dokumenPerBulan = Dokumen::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+        $dokumenPerBulan = DB::table('dokumen')
+            ->where('pengguna_id', $userId)
             ->whereYear('created_at', date('Y'))
-            ->groupBy('bulan')
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
             ->pluck('total', 'bulan');
 
-        // Data artikel per bulan
-        $artikelPerBulan = ArtikelPengetahuan::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+        // PERBAIKAN: Menggunakan Query Builder (DB::table) untuk menghindari error ONLY_FULL_GROUP_BY
+        $artikelPerBulan = DB::table('artikelpengetahuan')
+            ->where('pengguna_id', $userId)
             ->whereYear('created_at', date('Y'))
-            ->groupBy('bulan')
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
             ->pluck('total', 'bulan');
 
         // Data kegiatan per bulan
@@ -147,38 +153,37 @@ class DashboardController extends Controller
         
         ));
     }
-
-
     public function kasubbidang()
     {
         $user = Auth::user();
         $subbidangId = $user->role->subbidang_id;
-
-    
-    $penggunaIds = \App\Models\User::whereHas('role', function ($query) use ($subbidangId) {
+        $penggunaIds = \App\Models\User::whereHas('role', function ($query) use ($subbidangId) {
         $query->where('subbidang_id', $subbidangId);
-    })->pluck('id');
+        })->pluck('id');
         // Hitungan total entitas
         $jumlahKegiatan = Kegiatan::whereIn('pengguna_id', $penggunaIds)->count();
         $jumlahDokumen  = Dokumen::whereIn('pengguna_id', $penggunaIds)->count();
         $jumlahForum    = GrupChatUser::whereIn('pengguna_id', $penggunaIds)->count();
         $jumlahArtikel  = ArtikelPengetahuan::whereIn('pengguna_id', $penggunaIds)->count();
 
-        // Label bulan (Januari - Desember)
-        $bulan = collect(range(1, 12))->map(fn($m) => Carbon::create()->month($m)->translatedFormat('F'));
+        // Data bulanan (12 bulan terakhir)
+        $bulan = collect(range(1, 12))->map(fn ($m) => Carbon::create()->month($m)->translatedFormat('F'));
 
-        // Jumlah dokumen per bulan (tahun berjalan)
-        $dokumenPerBulan = Dokumen::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
-            ->whereIn('pengguna_id', $penggunaIds)
+        $dokumenPerBulan = DB::table('dokumen')
+            ->where('pengguna_id', $userId)
             ->whereYear('created_at', date('Y'))
-            ->groupBy('bulan')
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
             ->pluck('total', 'bulan');
 
-        // Jumlah artikel per bulan (tahun berjalan)
-        $artikelPerBulan = ArtikelPengetahuan::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
-            ->whereIn('pengguna_id', $penggunaIds)
+        // PERBAIKAN: Menggunakan Query Builder (DB::table) untuk menghindari error ONLY_FULL_GROUP_BY
+        $artikelPerBulan = DB::table('artikelpengetahuan')
+            ->where('pengguna_id', $userId)
             ->whereYear('created_at', date('Y'))
-            ->groupBy('bulan')
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
             ->pluck('total', 'bulan');
 
         // Inisialisasi array data bulanan (isi 0 jika kosong)
@@ -241,25 +246,24 @@ class DashboardController extends Controller
         }
 
         // Data bulanan (12 bulan terakhir)
-        $bulan = collect(range(1, 12))->map(function ($m) {
-            return Carbon::create()->month($m)->translatedFormat('F');
-        });
+        $bulan = collect(range(1, 12))->map(fn ($m) => Carbon::create()->month($m)->translatedFormat('F'));
 
-        $dokumenPerBulan = Dokumen::select(
-            DB::raw('MONTH(created_at) as bulan'),
-            DB::raw('COUNT(*) as total')
-        )->where('pengguna_id', $userId)
-        ->whereYear('created_at', date('Y'))
-        ->groupBy('bulan')
-        ->pluck('total', 'bulan');
+        $dokumenPerBulan = DB::table('dokumen')
+            ->where('pengguna_id', $userId)
+            ->whereYear('created_at', date('Y'))
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
+            ->pluck('total', 'bulan');
 
-        $artikelPerBulan = ArtikelPengetahuan::select(
-            DB::raw('MONTH(created_at) as bulan'),
-            DB::raw('COUNT(*) as total')
-        )->where('pengguna_id', $userId)
-        ->whereYear('created_at', date('Y'))
-        ->groupBy('bulan')
-        ->pluck('total', 'bulan');
+        // PERBAIKAN: Menggunakan Query Builder (DB::table) untuk menghindari error ONLY_FULL_GROUP_BY
+        $artikelPerBulan = DB::table('artikelpengetahuan')
+            ->where('pengguna_id', $userId)
+            ->whereYear('created_at', date('Y'))
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
+            ->pluck('total', 'bulan');
 
         // Buat array jumlah berdasarkan bulan (0 jika tidak ada)
         $dataDokumen = [];
@@ -294,21 +298,22 @@ class DashboardController extends Controller
             return Carbon::create()->month($m)->translatedFormat('F');
         });
 
-        $dokumenPerBulan = Dokumen::select(
-            DB::raw('MONTH(created_at) as bulan'),
-            DB::raw('COUNT(*) as total')
-        )->where('pengguna_id', $userId)
-        ->whereYear('created_at', date('Y'))
-        ->groupBy('bulan')
-        ->pluck('total', 'bulan');
+        $dokumenPerBulan = DB::table('dokumen')
+            ->where('pengguna_id', $userId)
+            ->whereYear('created_at', date('Y'))
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
+            ->pluck('total', 'bulan');
 
-        $artikelPerBulan = ArtikelPengetahuan::select(
-            DB::raw('MONTH(created_at) as bulan'),
-            DB::raw('COUNT(*) as total')
-        )->where('pengguna_id', $userId)
-        ->whereYear('created_at', date('Y'))
-        ->groupBy('bulan')
-        ->pluck('total', 'bulan');
+        // PERBAIKAN: Menggunakan Query Builder (DB::table) untuk menghindari error ONLY_FULL_GROUP_BY
+        $artikelPerBulan = DB::table('artikelpengetahuan')
+            ->where('pengguna_id', $userId)
+            ->whereYear('created_at', date('Y'))
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
+            ->pluck('total', 'bulan');
 
         // Buat array jumlah berdasarkan bulan (0 jika tidak ada)
         $dataDokumen = [];
@@ -370,21 +375,22 @@ class DashboardController extends Controller
             return Carbon::create()->month($m)->translatedFormat('F');
         });
 
-        $dokumenPerBulan = Dokumen::select(
-            DB::raw('MONTH(created_at) as bulan'),
-            DB::raw('COUNT(*) as total')
-        )->where('pengguna_id', $userId)
-        ->whereYear('created_at', date('Y'))
-        ->groupBy('bulan')
-        ->pluck('total', 'bulan');
+        $dokumenPerBulan = DB::table('dokumen')
+            ->where('pengguna_id', $userId)
+            ->whereYear('created_at', date('Y'))
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
+            ->pluck('total', 'bulan');
 
-        $artikelPerBulan = ArtikelPengetahuan::select(
-            DB::raw('MONTH(created_at) as bulan'),
-            DB::raw('COUNT(*) as total')
-        )->where('pengguna_id', $userId)
-        ->whereYear('created_at', date('Y'))
-        ->groupBy('bulan')
-        ->pluck('total', 'bulan');
+        // PERBAIKAN: Menggunakan Query Builder (DB::table) untuk menghindari error ONLY_FULL_GROUP_BY
+        $artikelPerBulan = DB::table('artikelpengetahuan')
+            ->where('pengguna_id', $userId)
+            ->whereYear('created_at', date('Y'))
+            ->selectRaw('MONTH(created_at) AS bulan, COUNT(*) AS total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
+            ->pluck('total', 'bulan');
 
         // Buat array jumlah berdasarkan bulan (0 jika tidak ada)
         $dataDokumen = [];
@@ -425,23 +431,39 @@ class DashboardController extends Controller
 
     public function kadis()
     {
-        // Top 5 pengguna teraktif menulis artikel
-        $penggunaTeraktifArtikel = \App\Models\ArtikelPengetahuan::select('pengguna_id')
-            ->with('pengguna')
+        // Langkah 1: Ambil data agregat
+        $topArtikelData = DB::table('artikelpengetahuan')
+            ->select('pengguna_id', DB::raw('COUNT(*) as total_artikel'))
             ->groupBy('pengguna_id')
-            ->selectRaw('pengguna_id, COUNT(*) as total_artikel')
             ->orderByDesc('total_artikel')
             ->take(5)
             ->get();
 
-        // Top 5 pengguna teraktif berbagi dokumen
-        $penggunaTeraktifDokumen = \App\Models\AksesDokumenPengguna::select('pengguna_id')
-            ->with('pengguna')
+        // Langkah 2: Ambil model User berdasarkan ID yang didapat
+        $penggunaIdsArtikel = $topArtikelData->pluck('pengguna_id');
+        $penggunaModelsArtikel = User::whereIn('id', $penggunaIdsArtikel)->get()->keyBy('id');
+
+        // Langkah 3: Gabungkan data
+        $penggunaTeraktifArtikel = $topArtikelData->map(function ($item) use ($penggunaModelsArtikel) {
+            $item->pengguna = $penggunaModelsArtikel->get($item->pengguna_id);
+            return $item;
+        });
+
+        // PERBAIKAN: Melakukan hal yang sama untuk Dokumen
+        $topDokumenData = DB::table('dokumen')
+            ->select('pengguna_id', DB::raw('COUNT(*) as total_dokumen'))
             ->groupBy('pengguna_id')
-            ->selectRaw('pengguna_id, COUNT(*) as total_dokumen')
             ->orderByDesc('total_dokumen')
             ->take(5)
             ->get();
+        
+        $penggunaIdsDokumen = $topDokumenData->pluck('pengguna_id');
+        $penggunaModelsDokumen = User::whereIn('id', $penggunaIdsDokumen)->get()->keyBy('id');
+
+        $penggunaTeraktifDokumen = $topDokumenData->map(function ($item) use ($penggunaModelsDokumen) {
+            $item->pengguna = $penggunaModelsDokumen->get($item->pengguna_id);
+            return $item;
+        });
 
         // Total artikel pengetahuan keseluruhan
         $totalArtikel = \App\Models\ArtikelPengetahuan::count();
