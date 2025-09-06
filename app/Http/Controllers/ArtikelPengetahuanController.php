@@ -77,8 +77,8 @@ class ArtikelPengetahuanController extends Controller
         $artikelpengetahuan->load(['kategoriPengetahuan', 'pengguna']);
 
         if (auth()->check()) {
-            ArticleView::updateOrCreate(
-                ['artikel_id' => $artikel->id, 'user_id' => auth()->id()],
+            \App\Models\ArticleView::updateOrCreate(
+                ['artikel_id' => $artikelpengetahuan->id, 'user_id' => auth()->id()],
                 ['viewed_at' => now()]
             );
         }
@@ -154,6 +154,6 @@ class ArtikelPengetahuanController extends Controller
         $artikelpengetahuan->delete();
 
         return redirect()->route('kepalabagian.artikelpengetahuan.index')
-                         ->with('success', 'Artikel berhasil dihapus.');
+                         ->with('deleted', 'Artikel berhasil dihapus.');
     }
 }

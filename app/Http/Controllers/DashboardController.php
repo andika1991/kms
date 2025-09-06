@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Kegiatan;
 use App\Models\Dokumen;
 use App\Models\Bidang; 
+use App\Models\Subbidang;
 use App\Models\User;
 use App\Models\GrupChatUser;
 use App\Models\ArtikelPengetahuan;
@@ -107,23 +108,43 @@ class DashboardController extends Controller
         });
 
         // Data dokumen per bulan
-        $dokumenPerBulan = Dokumen::select(
-            DB::raw('MONTH(created_at) as bulan'),
-            DB::raw('COUNT(*) as total')
-        )->whereIn('pengguna_id', $penggunaIds)
-        ->whereYear('created_at', date('Y'))
-        ->groupBy('bulan')
-        ->pluck('total', 'bulan');
+        $dokumenPerBulan = DB::table('dokumen')
+            ->whereIn('pengguna_id', $penggunaIds)
+            ->whereYear('created_at', date('Y'))
+            ->selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+            ->groupBy('bulan')
+            ->pluck('total', 'bulan');
 
         // Data artikel per bulan
-        $artikelPerBulan = ArtikelPengetahuan::select(
-            DB::raw('MONTH(created_at) as bulan'),
-            DB::raw('COUNT(*) as total')
-        )->whereIn('pengguna_id', $penggunaIds)
-        ->whereYear('created_at', date('Y'))
-        ->groupBy('bulan')
-        ->pluck('total', 'bulan');
+        $artikelPerBulan = DB::table('artikelpengetahuan')
+            ->whereIn('pengguna_id', $penggunaIds)
+            ->whereYear('created_at', date('Y'))
+            ->selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+            ->groupBy('bulan')
+            ->pluck('total', 'bulan');
 
+        // --- BAR CHART: data per Subbidang di bidang Kepala Bagian ---
+        $subbidangs = Subbidang::where('bidang_id', $bidangId)
+            ->orderBy('nama')
+            ->get(['id','nama']);
+
+        $subbidangNames = $subbidangs->pluck('nama');
+
+        // jumlah Dokumen per Subbidang (berdasarkan kategori_dokumen.subbidang_id)
+        $barDokumen = $subbidangs->map(function ($sb) {
+            return \App\Models\Dokumen::whereHas('kategoriDokumen', function ($q) use ($sb) {
+                $q->where('subbidang_id', $sb->id);
+            })->count();
+        });
+
+        // jumlah Artikel Pengetahuan per Subbidang (berdasarkan kategori_pengetahuan.subbidang_id)
+        $barArtikel = $subbidangs->map(function ($sb) {
+            return \App\Models\ArtikelPengetahuan::whereHas('kategoriPengetahuan', function ($q) use ($sb) {
+                $q->where('subbidang_id', $sb->id);
+            })->count();
+        });
+
+        
         // Format data untuk grafik (lengkap 12 bulan)
         $dataDokumen = [];
         $dataArtikel = [];
@@ -139,7 +160,42 @@ class DashboardController extends Controller
             ->get();
 
         // Dokumen teratas (optional)
+        $viewsAgg = DB::table('document_views')
+        ->select('dokumen_id', DB::raw('COUNT(*) as views'))
+        ->groupBy('dokumen_id');
 
+        $dokumenTeratas = Dokumen::query()
+            // pastikan hanya dokumen dari bidang Kepala Bagian & bukan kategori "rahasia"
+            ->whereHas('kategoriDokumen', function ($q) use ($bidangId) {
+                $q->where('bidang_id', $bidangId)
+                ->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
+            })
+            // join agregasi views
+            ->leftJoinSub($viewsAgg, 'dv', function ($join) {
+                $join->on('dokumen.id', '=', 'dv.dokumen_id');
+            })
+            ->orderByDesc(DB::raw('COALESCE(dv.views,0)'))
+            ->limit(5)
+            ->get([
+                'dokumen.id',
+                'dokumen.nama_dokumen',
+                DB::raw('COALESCE(dv.views,0) as total_views'),
+            ]);
+
+        // fallback kalau belum ada view sama sekali
+        if ($dokumenTeratas->isEmpty()) {
+            $dokumenTeratas = Dokumen::whereHas('kategoriDokumen', function ($q) use ($bidangId) {
+                    $q->where('bidang_id', $bidangId)
+                    ->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
+                })
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(function ($d) {
+                    $d->total_views = 0;
+                    return $d;
+                });
+        }
 
         return view('kepalabagian.dashboard', compact(
             'jumlahKegiatan',
@@ -150,12 +206,17 @@ class DashboardController extends Controller
             'dataDokumen',
             'dataArtikel',
             'dokumenTerbaru',
+            'dokumenTeratas',
+            'subbidangNames',
+            'barDokumen',
+            'barArtikel'
         
         ));
     }
     public function kasubbidang()
     {
         $user = Auth::user();
+        $userId = $user->id; 
         $subbidangId = $user->role->subbidang_id;
         $penggunaIds = \App\Models\User::whereHas('role', function ($query) use ($subbidangId) {
         $query->where('subbidang_id', $subbidangId);

@@ -25,10 +25,12 @@ class KategoriPengetahuanController extends Controller
 
         return view('kepalabagian.kategoripengetahuan', compact('kategori'));
     }
-        public function create()
-        {
-            return view('kepalabagian.kategoripengetahuan-create');
-        }
+
+    public function create()
+    {
+        return view('kepalabagian.kategoripengetahuan-create');
+    }
+
     public function store(Request $request)
     {
         $request->validate([

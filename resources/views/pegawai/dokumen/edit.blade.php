@@ -15,7 +15,6 @@
 
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-12">
-
         {{-- HEADER --}}
         <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
