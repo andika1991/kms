@@ -64,49 +64,73 @@
 
                         <x-auth-session-status class="mb-4" :status="session('status')" />
 
-                        <div class="relative mb-5">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                                {{-- Ikon User --}}
-                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <input id="email" type="email" name="email" :value="old('email')" required autofocus
-                                autocomplete="username"
-                                class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Email">
-                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                        {{-- EMAIL --}}
+                        @php $emailError = $errors->has('email'); @endphp
+                        <div class="mb-5">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    {{-- Ikon User --}}
+                                    <svg class="w-5 h-5 {{ $emailError ? 'text-red-500' : 'text-gray-400' }}"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+
+                                <input id="email" type="email" name="email" value="{{ old('email') }}" required
+                                    autofocus autocomplete="username"
+                                    aria-invalid="{{ $emailError ? 'true' : 'false' }}"
+                                    class="block w-full h-12 pl-10 pr-3 rounded-lg shadow-sm focus:outline-none
+                                              {{ $emailError
+                                                  ? 'border-red-500 ring-1 ring-red-500 focus:ring-2 focus:ring-red-500'
+                                                  : 'border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}" placeholder="Email">
+                            </div>
+                            {{-- pesan error di luar wrapper agar tidak mendorong ikon --}}
+                            <div class="mt-2 min-h-[1rem]">
+                                <x-input-error :messages="$errors->get('email')" />
+                            </div>
                         </div>
 
-                        <div class="relative mb-5">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                                {{-- Ikon Gembok --}}
-                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </span>
-                            <input id="password" type="password" name="password" required
-                                autocomplete="current-password"
-                                class="block w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Password">
-                            {{-- Ikon Show/Hide Password --}}
-                            <button type="button" id="togglePassword"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 focus:outline-none"
-                                tabindex="-1">
-                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                            </button>
-                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                        {{-- PASSWORD --}}
+                        @php $passError = $errors->has('password'); @endphp
+                        <div class="mb-5">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    {{-- Ikon Gembok --}}
+                                    <svg class="w-5 h-5 {{ $passError ? 'text-red-500' : 'text-gray-400' }}"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+
+                                <input id="password" type="password" name="password" required
+                                    autocomplete="current-password" aria-invalid="{{ $passError ? 'true' : 'false' }}"
+                                    class="block w-full h-12 pl-10 pr-12 rounded-lg shadow-sm focus:outline-none
+                                              {{ $passError
+                                                  ? 'border-red-500 ring-1 ring-red-500 focus:ring-2 focus:ring-red-500'
+                                                  : 'border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}"
+                                    placeholder="Password">
+
+                                {{-- Ikon Show/Hide Password --}}
+                                <button type="button" id="togglePassword"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 focus:outline-none"
+                                    tabindex="-1">
+                                    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                            </div>
+                            {{-- pesan error di luar wrapper agar tidak mendorong ikon --}}
+                            <div class="mt-2 min-h-[1rem]">
+                                <x-input-error :messages="$errors->get('password')" />
+                            </div>
                         </div>
 
                         <button type="submit"
@@ -205,14 +229,11 @@ if (togglePassword && passwordInput && eyeIcon) {
     togglePassword.addEventListener('click', function() {
         isVisible = !isVisible;
         passwordInput.type = isVisible ? 'text' : 'password';
-        // Ganti ikon (bisa custom, berikut simpel tanpa import ikon baru)
         eyeIcon.innerHTML = isVisible ?
-            `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.06 10.06 0 012.98-4.362m1.97-1.643A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.961 9.961 0 01-4.234 5.146M15 12a3 3 0 11-6 0 3 3 0 016 0z" /> 
-                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />` :
-            `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+            `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.06 10.06 0 012.98-4.362m1.97-1.643A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.961 9.961 0 01-4.234 5.146M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />` :
+            `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
     });
 }
 </script>

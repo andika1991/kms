@@ -1,5 +1,7 @@
 @php
 use Carbon\Carbon;
+use Illuminate\Support\Str;
+
 $carbon = Carbon::now()->locale('id');
 $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
@@ -15,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     Swal.fire({
         position: 'top',
         icon: 'success',
-        title: '{{ session("success") }}',
+        title: @json(session('success')),
         showConfirmButton: false,
         background: '#f0fff4',
         customClass: {
@@ -29,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 @endif
 
+{{-- ALERT Hapus --}}
 @if (session('deleted'))
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
 <script>
@@ -36,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     Swal.fire({
         position: 'top',
         icon: 'error',
-        title: '{{ session("deleted") }}',
+        title: @json(session('deleted')),
         showConfirmButton: false,
         background: '#f0fff4',
         customClass: {
@@ -58,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Artikel Pengetahuan</h2>
                 <p class="text-gray-500 text-sm font-normal">{{ $tanggal }}</p>
             </div>
+
             <div class="flex items-center gap-4 mt-4 sm:mt-0 w-full sm:w-auto">
                 {{-- Search Bar --}}
                 <form method="GET" action="{{ route('kasubbidang.berbagipengetahuan.index') }}"
@@ -69,25 +73,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fa fa-search"></i>
                     </span>
                 </form>
-                {{-- Dropdown Profile --}}
+
+                {{-- Dropdown Profile (tetap) --}}
                 <div x-data="{ open: false }" class="relative">
                     <button @click="open = !open"
                         class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
                         title="Profile">
                         <i class="fa-solid fa-user"></i>
                     </button>
-                    <div x-show="open" @click.away="open = false"
-                        class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
-                        style="display: none;">
+                    <div x-show="open" @click.away="open = false" x-transition
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20"
+                        style="display:none;">
                         <div class="py-1">
                             <a href="{{ route('profile.edit') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit"
-                                    class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    Log Out
-                                </button>
+                                    class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                    Out</button>
                             </form>
                         </div>
                     </div>
@@ -96,82 +100,99 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
-    {{-- BODY KONTEN GRID --}}
+    {{-- BODY --}}
     <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 bg-[#eaf5ff] min-h-[calc(100vh-120px)]">
-        {{-- KOLOM KIRI (GRID ARTIKEL) --}}
+        {{-- KOLOM KIRI (LIST ARTIKEL di DALAM SATU BUNGKUS PUTIH, GRID 2 kolom) --}}
         <section class="xl:col-span-8 w-full">
             @if($artikels->count())
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                @foreach($artikels as $artikel)
-                <div
-                    class="bg-white rounded-xl shadow-lg border border-gray-200/80 hover:shadow-xl hover:border-blue-300 transition-all duration-300 flex flex-col overflow-hidden group">
-                    {{-- Gambar Artikel --}}
-                    <div class="h-44 w-full flex items-center justify-center bg-gray-100 overflow-hidden">
-                        <a href="{{ route('kasubbidang.berbagipengetahuan.show', $artikel->id) }}">
-                            @if($artikel->thumbnail)
-                            <img src="{{ asset('storage/' . $artikel->thumbnail) }}" alt="{{ $artikel->judul }}"
-                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                            @else
-                            <img src="{{ asset('assets/img/artikel-elemen.png') }}" alt="No Image"
-                                class="w-24 h-24 object-contain opacity-40" />
-                            @endif
-                        </a>
-                    </div>
-                    {{-- Konten Teks Artikel --}}
-                    <div class="flex-1 flex flex-col p-4">
-                        <h3 class="font-bold text-base text-gray-800 leading-tight mb-2 line-clamp-2">
-                            <a href="{{ route('kasubbidang.berbagipengetahuan.show', $artikel->id) }}"
-                                class="hover:text-blue-700">{{ $artikel->judul }}</a>
-                        </h3>
-                        <div class="text-xs text-gray-500 mb-2">
-                            Kategori: <span
-                                class="font-semibold">{{ $artikel->kategoriPengetahuan->nama_kategoripengetahuan ?? '-' }}</span>
+            <div class="rounded-2xl bg-white shadow-lg border border-gray-200/70 p-4 sm:p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                    @foreach($artikels as $artikel)
+                    @php
+                    $views = $artikel->views_count ?? $artikel->views ?? \App\Models\ArticleView::where('artikel_id',
+                    $artikel->id)->count();
+                    $tanggalBuat = \Carbon\Carbon::parse($artikel->created_at)->format('d/m/Y');
+                    $excerpt = Str::limit(strip_tags((string) $artikel->isi), 110);
+                    @endphp
+
+                    {{-- Kartu artikel: seluruh kartu bisa diklik --}}
+                    <a href="{{ route('kasubbidang.berbagipengetahuan.show', $artikel->id) }}"
+                        class="group h-full rounded-xl border border-gray-200 bg-white/60 hover:border-blue-300 hover:shadow-md transition-all grid grid-cols-1 md:grid-cols-[12rem_1fr] overflow-hidden">
+                        {{-- Gambar kiri: FULL (fill) responsif --}}
+                        <div class="md:w-[12rem] w-full bg-gray-100">
+                            <div class="aspect-[16/10] sm:aspect-[4/3] w-full h-full overflow-hidden">
+                                @if($artikel->thumbnail)
+                                <img src="{{ asset('storage/'.$artikel->thumbnail) }}" alt="{{ $artikel->judul }}"
+                                    loading="lazy" decoding="async"
+                                    class="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]">
+                                @else
+                                <img src="{{ asset('assets/img/artikel-elemen.png') }}" alt="Thumbnail" loading="lazy"
+                                    decoding="async" class="w-full h-full object-cover object-center opacity-40">
+                                @endif
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2 text-gray-400 text-xs mt-auto pt-2">
-                            <span><i class="fa fa-eye mr-1"></i> {{ $artikel->views ?? 0 }}</span>
-                            <span>·</span>
-                            <span>{{ \Carbon\Carbon::parse($artikel->created_at)->format('d/m/Y') }}</span>
+
+                        {{-- Konten kanan --}}
+                        <div class="p-4 sm:p-5 flex flex-col">
+                            <h3
+                                class="text-base sm:text-lg font-semibold text-gray-800 leading-snug line-clamp-2 group-hover:text-blue-700">
+                                {{ $artikel->judul }}
+                            </h3>
+
+                            <p class="mt-1 text-xs sm:text-[13px] text-gray-500">
+                                Kategori:
+                                <span class="font-semibold">
+                                    {{ $artikel->kategoriPengetahuan->nama_kategoripengetahuan ?? '-' }}
+                                </span>
+                            </p>
+
+                            <p class="mt-2 text-[13px] sm:text-sm text-gray-600 line-clamp-2">
+                                {{ $excerpt }}
+                            </p>
+
+                            <div class="mt-3 flex items-center justify-between text-[12px] sm:text-xs text-gray-500">
+                                <span class="inline-flex items-center gap-1">
+                                    <i class="fas fa-eye"></i> {{ number_format($artikel->views_total) }}
+                                </span>
+                                <time datetime="{{ $artikel->created_at?->toISOString() }}" class="whitespace-nowrap">
+                                    {{ $tanggalBuat }}
+                                </time>
+                            </div>
                         </div>
-                        {{-- Tombol Aksi Artikel --}}
-                        <div class="flex flex-wrap gap-2 mt-4">
-                            <a href="{{ route('kasubbidang.berbagipengetahuan.show', $artikel->id) }}"
-                                class="inline-block px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded">
-                                Lihat Detail
-                            </a>
-                        </div>
-                    </div>
+                    </a>
+                    @endforeach
                 </div>
-                @endforeach
             </div>
             @else
             <div
                 class="flex flex-col items-center justify-center text-center py-20 px-6 bg-white rounded-2xl shadow-lg border">
                 <img src="{{ asset('assets/img/empty-state.svg') }}" class="w-40 mb-6 opacity-80" alt="Data Kosong" />
                 <h3 class="text-xl font-bold text-gray-700">Belum Ada Artikel</h3>
-                <p class="text-gray-500 mt-2 max-w-sm">Saat ini belum ada data artikel pengetahuan yang tersedia.
-                    Silakan tambahkan artikel baru.</p>
+                <p class="text-gray-500 mt-2 max-w-sm">
+                    Saat ini belum ada data artikel pengetahuan yang tersedia. Silakan tambahkan artikel baru.
+                </p>
             </div>
             @endif
-            {{-- Pagination --}}
+
+            {{-- Pagination (opsional) --}}
             <div class="mt-8">
                 {{-- {{ $artikels->links() }} --}}
             </div>
         </section>
 
         {{-- KOLOM KANAN (SIDEBAR) --}}
-        <aside class="xl:col-span-4 w-full flex flex-col gap-8">
+        <aside class="xl:col-span-4 w-full flex flex-col gap-6">
             {{-- Kartu Role --}}
             <div
-                class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
-                <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
-                <div>
-                    <p class="font-bold text-lg leading-tight">
-                        {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
-                </div>
+                class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-6 flex flex-col items-center justify-center text-center">
+                <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
+                <p class="font-bold text-lg leading-tight">
+                    {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}
+                </p>
             </div>
 
-            {{-- Kartu Aksi --}}
-            <div class="flex flex-col gap-3 mt-6 mb-2">
+            {{-- Aksi --}}
+            <div class="flex flex-col gap-3">
                 <a href="{{ route('kasubbidang.berbagipengetahuan.create') }}"
                     class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
                     <i class="fa-solid fa-plus"></i>
@@ -184,8 +205,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 </a>
             </div>
 
-            {{-- Kartu Kategori --}}
-            <div class="bg-white rounded-2xl shadow-lg p-7 mt-4">
+            {{-- Kategori --}}
+            <div class="bg-white rounded-2xl shadow-lg p-6">
                 <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Kategori Pengetahuan</h3>
                 <ul class="space-y-2">
                     @foreach ($kategoriPengetahuans as $kat)
@@ -211,6 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </aside>
     </div>
 
+    {{-- FOOTER --}}
     <x-slot name="footer">
         <footer class="bg-[#2b6cb0] py-4 mt-8">
             <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
@@ -220,6 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </footer>
     </x-slot>
 
+    {{-- SweetAlert helper --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
     <script>
     function hapusKategori(url) {
@@ -242,9 +265,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 form.action = url;
                 form.method = 'POST';
                 form.innerHTML = `
-                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="_method" value="DELETE">
-            `;
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="_method" value="DELETE">
+          `;
                 document.body.appendChild(form);
                 form.submit();
             }

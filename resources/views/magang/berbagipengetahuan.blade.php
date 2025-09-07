@@ -138,8 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                                     <div
                                         class="flex justify-between items-center text-[11px] sm:text-xs text-gray-500 mt-auto pt-3">
-                                        <span class="flex items-center gap-1.5" title="Dilihat">
-                                            <i class="fas fa-eye"></i> {{ $artikel->views ?? 0 }}
+                                        <span class="inline-flex items-center gap-1">
+                                            <i class="fas fa-eye"></i> {{ number_format($artikel->views_total) }}
                                         </span>
                                         <span>{{ \Carbon\Carbon::parse($artikel->created_at)->translatedFormat('d M Y') }}</span>
                                     </div>

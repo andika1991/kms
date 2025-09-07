@@ -7,6 +7,7 @@ use App\Models\Bidang;
 use App\Models\ArtikelPengetahuan;
 use App\Models\Subbidang;
 use App\Models\Kegiatan;
+use App\Models\KegiatanView;
 use App\Models\Dokumen;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -242,12 +243,13 @@ class HomeController extends Controller
 
     public function kegiatan(Request $request)
     {
-        $bidangs = Bidang::all(); // Untuk sidebar filter bidang
-        $query = $request->input('q'); // Tangkap keyword dari form pencarian
+        $bidangs = Bidang::all();
+        $query = $request->input('q'); 
 
         // Ambil kegiatan yang hanya kategori publik dan sesuai pencarian jika ada
         $kegiatan = Kegiatan::with('fotokegiatan')
-            ->where('kategori_kegiatan', 'publik') // Filter hanya yang publik
+            ->withCount('views')
+            ->where('kategori_kegiatan', 'publik') 
             ->when($query, function ($qBuilder) use ($query) {
                 $qBuilder->where(function ($subQuery) use ($query) {
                     $subQuery->where('nama_kegiatan', 'like', '%' . $query . '%')
@@ -260,9 +262,24 @@ class HomeController extends Controller
         return view('kegiatan', compact('bidangs', 'kegiatan', 'query'));
     }
 
-    public function showKegiatanById($id)
+    public function showKegiatanById($id, Request $request)
     {
         $kegiatan = Kegiatan::with(['bidang', 'subbidang', 'fotokegiatan'])->findOrFail($id);
+
+        // Catat 1x per sesi browser agar tidak membengkak
+        $sessionKey = 'viewed_kegiatan_'.$kegiatan->id;
+        if (!$request->session()->has($sessionKey)) {
+            KegiatanView::create([
+                'kegiatan_id' => $kegiatan->id,
+                'user_id'     => auth()->id(),                                    
+                'ip'          => $request->ip(),
+                'user_agent'  => substr((string) $request->userAgent(), 0, 512),  
+            ]);
+            $request->session()->put($sessionKey, now());
+        }
+
+        // Hitung total views
+        $viewsCount = $kegiatan->views()->count();
 
         // Ambil 5 kegiatan lain (selain yang sedang dibuka)
         $kegiatan_lainnya = Kegiatan::where('id', '!=', $kegiatan->id)
@@ -271,7 +288,11 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        return view('kegiatanshow', compact('kegiatan', 'kegiatan_lainnya'));
+        return view('kegiatanshow', [
+            'kegiatan'         => $kegiatan,
+            'kegiatan_lainnya' => $kegiatan_lainnya,
+            'viewsCount'       => $kegiatan->views_count, 
+        ]);
     }
 
     public function getByBidang($bidang_id)
@@ -284,6 +305,7 @@ class HomeController extends Controller
                     $q->limit(1); // Ambil hanya 1 foto
                 }
             ])
+            ->withCount('views')
             ->get();
 
         return response()->json($kegiatans);
@@ -299,6 +321,7 @@ class HomeController extends Controller
                     $q->limit(1);
                 }
             ])
+            ->withCount('views')
             ->get();
 
         return response()->json($kegiatans);

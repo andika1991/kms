@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -37,26 +38,44 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    public function updatePhoto(Request $request): RedirectResponse
+    public function updatePhoto(Request $request)
     {
         $request->validate([
-            'photo_profil' => ['nullable', 'image', 'max:2048'], // max 2MB
+            'photo_profil' => ['required', 'image', 'max:2048'],
         ]);
 
         $user = $request->user();
-        if ($request->hasFile('photo_profil')) {
-            // Hapus file lama jika ada
-            if ($user->photo_profil && \Storage::disk('public')->exists($user->photo_profil)) {
-                \Storage::disk('public')->delete($user->photo_profil);
-            }
-            $file = $request->file('photo_profil');
-            $path = $file->store('profile_photos', 'public');
-            $user->photo_profil = $path;
-            $user->save();
-        }
-        return back()->with('status', 'profile-photo-updated');
-    }
+        $hadPhoto = filled($user->photo_profil); // ada foto sebelumnya?
 
+        // Hapus yang lama jika ada
+        if ($hadPhoto && Storage::disk('public')->exists($user->photo_profil)) {
+            Storage::disk('public')->delete($user->photo_profil);
+        }
+
+        // Simpan yang baru
+        $path = $request->file('photo_profil')->store('profile_photos', 'public');
+        $user->photo_profil = $path;
+        $user->save();
+
+        // URL publik + info untuk cache busting
+        $url = Storage::disk('public')->url($path);
+        $status = $hadPhoto ? 'updated' : 'added';
+
+        // Balas JSON untuk request AJAX/fetch
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status'     => $status,            // 'added' | 'updated'
+                'url'        => $url,
+                'updated_at' => optional($user->updated_at)->timestamp,
+            ]);
+        }
+
+        // Fallback bila form disubmit biasa
+        return back()->with(
+            'status',
+            $status === 'added' ? 'profile-photo-added' : 'profile-photo-updated'
+        );
+    }
     /**
      * Delete the user's account.
      */

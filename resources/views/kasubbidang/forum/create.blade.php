@@ -10,7 +10,7 @@ $tanggal = $carbon->format('l, d F Y');
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full flex flex-col">
         <!-- HEADER -->
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Forum Diskusi</h2>
@@ -140,7 +140,7 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="flex gap-3 mt-2">
                     <button type="submit"
                         class="flex-1 px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
-                        Simpan
+                        Tambah
                     </button>
                     <a href="{{ route('kasubbidang.forum.index') }}"
                         class="flex-1 px-6 py-3 rounded-xl bg-[#ad3a2c] hover:bg-[#992b1e] text-white font-semibold shadow transition text-base text-center">

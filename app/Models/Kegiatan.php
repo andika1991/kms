@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Kegiatan extends Model
 {
     use HasFactory;
+
     protected $table = 'kegiatan';
 
     protected $fillable = [
@@ -37,15 +38,20 @@ class Kegiatan extends Model
         return $this->belongsTo(User::class);
     }
 
-  public function bidang()
-{
-    return $this->belongsTo(Bidang::class);
-}
+    public function bidang()
+    {
+        return $this->belongsTo(Bidang::class);
+    }
 
   
-public function fotokegiatan()
-{
-    return $this->hasMany(FotoKegiatan::class, 'kegiatan_id');
-}
+    public function fotokegiatan()
+    {
+        return $this->hasMany(FotoKegiatan::class, 'kegiatan_id');
+    }
+
+    public function views()
+    {
+        return $this->hasMany(KegiatanView::class);
+    }
 
 }

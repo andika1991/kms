@@ -4,178 +4,156 @@ $carbon = Carbon::parse($dokumen->created_at)->locale('id');
 $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 $viewCount = $dokumen->views_count ?? 0;
-
 @endphp
 
 @section('title', 'View Dokumen Kasubbidang')
 
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-12">
+
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <header class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen</h2>
-                    <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
+                    <p class="text-gray-500 text-sm mt-1">{{ $tanggal }}</p>
                 </div>
+
                 <div class="flex items-center gap-4 w-full sm:w-auto">
-                    {{-- Search Bar --}}
-                    <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
-                        <input type="text" placeholder="Cari..."
-                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
+                    {{-- Search --}}
+                    <label class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                        <input type="text" placeholder="Cari…"
+                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fa fa-search"></i>
                         </span>
-                    </div>
-                    {{-- Dropdown Profile --}}
-                    <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open"
-                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
+                    </label>
+
+                    {{-- Profile --}}
+                    <div x-data="{ open:false }" class="relative">
+                        <button @click="open=!open"
+                            class="w-10 h-10 grid place-items-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
                             title="Profile">
                             <i class="fa-solid fa-user"></i>
                         </button>
-                        <div x-show="open" @click.away="open = false"
-                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition>
-                            <div class="py-1">
-                                <a href="{{ route('profile.edit') }}"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
-                                        Out</button>
-                                </form>
-                            </div>
-                        </div>
+                        <nav x-show="open" @click.away="open=false" x-transition
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20"
+                            style="display:none;">
+                            <a href="{{ route('profile.edit') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                    Out</button>
+                            </form>
+                        </nav>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        {{-- KONTEN DOKUMEN --}}
-        <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
-            {{-- Bagian Kiri --}}
-            <section class="xl:col-span-8 w-full">
-                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 flex flex-col gap-5">
+        {{-- BODY --}}
+        <main class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
 
-                    {{-- Thumbnail atau Preview Dokumen --}}
-                    @if($dokumen->thumbnail &&
-                    \Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->thumbnail))
-                    <img src="{{ asset('storage/'.$dokumen->thumbnail) }}" alt="Thumbnail {{ $dokumen->nama_dokumen }}"
-                        class="w-full h-auto max-h-[480px] object-contain rounded-xl border mb-4" />
-                    @elseif($dokumen->path_dokumen)
-                    @php
-                    $ext = strtolower(\Illuminate\Support\Str::afterLast($dokumen->path_dokumen, '.'));
-                    @endphp
-                    @if(in_array($ext, ['jpg','jpeg','png','webp','gif','bmp']))
-                    <img src="{{ asset('storage/'.$dokumen->path_dokumen) }}" alt="Dokumen Gambar"
-                        class="w-full h-auto max-h-[480px] object-contain rounded-xl border mb-4" />
-                    @elseif($ext == 'pdf')
-                    <iframe src="{{ asset('storage/'.$dokumen->path_dokumen) }}" width="100%" height="480"
-                        class="rounded-xl border mb-4"></iframe>
-                    @else
-                    <div class="flex justify-center items-center h-64 bg-gray-50 rounded-xl border mb-4">
-                        <i class="fa-solid fa-file text-7xl text-gray-400"></i>
-                    </div>
-                    @endif
-                    @endif
+            {{-- MAIN CARD --}}
+            <section class="xl:col-span-8">
+                <article class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    {{-- Title --}}
+                    <h1 class="text-2xl md:text-[26px] font-bold text-gray-900">{{ $dokumen->nama_dokumen }}</h1>
 
-                    {{-- Judul --}}
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 leading-tight">
-                        {{ $dokumen->nama_dokumen }}
-                    </h1>
-
-                    <div class="flex justify-between items-start gap-4">
-                        {{-- Info Kiri: Kategori & Tanggal --}}
-                        <div class="flex flex-col gap-2 text-sm text-gray-600">
+                    {{-- Meta row --}}
+                    <div class="mt-2 flex items-start justify-between gap-4">
+                        <div class="text-gray-600 text-sm space-y-1">
                             <p>
                                 <span class="font-semibold">Kategori:</span>
-                                <span
-                                    class="text-blue-700">{{ $dokumen->kategoriDokumen->nama_kategoridokumen ?? '-' }}</span>
+                                <span class="text-gray-800">
+                                    {{ $dokumen->kategoriDokumen->nama_kategoridokumen ?? '-' }}
+                                </span>
                             </p>
-                            <p>
-                                <span class="font-semibold">Diunggah:</span>
-                                <span>{{ $tanggal }}</span>
-                            </p>
+                            <p>{{ $tanggal }}</p>
                         </div>
-                        {{-- Info Kanan: Views & Tombol Bagikan --}}
-                        <div class="flex flex-col items-end gap-3">
-                            <div class="flex items-center gap-2 text-gray-500">
-                                <i class="fas fa-eye"></i>
-                                <span>{{ $viewCount }}</span>
-                            </div>
+
+                        <div class="flex items-center gap-3">
+                            <span class="flex items-center gap-1 text-gray-600">
+                                <i class="fa-solid fa-eye"></i><span class="text-sm">{{ $viewCount }}</span>
+                            </span>
                             @if(Auth::id() === $dokumen->pengguna_id)
                             <a href="{{ route('aksesdokumen.bagikan', $dokumen->id) }}"
-                                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition duration-300 text-xs">
-                                <i class="fas fa-share-alt"></i>
-                                <span>Bagikan Dokumen</span>
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs md:text-sm font-semibold transition">
+                                <i class="fa-solid fa-share-nodes"></i> Bagikan Dokumen
                             </a>
                             @endif
                         </div>
                     </div>
 
-                    {{-- PERBAIKAN: Menambahkan label "Deskripsi" --}}
-                    <div class="mt-4">
-                        <h3 class="font-bold text-lg text-gray-900 mb-2">Deskripsi</h3>
-                        <div class="prose max-w-none prose-p:my-2 text-gray-800 text-base leading-relaxed">
-                            {!! nl2br(e($dokumen->deskripsi)) !!}
-                        </div>
-                    </div>
+                    {{-- Pemisah: dipertebal --}}
+                    <div class="my-4 border-t-2 border-gray-300"></div>
 
-                    {{-- File Dokumen Download --}}
-                    @if($dokumen->path_dokumen &&
-                    \Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->path_dokumen))
-                    <div class="mt-6 pt-6 border-t">
-                        <a href="{{ asset('storage/' . $dokumen->path_dokumen) }}"
-                            class="flex items-center gap-3 rounded-lg bg-gray-100 p-3 hover:bg-blue-50 transition group w-max"
-                            target="_blank" download>
-                            <i class="fa-solid fa-download text-2xl text-green-600 group-hover:text-green-700"></i>
-                            <span class="text-sm font-medium text-blue-700 underline">
-                                {{ \Illuminate\Support\Str::afterLast($dokumen->path_dokumen, '/') }}
-                            </span>
-                        </a>
+                    {{-- Content split: preview (left) + description (right) --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Preview --}}
+                        <figure
+                            class="rounded-xl border-2 border-gray-200 bg-gray-50 p-3 grid place-items-center overflow-hidden">
+                            @php
+                            $ext = strtolower(\Illuminate\Support\Str::afterLast($dokumen->path_dokumen ?? '', '.'));
+                            @endphp
+
+                            @if($dokumen->thumbnail &&
+                            \Illuminate\Support\Facades\Storage::disk('public')->exists($dokumen->thumbnail))
+                            <img src="{{ asset('storage/'.$dokumen->thumbnail) }}"
+                                alt="Thumbnail {{ $dokumen->nama_dokumen }}"
+                                class="w-full h-auto max-h-[520px] object-contain rounded-lg">
+                            @elseif($ext && in_array($ext, ['jpg','jpeg','png','webp','gif','bmp']))
+                            <img src="{{ asset('storage/'.$dokumen->path_dokumen) }}" alt="Pratinjau dokumen"
+                                class="w-full h-auto max-h-[520px] object-contain rounded-lg">
+                            @elseif($ext === 'pdf')
+                            <iframe src="{{ asset('storage/'.$dokumen->path_dokumen) }}"
+                                class="w-full h-[520px] rounded-lg border-2 border-gray-200"
+                                title="Dokumen PDF"></iframe>
+                            @else
+                            <div class="text-center text-gray-400">
+                                <i class="fa-solid fa-file text-6xl"></i>
+                                <p class="mt-2 text-sm">Pratinjau tidak tersedia</p>
+                            </div>
+                            @endif
+                        </figure>
+
+                        {{-- Description --}}
+                        <section>
+                            <h3 class="font-semibold text-gray-900 mb-2">Deskripsi</h3>
+                            <div class="text-gray-800 leading-relaxed text-sm md:text-base">
+                                {!! nl2br(e($dokumen->deskripsi)) !!}
+                            </div>
+
+                            {{-- HAPUS link/URL unduhan karena sudah ada preview --}}
+                            {{-- (Jika suatu saat ingin mengembalikan tombol unduh, letakkan di sini) --}}
+                        </section>
                     </div>
-                    @endif
-                </div>
+                </article>
             </section>
 
-            {{-- Sidebar --}}
-            <aside class="xl:col-span-4 w-full flex flex-col gap-8 mt-8 xl:mt-0">
-                <div
-                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
-                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
-                    <div>
-                        <p class="font-bold text-lg leading-tight">
-                            {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}
-                        </p>
-                    </div>
-                </div>
-                {{-- Tombol Aksi --}}
-                <div class="flex flex-col gap-4">
-                    <a href="{{ route('kasubbidang.manajemendokumen.edit', $dokumen->id) }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Edit Dokumen</span>
-                    </a>
-                    <form id="delete-dokumen-form"
-                        action="{{ route('kasubbidang.manajemendokumen.destroy', $dokumen->id) }}" method="POST"
-                        onsubmit="return confirm('Yakin ingin menghapus dokumen ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
-                            <i class="fa-solid fa-trash"></i>
-                            <span>Hapus Dokumen</span>
-                        </button>
-                    </form>
-                    <a href="{{ route('kasubbidang.manajemendokumen.index') }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold shadow-sm transition text-base text-center">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        <span>Kembali ke Daftar</span>
-                    </a>
-                </div>
+            {{-- SIDEBAR --}}
+            <aside class="xl:col-span-4 space-y-6">
+                <section
+                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 text-center">
+                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon"
+                        class="h-16 w-16 mx-auto mb-3">
+                    <p class="font-bold">Bidang {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
+                </section>
+
+                <a href="{{ route('kasubbidang.manajemendokumen.edit', $dokumen->id) }}"
+                    class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#356ea7] hover:bg-[#295480] text-white font-semibold shadow-sm transition">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Dokumen
+                </a>
+
+                {{-- Tambahan: Kembali ke daftar --}}
+                <a href="{{ route('kasubbidang.manajemendokumen.index') }}"
+                    class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold shadow-sm transition">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar
+                </a>
             </aside>
-        </div>
+        </main>
     </div>
 
     {{-- FOOTER --}}
@@ -187,5 +165,4 @@ $viewCount = $dokumen->views_count ?? 0;
             </div>
         </footer>
     </x-slot>
-
 </x-app-layout>

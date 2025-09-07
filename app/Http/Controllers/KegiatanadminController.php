@@ -7,13 +7,24 @@ use App\Models\FotoKegiatan;
 use App\Models\Subbidang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB; 
 
 class KegiatanadminController extends Controller
 {
     // Tampilkan semua kegiatan (dari semua subbidang)
     public function index(Request $request)
     {
-        $query = Kegiatan::with(['subbidang', 'pengguna', 'fotokegiatan']);
+        $query = Kegiatan::with(['subbidang', 'pengguna', 'fotokegiatan'])
+            ->withCount('views') // -> views_count
+            ->withCount([
+                'views as views_today' => function ($q) {
+                    $q->whereDate('created_at', now()->toDateString());
+                },
+                'views as views_unique' => function ($q) {
+                    // hitung unique view berdasarkan ip
+                    $q->select(DB::raw('COUNT(DISTINCT ip)'));
+                },
+            ]);
 
         if ($request->filled('subbidang_id')) {
             $query->where('subbidang_id', $request->subbidang_id);
@@ -32,7 +43,19 @@ class KegiatanadminController extends Controller
     // Lihat detail kegiatan
     public function show($id)
     {
-        $kegiatan = Kegiatan::with('fotokegiatan')->findOrFail($id);
+        $kegiatan = Kegiatan::with('fotokegiatan')
+            // ===== VIEWS COUNTS UNTUK IKON 👁️ =====
+            ->withCount('views') // -> views_count
+            ->withCount([
+                'views as views_today' => function ($q) {
+                    $q->whereDate('created_at', now()->toDateString());
+                },
+                'views as views_unique' => function ($q) {
+                    $q->select(DB::raw('COUNT(DISTINCT ip)'));
+                },
+            ])
+            ->findOrFail($id);
+
         return view('admin.kegiatan.show', compact('kegiatan'));
     }
 
@@ -98,11 +121,10 @@ class KegiatanadminController extends Controller
     public function create(Request $request)
     {
         $subbidangId = $request->input('subbidang_id');
-        $subbidangList = Subbidang::with('bidang')->get(); // jika kamu ingin menampilkan pilihan
+        $subbidangList = Subbidang::with('bidang')->get();
 
         return view('admin.kegiatan.create', compact('subbidangId', 'subbidangList'));
     }
-
 
     // Simpan kegiatan baru
     public function store(Request $request)
@@ -136,5 +158,4 @@ class KegiatanadminController extends Controller
 
         return redirect()->route('admin.kegiatan.index')->with('success', 'Kegiatan berhasil ditambahkan.');
     }
-
 }

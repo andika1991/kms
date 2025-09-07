@@ -234,11 +234,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifikasi/{id}/dibaca', [NotifikasiController::class, 'tandaiSudahDibaca'])->name('notifikasi.dibaca');
     Route::get('/aksesdokumen/{id}/bagikan', [AksesDokumenController::class, 'bagikanForm'])->name('aksesdokumen.bagikan');
     Route::post('/aksesdokumen/{id}/bagikan', [AksesDokumenController::class, 'prosesBagikan'])->name('aksesdokumen.bagikan.proses');
+    
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::patch('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.uploadPhoto');
+    // ⇩ UPLOAD FOTO PROFIL
+    Route::patch('/profile/photo', [ProfileController::class, 'updatePhoto'])
+        ->name('profile.uploadPhoto');
+});
 
 require __DIR__.'/auth.php';

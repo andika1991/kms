@@ -95,8 +95,9 @@ $viewers = $viewers ?? collect(); // opsional untuk menampilkan nama viewer
 
                         <div class="flex flex-col items-end gap-2">
                             <div class="flex items-center gap-1 text-gray-500 text-sm">
-                                <span class="font-semibold">{{ $dokumen->views_count }}</span>
-                                <i class="fa-regular fa-eye"></i>
+                                <span class="inline-flex items-center gap-1">
+                                    <i class="fas fa-eye"></i> {{ number_format($dokumen->views_count) }}
+                                </span>
                             </div>
 
                             @if($dokumen->pengguna_id == auth()->id())
@@ -227,7 +228,7 @@ $viewers = $viewers ?? collect(); // opsional untuk menampilkan nama viewer
                 buttonsStyling: false
             }).then((r) => {
                 if (r.isConfirmed) {
-                    window.location.href = @json(route('aksesdokumen.bagikan', $dokumen -> id));
+                    window.location.href = @json(route('aksesdokumen.bagikan', $dokumen - > id));
                 }
             });
         });

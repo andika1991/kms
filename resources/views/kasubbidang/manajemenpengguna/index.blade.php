@@ -136,7 +136,7 @@ $tanggal = $carbon->format('l, d F Y');
                         <div>
                             <p class="font-bold text-lg leading-tight mb-2">
                                 {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
-                            <p class="text-xs">Manajemen akses pengguna, verifikasi akun, dan kontrol aksi subbidang di sini.</p>
+                            <p class="text-xs">Manajemen pengguna dan verifikasi akun subbidang di sini.</p>
                         </div>
                     </div>
                 </aside>

@@ -10,7 +10,7 @@ $tanggal = $carbon->format('l, d F Y');
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-12">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <header class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Kegiatan Kasubbidang</h2>
@@ -48,7 +48,7 @@ $tanggal = $carbon->format('l, d F Y');
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
         {{-- MAIN CONTENT --}}
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">

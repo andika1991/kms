@@ -87,9 +87,9 @@ $tanggal = $carbon->format('l, d F Y');
                             <span>{{ $tanggal }}</span>
                         </div>
                         <span class="hidden sm:inline">|</span>
-                        <div class="flex items-center gap-1">
-                            <i class="fa fa-eye"></i><span>{{ $artikel->views ?? 0 }}</span>
-                        </div>
+                        <span class="inline-flex items-center gap-1">
+                            <i class="fas fa-eye"></i> {{ number_format($artikel->views_total) }}
+                        </span>
                     </div>
 
                     {{-- Isi --}}
@@ -124,7 +124,8 @@ $tanggal = $carbon->format('l, d F Y');
 
                 {{-- Aksi (EDIT/HAPUS) --}}
                 <div class="flex flex-col gap-4">
-                    <a href="{{ route('magang.berbagipengetahuan.edit', ['berbagipengetahuan' => $artikel->id]) }}" class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700
+                    <a href="{{ route('magang.berbagipengetahuan.edit', ['berbagipengetahuan' => $artikel->id]) }}"
+                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700
                 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-pen-to-square"></i>
                         <span>Edit Artikel</span>
@@ -137,8 +138,8 @@ $tanggal = $carbon->format('l, d F Y');
                     </button>
 
                     <form id="delete-artikel-form"
-                        action="{{ route('magang.berbagipengetahuan.destroy', ['berbagipengetahuan' => $artikel->id]) }}" method="POST"
-                        class="hidden">
+                        action="{{ route('magang.berbagipengetahuan.destroy', ['berbagipengetahuan' => $artikel->id]) }}"
+                        method="POST" class="hidden">
                         @csrf
                         @method('DELETE')
                     </form>

@@ -93,7 +93,9 @@ $viewerCount = isset($viewers) ? $viewers->count() : 0;
 
                         <div class="flex flex-col items-end gap-2">
                             <div class="flex items-center gap-1 text-gray-500 text-sm">
-                                <span class="font-semibold">{{ $viewerCount }}</span><i class="fa-regular fa-eye"></i>
+                                <span class="inline-flex items-center gap-1">
+                                    <i class="fas fa-eye"></i> {{ number_format($dokumen->views_count) }}
+                                </span>
                             </div>
                             @if($dokumen->pengguna_id == auth()->id())
                             <button id="btn-bagikan"
@@ -209,7 +211,8 @@ $viewerCount = isset($viewers) ? $viewers->count() : 0;
                 buttonsStyling: false
             }).then(r => {
                 if (r.isConfirmed) window.location.href = @json(route('aksesdokumen.bagikan', $dokumen -
-                    > id));
+                    >
+                    id));
             });
         });
     }

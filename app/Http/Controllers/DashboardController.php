@@ -261,6 +261,39 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // === Dokumen Teratas berdasar views (hanya dokumen tim subbidang + non-rahasia) ===
+        $viewsAgg = DB::table('document_views')
+            ->select('dokumen_id', DB::raw('COUNT(*) as views'))
+            ->groupBy('dokumen_id');
+
+        $dokumenTeratas = Dokumen::query()
+            ->whereIn('pengguna_id', $penggunaIds)
+            ->whereHas('kategoriDokumen', function ($q) {
+                $q->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
+            })
+            ->leftJoinSub($viewsAgg, 'dv', function ($join) {
+                $join->on('dokumen.id', '=', 'dv.dokumen_id');
+            })
+            ->orderByDesc(DB::raw('COALESCE(dv.views,0)'))
+            ->limit(5)
+            ->get([
+                'dokumen.id',
+                'dokumen.nama_dokumen',
+                DB::raw('COALESCE(dv.views,0) as total_views'),
+            ]);
+
+        // fallback jika belum ada view sama sekali
+        if ($dokumenTeratas->isEmpty()) {
+            $dokumenTeratas = Dokumen::whereIn('pengguna_id', $penggunaIds)
+                ->whereHas('kategoriDokumen', function ($q) {
+                    $q->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
+                })
+                ->latest()
+                ->limit(5)
+                ->get(['id','nama_dokumen'])
+                ->map(function ($d) { $d->total_views = 0; return $d; });
+        }
+
         return view('kasubbidang.dashboard', compact(
             'jumlahKegiatan',
             'jumlahDokumen',
@@ -269,7 +302,8 @@ class DashboardController extends Controller
             'bulan',
             'dataDokumen',
             'dataArtikel',
-            'dokumenTerbaru'
+            'dokumenTerbaru',
+            'dokumenTeratas'
         ));
     }
 

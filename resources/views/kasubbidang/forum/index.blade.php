@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <x-app-layout>
     <div class="bg-[#eaf5ff] min-h-screen w-full">
         <!-- HEADER -->
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Forum Diskusi</h2>
