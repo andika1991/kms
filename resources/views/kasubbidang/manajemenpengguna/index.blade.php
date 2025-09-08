@@ -25,11 +25,44 @@ $tanggal = $carbon->format('l, d F Y');
 
     <div class="w-full min-h-screen bg-[#eaf5ff]">
         <!-- HEADER -->
-        <div class="p-4 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Pengguna Kasubbidang</h2>
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
+                </div>
+                <div class="flex items-center gap-4 w-full sm:w-auto">
+                    <!-- SEARCH BAR -->
+                    <form action="{{ route('kasubbidang.manajemenpengguna.index') }}" method="GET"
+                        class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                        <input type="text" name="search" placeholder="Cari pengguna..."
+                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
+                            value="{{ request('search') }}">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i class="fa fa-search"></i>
+                        </span>
+                    </form>
+                    <!-- PROFILE DROPDOWN -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
+                            title="Profile">
+                            <i class="fa-solid fa-user"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
+                            style="display: none;">
+                            <div class="py-1">
+                                <a href="{{ route('profile.edit') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log Out</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -39,13 +72,10 @@ $tanggal = $carbon->format('l, d F Y');
             <div class="w-full grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-8 max-w-[1800px] mx-auto">
                 <!-- KOLOM UTAMA (TABLE USER) -->
                 <section class="xl:col-span-8 w-full">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="font-bold text-lg text-[#2171b8]">Daftar Pengguna</span>
-                    </div>
                     <div class="overflow-x-auto rounded-2xl">
                         <table class="min-w-full bg-white rounded-2xl shadow border mb-2">
                             <thead>
-                                <tr class="text-left bg-gray-100">
+                                <tr class="text-left bg-[#2262A9] text-white">
                                     <th class="px-6 py-4 text-base font-semibold">No</th>
                                     <th class="px-6 py-4 text-base font-semibold">Nama</th>
                                     <th class="px-6 py-4 text-base font-semibold">Email</th>
@@ -106,7 +136,7 @@ $tanggal = $carbon->format('l, d F Y');
                         <div>
                             <p class="font-bold text-lg leading-tight mb-2">
                                 {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
-                            <p class="text-xs">Manajemen akses pengguna, verifikasi akun, dan kontrol keamanan subbidang di sini.</p>
+                            <p class="text-xs">Manajemen pengguna dan verifikasi akun subbidang di sini.</p>
                         </div>
                     </div>
                 </aside>

@@ -9,11 +9,12 @@ class DocumentView extends Model
 {
     use HasFactory;
 
+    protected $table = 'document_views'; // tegasin
     protected $fillable = ['dokumen_id', 'user_id', 'viewed_at'];
 
     public function pengguna()
     {
-        // Pastikan model User mengarah ke tabel pengguna!
+        // Model User-mu sudah mengarah ke tabel `pengguna`
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 

@@ -5,12 +5,14 @@ $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 @endphp
 
+@section('title', 'Tambah Forum Kepala Bagian')
+
 <x-app-layout>
     {{-- Wrapper utama untuk semua konten di kanan sidebar --}}
     <div class="w-full bg-[#eaf5ff]">
 
         {{-- HEADER KONTEN --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Forum Diskusi</h2>
@@ -49,7 +51,7 @@ $tanggal = $carbon->format('l, d F Y');
         </div>
 
         {{-- BODY KONTEN GRID --}}
-        <form method="POST" action="{{ route('kepalabagian.forum.store') }}"
+        <form id="form-forum-kb" method="POST" action="{{ route('kepalabagian.forum.store') }}"
             class="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
             @csrf
 
@@ -135,18 +137,15 @@ $tanggal = $carbon->format('l, d F Y');
                         </p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
-                    {{-- Tombol Simpan --}}
+                <div class="flex gap-3 mt-2">
                     <button type="submit"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-save"></i>
-                        <span>Simpan</span>
+                        class="flex-1 px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
+                        Tambah
                     </button>
-                    {{-- Tombol Batalkan --}}
-                    <a href="{{ url()->previous() }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-times"></i>
-                        <span>Batalkan</span>
+
+                    <a href="{{ route('kepalabagian.forum.index') }}"
+                        class="btn-batal flex-1 px-6 py-3 rounded-xl bg-[#ad3a2c] hover:bg-[#992b1e] text-white font-semibold shadow transition text-base text-center">
+                        Batalkan
                     </a>
                 </div>
             </aside>
@@ -155,6 +154,7 @@ $tanggal = $carbon->format('l, d F Y');
 
     {{-- Script untuk TomSelect dan Toggle --}}
     @push('scripts')
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Inisialisasi TomSelect
@@ -183,8 +183,84 @@ $tanggal = $carbon->format('l, d F Y');
         isPrivateCheckbox.addEventListener('change', toggleFields);
         // Jalankan saat halaman dimuat untuk memeriksa kondisi awal
         toggleFields();
+
     });
     </script>
+
+    {{-- SweetAlert2 (latest) --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.23.0/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('form-forum-kb');
+        const btnBatal = document.querySelector('.btn-batal');
+
+        // ---- Modal SIMPAN (ikon check - tombol Ya / Tidak) ----
+        let allowSubmit = false;
+        form.addEventListener('submit', (e) => {
+            if (allowSubmit) return; // biarkan submit kedua
+            e.preventDefault();
+
+            const nama = (form.querySelector('#nama_grup')?.value || '').trim();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Apakah Anda Yakin',
+                html: 'perubahan akan disimpan' + (nama ? `<br><b>${nama}</b>` : ''),
+                showCancelButton: true,
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl p-8',
+                    title: 'mb-2',
+                    icon: 'mb-2',
+                    actions: 'flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full',
+                    confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-2 rounded-lg w-full sm:w-auto',
+                    cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-2 rounded-lg w-full sm:w-auto',
+                }
+            }).then((r) => {
+                if (r.isConfirmed) {
+                    allowSubmit = true;
+                    form.requestSubmit ? form.requestSubmit() : form.submit();
+                }
+            });
+        });
+
+        // ---- Modal BATAL (ikon warning - tombol Batal / Yakin) ----
+        if (btnBatal) {
+            btnBatal.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = e.currentTarget.getAttribute('href');
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Apakah Anda Yakin',
+                    html: 'perubahan tidak akan disimpan',
+                    showCancelButton: true,
+                    // urutan & label sesuai Figma
+                    confirmButtonText: 'Yakin',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'rounded-2xl p-8',
+                        title: 'mb-2',
+                        icon: 'mb-2',
+                        actions: 'flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full',
+                        // keduanya bernuansa biru sesuai mockup
+                        confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-2 rounded-lg w-full sm:w-auto',
+                        cancelButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-2 rounded-lg w-full sm:w-auto',
+                    }
+                }).then((r) => {
+                    if (r.isConfirmed) window.location.href = target;
+                });
+            });
+        }
+    });
+    </script>
+
     <style>
     /* Styling untuk TomSelect agar sesuai dengan tema */
     .ts-control {

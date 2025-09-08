@@ -3,6 +3,7 @@ use Carbon\Carbon;
 $carbon = Carbon::now()->locale('id');
 $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
+
 $bidangList = [
 ['label' => 'Sekretariat', 'icon' => 'fa-solid fa-building-user'],
 ['label' => 'PLIP', 'icon' => 'fa-solid fa-landmark'],
@@ -27,7 +28,7 @@ $bidangList = [
                 <div class="flex items-center gap-4 w-full sm:w-auto">
                     {{-- Search Bar --}}
                     <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
-                        <input type="text" placeholder="Cari..."
+                        <input type="text" placeholder="Cari Kategori..."
                             class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fa fa-search"></i>
@@ -81,24 +82,44 @@ $bidangList = [
                     <div class="p-4">
                         @if ($kategori->count())
                         <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-gray-600">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <table class="w-full text-sm text-left text-gray-700">
+                                <thead class="text-xs uppercase bg-gray-50">
                                     <tr>
-                                        <th scope="col" class="py-3 px-6">Judul</th>
-                                        <th scope="col" class="py-3 px-6">Tanggal</th>
-                                        <th scope="col" class="py-3 px-6">Keterangan</th>
-                                        <th scope="col" class="py-3 px-6 text-center">Aksi</th>
+                                        <th class="py-3 px-6">Nama Kategori</th>
+                                        <th class="py-3 px-6">Diperbarui</th>
+                                        <th class="py-3 px-6">Deskripsi</th>
+                                        <th class="py-3 px-6 text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($kategori as $item)
                                     <tr class="bg-white border-b hover:bg-gray-50 transition">
-                                        <td class="py-4 px-6 font-medium text-gray-900">
-                                            {{ $item->judul ?? 'Renja Diskominfotik 2025' }}</td>
-                                        <td class="py-4 px-6">{{ $item->tanggal ?? '2025/01/01' }}</td>
-                                        <td class="py-4 px-6">{{ $item->keterangan ?? 'Dokumen terbaru 2025' }}</td>
+                                        <td class="py-4 px-6 font-semibold text-gray-900">
+                                            {{ $item->nama_kategoripengetahuan }}
+                                        </td>
+
+                                        <td class="py-4 px-6 whitespace-nowrap">
+                                            {{ optional($item->updated_at ?? $item->created_at)->translatedFormat('d M Y') }}
+                                        </td>
+
+                                        <td class="py-4 px-6">
+                                            <div class="max-w-[520px] line-clamp-2">
+                                                {{ $item->deskripsi ?? '—' }}
+                                            </div>
+                                        </td>
+
                                         <td class="py-4 px-6 text-center">
-                                            <a href="#" class="font-medium text-blue-600 hover:underline">Edit</a>
+                                            <form method="POST"
+                                                action="{{ route('kepalabagian.kategoripengetahuan.destroy', $item->id) }}"
+                                                class="inline delete-kategori">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                                               bg-rose-500 hover:bg-rose-600 text-white shadow-sm">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                    <span class="hidden sm:inline">Hapus</span>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -151,4 +172,33 @@ $bidangList = [
             </div>
         </footer>
     </x-slot>
+
+    {{-- SweetAlert2 konfirmasi hapus --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.23.2/dist/sweetalert2.all.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('form.delete-kategori').forEach((form) => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Hapus kategori ini?',
+                    html: 'Tindakan ini tidak dapat dibatalkan.',
+                    showCancelButton: true,
+                    reverseButtons: true,
+                    buttonsStyling: false,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        popup: 'rounded-2xl p-8',
+                        confirmButton: 'bg-rose-600 hover:bg-rose-700 text-white font-semibold px-8 py-2 rounded-lg mr-2',
+                        cancelButton: 'bg-gray-600 hover:bg-gray-700 text-white font-semibold px-8 py-2 rounded-lg'
+                    }
+                }).then((r) => {
+                    if (r.isConfirmed) form.submit();
+                });
+            });
+        });
+    });
+    </script>
 </x-app-layout>

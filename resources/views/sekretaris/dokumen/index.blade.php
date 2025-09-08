@@ -11,11 +11,11 @@ $tanggal = $carbon->format('l, d F Y');
 @if (session('success'))
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     Swal.fire({
         position: 'top',
         icon: 'success',
-        title: '{{ session("success") }}',
+        title: @json(session('success')),
         showConfirmButton: false,
         background: '#f0fff4',
         customClass: {
@@ -33,11 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
 @if (session('deleted'))
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     Swal.fire({
         position: 'top',
         icon: 'error',
-        title: '{{ session("deleted") }}',
+        title: @json(session('deleted')),
         showConfirmButton: false,
         background: '#fff0f0',
         customClass: {
@@ -52,68 +52,64 @@ document.addEventListener('DOMContentLoaded', function() {
 @endif
 
 <x-app-layout>
-    <div class="w-full min-h-screen bg-[#eaf5ff]">
+    <div class="min-h-screen bg-[#eaf5ff]">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <header class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen</h2>
-                    <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
+                    <p class="text-gray-500 text-sm mt-1">{{ $tanggal }}</p>
                 </div>
 
                 <div class="flex items-center gap-4 w-full sm:w-auto">
                     {{-- Search Bar --}}
                     <form method="GET" action="{{ route('sekretaris.manajemendokumen.index') }}"
-                        class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                        class="relative flex-1 sm:flex-none sm:w-64">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari nama dokumen..."
-                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
+                            class="w-full rounded-full border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fa fa-search"></i>
                         </span>
                     </form>
 
                     {{-- Dropdown Profile --}}
-                    <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open"
-                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
+                    <div x-data="{ open:false }" class="relative">
+                        <button @click="open=!open"
+                            class="w-10 h-10 grid place-items-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
                             title="Profile">
                             <i class="fa-solid fa-user"></i>
                         </button>
-                        <div x-show="open" @click.away="open = false"
-                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition>
-                            <div class="py-1">
-                                <a href="{{ route('profile.edit') }}"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
-                                        Out</button>
-                                </form>
-                            </div>
-                        </div>
+                        <nav x-show="open" @click.outside="open=false" x-transition
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20"
+                            style="display:none;">
+                            <a href="{{ route('profile.edit') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <form method="POST" action="{{ route('logout') }}" class="border-t">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                    Out</button>
+                            </form>
+                        </nav>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
         {{-- BODY GRID --}}
-        <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 max-w-[1400px] mx-auto">
-            {{-- KOLOM UTAMA (TABEL DOKUMEN) --}}
-            <section class="xl:col-span-8 w-full">
-                {{-- Judul seksi --}}
-                <div class="mb-3 xl:-mt-2 2xl:-mt-4">
-                    <span class="font-bold text-lg text-[#2171b8]">Daftar Dokumen</span>
-                </div>
+        <main class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 max-w-[1400px] mx-auto">
+            {{-- KOLOM UTAMA --}}
+            <section class="xl:col-span-8">
+                <h3 class="mb-3 xl:-mt-2 2xl:-mt-4 font-bold text-lg text-[#2171b8]">Daftar Dokumen</h3>
 
-                {{-- Notifikasi error --}}
                 @if(session('error'))
-                <div
+                <p
                     class="mb-6 px-6 py-4 rounded-lg bg-red-100 text-red-800 font-semibold shadow-md border border-red-300">
                     {{ session('error') }}
-                </div>
+                </p>
                 @endif
+
                 @if($errors->any())
                 <div
                     class="mb-6 px-6 py-4 rounded-lg bg-red-100 text-red-800 font-semibold shadow-md border border-red-300">
@@ -126,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 @endif
 
                 <div class="overflow-x-auto">
-                    {{-- Tombol pita: Dokumen Dibagikan --}}
+                    {{-- Pita: Dokumen Dibagikan --}}
                     <a href="{{ route('dokumen.dibagikan.ke.saya') }}"
                         class="min-w-full inline-flex items-center justify-center gap-2 px-6 py-3 mb-3 rounded-xl bg-[#2d74bb] hover:bg-[#1f5d97] text-white font-semibold shadow-sm transition whitespace-nowrap">
                         <i class="fa-solid fa-share-from-square"></i>
@@ -150,31 +146,31 @@ document.addEventListener('DOMContentLoaded', function() {
                             $extension = $item->path_dokumen ? strtolower(pathinfo($item->path_dokumen,
                             PATHINFO_EXTENSION)) : '';
                             $isImage = in_array($extension, ['jpg','jpeg','png','gif','bmp','webp']);
-                            $isSecret = ($item->kategoriDokumen && $item->kategoriDokumen->nama_kategoridokumen ==
+                            $isSecret = ($item->kategoriDokumen && $item->kategoriDokumen->nama_kategoridokumen ===
                             'Rahasia');
                             @endphp
                             <tr class="border-b border-gray-100 transition group hover:bg-[#f5f9ff] cursor-pointer"
                                 data-id="{{ $item->id }}" data-secret="{{ $isSecret ? '1' : '0' }}"
                                 data-url="{{ route('sekretaris.manajemendokumen.show', $item->id) }}"
                                 onclick="openDokumenRow(this)">
-                                {{-- Preview/File --}}
+                                {{-- Preview --}}
                                 <td class="px-6 py-4">
-                                    <div
-                                        class="w-20 h-14 flex items-center justify-center rounded-md overflow-hidden bg-gray-100 border">
+                                    <figure
+                                        class="w-20 h-14 grid place-items-center rounded-md overflow-hidden bg-gray-100 border">
                                         @if($isImage && $filePath)
                                         <img src="{{ $filePath }}" alt="Preview" class="w-full h-full object-cover" />
                                         @else
                                         <span class="material-icons text-red-600 text-3xl">picture_as_pdf</span>
                                         @endif
-                                    </div>
+                                    </figure>
                                 </td>
 
                                 {{-- Judul --}}
                                 <td class="px-6 py-4 align-top">
                                     <div class="font-medium text-gray-900">{{ $item->nama_dokumen }}</div>
-                                    <div class="text-xs text-gray-500 mt-1 line-clamp-1">
+                                    <p class="text-xs text-gray-500 mt-1 line-clamp-1">
                                         {{ \Illuminate\Support\Str::limit(strip_tags($item->deskripsi), 48) }}
-                                    </div>
+                                    </p>
                                 </td>
 
                                 {{-- Kategori --}}
@@ -188,26 +184,23 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <td class="px-6 py-4 align-top">
                                     <div class="flex items-center justify-center gap-2">
                                         @if ($isSecret)
-                                        {{-- tombol kunci opsional; klik baris juga membuka modal --}}
                                         <button onclick="event.stopPropagation(); showPasswordModal('{{ $item->id }}')"
-                                            class="w-9 h-9 flex items-center justify-center rounded bg-blue-100 hover:bg-blue-200 text-blue-600 transition"
+                                            class="w-9 h-9 grid place-items-center rounded bg-blue-100 hover:bg-blue-200 text-blue-600 transition"
                                             title="Lihat (Rahasia)">
                                             <i class="fa-solid fa-key text-lg"></i>
                                         </button>
                                         @endif
 
-                                        {{-- Edit --}}
                                         <a href="{{ route('sekretaris.manajemendokumen.edit', $item->id) }}"
                                             onclick="event.stopPropagation();"
-                                            class="w-9 h-9 flex items-center justify-center rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition"
+                                            class="w-9 h-9 grid place-items-center rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition"
                                             title="Edit">
                                             <i class="fa-solid fa-pen-to-square text-lg"></i>
                                         </a>
 
-                                        {{-- Hapus --}}
                                         <button type="button"
                                             onclick="event.stopPropagation(); hapusDokumen('{{ route('sekretaris.manajemendokumen.destroy', $item->id) }}')"
-                                            class="w-9 h-9 flex items-center justify-center rounded bg-red-100 hover:bg-red-200 text-red-600 transition"
+                                            class="w-9 h-9 grid place-items-center rounded bg-red-100 hover:bg-red-200 text-red-600 transition"
                                             title="Hapus">
                                             <i class="fa-solid fa-trash text-lg"></i>
                                         </button>
@@ -230,32 +223,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </section>
 
-            {{-- KOLOM SIDEBAR --}}
-            <aside class="xl:col-span-4 w-full flex flex-col gap-8 mt-8 xl:mt-0">
-                <div
-                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
-                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
-                    <div>
-                        <p class="font-bold text-lg leading-tight mb-2">
-                            {{ Auth::user()->role->nama_role ?? 'Sekretaris' }}</p>
-                        <p class="text-xs">Upload, simpan, dan kelola dokumen dengan mudah.</p>
-                    </div>
-                </div>
+            {{-- SIDEBAR --}}
+            <aside class="xl:col-span-4 flex flex-col gap-8 mt-8 xl:mt-0">
+                <section
+                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 text-center">
+                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon"
+                        class="h-16 w-16 mx-auto mb-4">
+                    <p class="font-bold text-lg leading-tight mb-1">{{ Auth::user()->role->nama_role ?? 'Sekretaris' }}
+                    </p>
+                    <p class="text-xs opacity-90">Upload, simpan, dan kelola dokumen dengan mudah.</p>
+                </section>
 
-                {{-- Tombol Aksi --}}
-                <div class="flex flex-col gap-3 w-full mt-2">
+                <nav class="flex flex-col gap-3 mt-2">
                     <a href="{{ route('sekretaris.manajemendokumen.create') }}"
-                        class="w-full rounded-[12px] bg-[#27ad60] hover:bg-[#17984d] text-white font-semibold px-5 py-2.5 shadow transition flex items-center justify-center gap-2 text-base">
+                        class="w-full rounded-[12px] bg-[#27ad60] hover:bg-[#17984d] text-white font-semibold px-5 py-2.5 shadow transition inline-flex items-center justify-center gap-2 text-base">
                         <i class="fa-solid fa-plus"></i> Tambah Dokumen
                     </a>
                     <button onclick="document.getElementById('kategoriModal').classList.remove('hidden')"
-                        class="w-full rounded-[12px] bg-[#326db5] hover:bg-[#235089] text-white font-semibold px-5 py-2.5 shadow transition flex items-center justify-center gap-2 text-base">
+                        class="w-full rounded-[12px] bg-[#326db5] hover:bg-[#235089] text-white font-semibold px-5 py-2.5 shadow transition inline-flex items-center justify-center gap-2 text-base">
                         <i class="fa-solid fa-folder-plus"></i> Tambah Kategori
                     </button>
-                </div>
+                </nav>
 
                 {{-- Card Kategori --}}
-                <div class="bg-white rounded-2xl shadow-lg p-6">
+                <section class="bg-white rounded-2xl shadow-lg p-6">
                     <h3 class="font-semibold text-blue-800 mb-3 text-lg border-b pb-2">Kategori Dokumen</h3>
                     <ul class="space-y-2">
                         @foreach($kategori as $kat)
@@ -278,83 +269,87 @@ document.addEventListener('DOMContentLoaded', function() {
                         </li>
                         @endforeach
                     </ul>
-                </div>
+                </section>
             </aside>
-        </div>
+        </main>
 
-        {{-- MODAL TAMBAH KATEGORI --}}
-        <div id="kategoriModal"
-            class="fixed z-50 inset-0 hidden bg-black bg-opacity-60 flex items-center justify-center transition-opacity duration-300">
-            <div class="bg-white rounded-2xl w-[90vw] max-w-md shadow-xl p-8 flex flex-col items-center relative">
-                <div class="flex flex-col items-center mb-3">
-                    <div
-                        class="rounded-full bg-gradient-to-br from-blue-500 to-blue-300 w-16 h-16 flex items-center justify-center mb-2">
-                        <i class="fa-solid fa-folder-plus text-white text-3xl"></i>
-                    </div>
-                    <h2 class="font-bold text-lg text-gray-800 mb-2 text-center">Tambah Kategori Dokumen</h2>
+        {{-- MODALS --}}
+        {{-- TAMBAH KATEGORI --}}
+        <div id="kategoriModal" class="fixed inset-0 z-50 hidden">
+            <div class="min-h-full bg-black/60 p-4 grid place-items-center">
+                <div class="bg-white rounded-2xl w-[90vw] max-w-md shadow-xl p-8">
+                    <header class="text-center mb-3">
+                        <div
+                            class="mx-auto mb-2 w-16 h-16 grid place-items-center rounded-full bg-gradient-to-br from-blue-500 to-blue-300">
+                            <i class="fa-solid fa-folder-plus text-white text-3xl"></i>
+                        </div>
+                        <h2 class="font-bold text-lg text-gray-800">Tambah Kategori Dokumen</h2>
+                    </header>
+
+                    <form action="{{ route('sekretaris.kategori-dokumen.store') }}" method="POST" class="space-y-4">
+                        @csrf
+                        <input type="text" name="nama_kategori" id="nama_kategori"
+                            class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-4 py-3 text-base text-center"
+                            placeholder="Masukkan nama kategori" required>
+                        <div class="flex justify-end gap-2 pt-1">
+                            <button type="button" onclick="closeKategoriModal()"
+                                class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold">Batal</button>
+                            <button type="submit"
+                                class="px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Simpan</button>
+                        </div>
+                    </form>
                 </div>
-                <form action="{{ route('sekretaris.kategori-dokumen.store') }}" method="POST"
-                    class="w-full flex flex-col items-center gap-4">
-                    @csrf
-                    <input type="text" name="nama_kategori" id="nama_kategori"
-                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-4 py-3 text-base text-center"
-                        placeholder="Masukkan nama kategori" required>
-                    <div class="flex w-full gap-2 mt-2 justify-end">
-                        <button type="button" onclick="closeKategoriModal()"
-                            class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold">Batal</button>
-                        <button type="submit"
-                            class="px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Simpan</button>
-                    </div>
-                </form>
             </div>
         </div>
 
-        {{-- MODAL EDIT KATEGORI --}}
-        <div id="editKategoriModal"
-            class="fixed z-50 inset-0 hidden bg-black bg-opacity-60 flex items-center justify-center transition-opacity duration-300">
-            <div class="bg-white rounded-2xl w-[90vw] max-w-md shadow-xl p-8 flex flex-col items-center relative">
-                <div class="flex flex-col items-center mb-3">
-                    <div
-                        class="rounded-full bg-gradient-to-br from-yellow-500 to-yellow-300 w-16 h-16 flex items-center justify-center mb-2">
-                        <i class="fa-solid fa-pen-to-square text-white text-3xl"></i>
-                    </div>
-                    <h2 class="font-bold text-lg text-gray-800 mb-2 text-center">Edit Kategori Dokumen</h2>
+        {{-- EDIT KATEGORI --}}
+        <div id="editKategoriModal" class="fixed inset-0 z-50 hidden">
+            <div class="min-h-full bg-black/60 p-4 grid place-items-center">
+                <div class="bg-white rounded-2xl w-[90vw] max-w-md shadow-xl p-8">
+                    <header class="text-center mb-3">
+                        <div
+                            class="mx-auto mb-2 w-16 h-16 grid place-items-center rounded-full bg-gradient-to-br from-yellow-500 to-yellow-300">
+                            <i class="fa-solid fa-pen-to-square text-white text-3xl"></i>
+                        </div>
+                        <h2 class="font-bold text-lg text-gray-800">Edit Kategori Dokumen</h2>
+                    </header>
+
+                    <form id="editKategoriForm" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+                        <input type="text" name="nama_kategori" id="edit_nama_kategori"
+                            class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-yellow-500 px-4 py-3 text-base text-center"
+                            placeholder="Masukkan nama kategori baru" required>
+                        <div class="flex justify-end gap-2 pt-1">
+                            <button type="button" onclick="closeEditKategoriModal()"
+                                class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold">Batal</button>
+                            <button type="submit"
+                                class="px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Simpan
+                                Perubahan</button>
+                        </div>
+                    </form>
                 </div>
-                <form id="editKategoriForm" method="POST" class="w-full flex flex-col items-center gap-4">
-                    @csrf
-                    @method('PUT')
-                    <input type="text" name="nama_kategori" id="edit_nama_kategori"
-                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-yellow-500 px-4 py-3 text-base text-center"
-                        placeholder="Masukkan nama kategori baru" required>
-                    <div class="flex w-full gap-2 mt-2 justify-end">
-                        <button type="button" onclick="closeEditKategoriModal()"
-                            class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold">Batal</button>
-                        <button type="submit"
-                            class="px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Simpan
-                            Perubahan</button>
-                    </div>
-                </form>
             </div>
         </div>
 
-        {{-- MODAL PASSWORD DOKUMEN RAHASIA --}}
-        <div id="passwordModal"
-            class="fixed z-50 inset-0 hidden bg-black bg-opacity-60 flex items-center justify-center transition-opacity duration-300">
-            <div class="bg-white rounded-2xl w-[90vw] max-w-md shadow-xl p-8 flex flex-col items-center relative">
-                <div class="flex flex-col items-center mb-4">
-                    <div
-                        class="rounded-full bg-gradient-to-br from-red-500 to-yellow-400 w-16 h-16 flex items-center justify-center mb-2">
-                        <i class="fa-solid fa-lock text-white text-3xl"></i>
-                    </div>
-                    <h2 class="font-bold text-lg text-gray-800 text-center">Masukkan Kunci Dokumen</h2>
-                    <p class="text-sm text-gray-500 mt-1">Dokumen ini bersifat rahasia.</p>
-                </div>
-                <div class="w-full flex flex-col items-center gap-4">
+        {{-- PASSWORD DOKUMEN RAHASIA --}}
+        <div id="passwordModal" class="fixed inset-0 z-50 hidden">
+            <div class="min-h-full bg-black/60 p-4 grid place-items-center">
+                <div class="bg-white rounded-2xl w-[90vw] max-w-md shadow-xl p-8">
+                    <header class="text-center mb-4">
+                        <div
+                            class="mx-auto mb-2 w-16 h-16 grid place-items-center rounded-full bg-gradient-to-br from-red-500 to-yellow-400">
+                            <i class="fa-solid fa-lock text-white text-3xl"></i>
+                        </div>
+                        <h2 class="font-bold text-lg text-gray-800">Masukkan Kunci Dokumen</h2>
+                        <p class="text-sm text-gray-500 mt-1">Dokumen ini bersifat rahasia.</p>
+                    </header>
+
                     <input type="hidden" id="dokumenId">
                     <input type="password" id="modalPasswordInput"
                         class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-4 py-3 text-base text-center"
                         placeholder="••••••••••" required>
-                    <div class="flex w-full gap-2 mt-2 justify-end">
+                    <div class="flex justify-end gap-2 mt-3">
                         <button type="button" onclick="closeModal()"
                             class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold">Batal</button>
                         <button type="button" onclick="submitPassword()"
@@ -364,21 +359,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         </div>
-    </div>
 
-    <x-slot name="footer">
-        <footer class="bg-[#2b6cb0] py-4 mt-8">
-            <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
-                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
-                    class="h-10 object-contain">
-            </div>
-        </footer>
-    </x-slot>
+        {{-- FOOTER --}}
+        <x-slot name="footer">
+            <footer class="bg-[#2b6cb0] py-4 mt-8">
+                <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
+                    <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
+                        class="h-10 object-contain">
+                </div>
+            </footer>
+        </x-slot>
+    </div>
 
     {{-- SCRIPT --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
     <script>
-    // Klik baris dokumen: buka detail atau modal rahasia
+    // Klik baris dokumen
     function openDokumenRow(row) {
         const isSecret = row.dataset.secret === '1';
         const id = row.dataset.id;
@@ -411,8 +407,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const m = document.getElementById('passwordModal');
         m.classList.remove('hidden');
         m.querySelector('#dokumenId').value = dokumenId;
-        m.querySelector('#modalPasswordInput').value = '';
-        m.querySelector('#modalPasswordInput').focus();
+        const inp = m.querySelector('#modalPasswordInput');
+        inp.value = '';
+        inp.focus();
     }
 
     function closeModal() {
@@ -430,11 +427,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             return;
         }
-        const url = `/sekretaris/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(password)}`;
-        window.location.href = url;
+        window.location.href = `/sekretaris/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(password)}`;
     }
 
-    // Hapus dokumen/kategori
+    // Hapus
     function hapusDokumen(url) {
         Swal.fire({
             title: 'Apakah Anda Yakin?',
@@ -445,13 +441,13 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Batalkan',
             customClass: {
                 popup: 'rounded-xl p-7',
-                confirmButton: 'text-base font-semibold px-8 py-2 rounded-lg mr-2 bg-red-600 text-white hover:bg-red-700 focus:outline-none',
-                cancelButton: 'text-base font-semibold px-8 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600 focus:outline-none'
+                confirmButton: 'text-base font-semibold px-8 py-2 rounded-lg mr-2 bg-red-600 text-white hover:bg-red-700',
+                cancelButton: 'text-base font-semibold px-8 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600'
             },
             buttonsStyling: false
-        }).then((r) => {
+        }).then(r => {
             if (r.isConfirmed) {
-                let f = document.createElement('form');
+                const f = document.createElement('form');
                 f.action = url;
                 f.method = 'POST';
                 f.innerHTML = `@csrf @method('DELETE')`;
@@ -471,13 +467,13 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Batalkan',
             customClass: {
                 popup: 'rounded-xl p-7',
-                confirmButton: 'text-base font-semibold px-8 py-2 rounded-lg mr-2 bg-red-600 text-white hover:bg-red-700 focus:outline-none',
-                cancelButton: 'text-base font-semibold px-8 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600 focus:outline-none'
+                confirmButton: 'text-base font-semibold px-8 py-2 rounded-lg mr-2 bg-red-600 text-white hover:bg-red-700',
+                cancelButton: 'text-base font-semibold px-8 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600'
             },
             buttonsStyling: false
-        }).then((r) => {
+        }).then(r => {
             if (r.isConfirmed) {
-                let f = document.createElement('form');
+                const f = document.createElement('form');
                 f.action = url;
                 f.method = 'POST';
                 f.innerHTML = `@csrf @method('DELETE')`;

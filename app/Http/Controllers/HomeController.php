@@ -7,6 +7,7 @@ use App\Models\Bidang;
 use App\Models\ArtikelPengetahuan;
 use App\Models\Subbidang;
 use App\Models\Kegiatan;
+use App\Models\KegiatanView;
 use App\Models\Dokumen;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -18,10 +19,14 @@ class HomeController extends Controller
         $totalDokumen = Dokumen::count();
         $totalArtikel = ArtikelPengetahuan::count();
 
+        // ⬇ Hanya tampilkan dokumen non-rahasia di beranda
         $dokumens = Dokumen::with(['kategoriDokumen', 'user'])
-                    ->latest()
-                    ->take(4)
-                    ->get();
+            ->whereHas('kategoriDokumen', function ($q) {
+                $q->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
+            })
+            ->latest()
+            ->take(4)
+            ->get();
 
         $artikels = ArtikelPengetahuan::with(['kategoriPengetahuan', 'pengguna'])
                     ->latest()
@@ -140,18 +145,50 @@ class HomeController extends Controller
 
     public function getDokumenByBidang($bidang_id)
     {
-        $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($bidang_id) {
-            $query->where('bidang_id', $bidang_id);
-        })->with('user')->get();
+        $dokumens = Dokumen::whereHas('kategoriDokumen', function ($q) use ($bidang_id) {
+            $q->where('bidang_id', $bidang_id)
+              ->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']); // ⬅ filter rahasia
+        })
+        ->with(['user:id,name', 'kategoriDokumen:id,nama_kategoridokumen'])
+        ->latest()
+        ->get()
+        ->map(function ($d) {
+            return [
+                'id'            => $d->id,
+                'nama_dokumen'  => $d->nama_dokumen,
+                'deskripsi'     => (string) $d->deskripsi,
+                'created_at'    => optional($d->created_at)->toISOString(),
+                'user'          => ['name' => optional($d->user)->name],
+                // ⬇️ inilah yang dibaca oleh JS-mu
+                'kategori_nama' => optional($d->kategoriDokumen)->nama_kategoridokumen,
+                // opsional jika punya relasi views()
+                'views_count'   => method_exists($d, 'views') ? $d->views()->count() : 0,
+            ];
+        });
 
         return response()->json($dokumens);
     }
 
     public function getDokumenBySubbidang($subbidang_id)
     {
-        $dokumens = Dokumen::whereHas('kategoriDokumen', function ($query) use ($subbidang_id) {
-            $query->where('subbidang_id', $subbidang_id);
-        })->with('user')->get();
+         $dokumens = Dokumen::whereHas('kategoriDokumen', function ($q) use ($subbidang_id) {
+            $q->where('subbidang_id', $subbidang_id)
+              ->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']); // ⬅ filter rahasia
+        })
+        ->with(['user:id,name', 'kategoriDokumen:id,nama_kategoridokumen'])
+        ->latest()
+        ->get()
+        ->map(function ($d) {
+            return [
+                'id'            => $d->id,
+                'nama_dokumen'  => $d->nama_dokumen,
+                'deskripsi'     => (string) $d->deskripsi,
+                'created_at'    => optional($d->created_at)->toISOString(),
+                'user'          => ['name' => optional($d->user)->name],
+                'kategori_nama' => optional($d->kategoriDokumen)->nama_kategoridokumen,
+                'views_count'   => method_exists($d, 'views') ? $d->views()->count() : 0,
+            ];
+        });
 
         return response()->json($dokumens);
     }
@@ -189,8 +226,8 @@ class HomeController extends Controller
         }
 
         $dokumens = Dokumen::with(['kategoriDokumen', 'user'])
-            ->whereHas('kategoriDokumen', function ($query) {
-                $query->where('nama_kategoridokumen', '!=', 'Rahasia');
+            ->whereHas('kategoriDokumen', function ($q) {
+                $q->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
             })
             ->where(function ($query) use ($keyword) {
                 $query->where('nama_dokumen', 'like', "%{$keyword}%")
@@ -206,12 +243,13 @@ class HomeController extends Controller
 
     public function kegiatan(Request $request)
     {
-        $bidangs = Bidang::all(); // Untuk sidebar filter bidang
-        $query = $request->input('q'); // Tangkap keyword dari form pencarian
+        $bidangs = Bidang::all();
+        $query = $request->input('q'); 
 
         // Ambil kegiatan yang hanya kategori publik dan sesuai pencarian jika ada
         $kegiatan = Kegiatan::with('fotokegiatan')
-            ->where('kategori_kegiatan', 'publik') // Filter hanya yang publik
+            ->withCount('views')
+            ->where('kategori_kegiatan', 'publik') 
             ->when($query, function ($qBuilder) use ($query) {
                 $qBuilder->where(function ($subQuery) use ($query) {
                     $subQuery->where('nama_kegiatan', 'like', '%' . $query . '%')
@@ -224,9 +262,24 @@ class HomeController extends Controller
         return view('kegiatan', compact('bidangs', 'kegiatan', 'query'));
     }
 
-    public function showKegiatanById($id)
+    public function showKegiatanById($id, Request $request)
     {
         $kegiatan = Kegiatan::with(['bidang', 'subbidang', 'fotokegiatan'])->findOrFail($id);
+
+        // Catat 1x per sesi browser agar tidak membengkak
+        $sessionKey = 'viewed_kegiatan_'.$kegiatan->id;
+        if (!$request->session()->has($sessionKey)) {
+            KegiatanView::create([
+                'kegiatan_id' => $kegiatan->id,
+                'user_id'     => auth()->id(),                                    
+                'ip'          => $request->ip(),
+                'user_agent'  => substr((string) $request->userAgent(), 0, 512),  
+            ]);
+            $request->session()->put($sessionKey, now());
+        }
+
+        // Hitung total views
+        $viewsCount = $kegiatan->views()->count();
 
         // Ambil 5 kegiatan lain (selain yang sedang dibuka)
         $kegiatan_lainnya = Kegiatan::where('id', '!=', $kegiatan->id)
@@ -235,7 +288,11 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        return view('kegiatanshow', compact('kegiatan', 'kegiatan_lainnya'));
+        return view('kegiatanshow', [
+            'kegiatan'         => $kegiatan,
+            'kegiatan_lainnya' => $kegiatan_lainnya,
+            'viewsCount'       => $kegiatan->views_count, 
+        ]);
     }
 
     public function getByBidang($bidang_id)
@@ -248,6 +305,7 @@ class HomeController extends Controller
                     $q->limit(1); // Ambil hanya 1 foto
                 }
             ])
+            ->withCount('views')
             ->get();
 
         return response()->json($kegiatans);
@@ -263,6 +321,7 @@ class HomeController extends Controller
                     $q->limit(1);
                 }
             ])
+            ->withCount('views')
             ->get();
 
         return response()->json($kegiatans);

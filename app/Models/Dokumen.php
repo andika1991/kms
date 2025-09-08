@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\ViewsCountScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -56,8 +57,38 @@ class Dokumen extends Model
     }
 
     public function aksesDokumenPengguna()
-{
-    return $this->hasMany(AksesDokumenPengguna::class, 'dokumen_id', 'id');
-}
+    {
+        return $this->hasMany(AksesDokumenPengguna::class, 'dokumen_id', 'id');
+    }
+
+    public function views()
+    {
+        return $this->hasMany(\App\Models\DocumentView::class, 'dokumen_id');
+    }
+
+    public function viewers() // opsional kalau mau ambil daftar user yang melihat
+    {
+        return $this->belongsToMany(
+            \App\Models\User::class,
+            'document_views',
+            'dokumen_id',
+            'user_id'
+        )->withPivot('viewed_at')->withTimestamps();
+    }
+
+    // ===== Pasang Global Scope sekali untuk semua query Dokumen =====
+    protected static function booted()
+    {
+        static::addGlobalScope(new ViewsCountScope); // -> otomatis ada attribute views_count
+    }
+
+    // Opsional: accessor yang selalu mengembalikan angka aman (dengan fallback)
+    protected $appends = ['views_total'];
+
+    public function getViewsTotalAttribute(): int
+    {
+        // Jika views_count sudah ada (dari scope), pakai itu, jika tidak hitung langsung
+        return (int) ($this->attributes['views_count'] ?? $this->getAttribute('views_count') ?? $this->views()->count());
+    }
 
 }

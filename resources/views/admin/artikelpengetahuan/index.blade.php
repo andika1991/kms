@@ -109,27 +109,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex flex-col gap-6">
                     @forelse($artikels as $artikel)
                     <!-- Card Artikel Horizontal -->
-                    <a href="{{ route('admin.berbagipengetahuan.show', $artikel->id) }}" class="block bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-4 border-4 border-white group">
+                    <a href="{{ route('admin.berbagipengetahuan.show', $artikel->id) }}"
+                        class="block bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-4 border-4 border-white group">
                         <div class="flex flex-col sm:flex-row gap-5">
                             <!-- Gambar Artikel -->
-                            <img src="{{ asset('storage/' . ($artikel->thumbnail ?? 'default.jpg')) }}" 
-                                 class="w-full sm:w-48 h-40 sm:h-auto object-cover rounded-lg flex-shrink-0" alt="{{ $artikel->judul }}">
-                            
+                            <img src="{{ asset('storage/' . ($artikel->thumbnail ?? 'default.jpg')) }}"
+                                class="w-full sm:w-48 h-40 sm:h-auto object-cover rounded-lg flex-shrink-0"
+                                alt="{{ $artikel->judul }}">
+
                             <!-- Konten Teks -->
                             <div class="flex flex-col flex-grow">
-                                <h3 class="font-bold text-lg text-gray-800 group-hover:text-blue-700 transition-colors mb-2 line-clamp-2" title="{{ $artikel->judul }}">{{ $artikel->judul }}</h3>
+                                <h3 class="font-bold text-lg text-gray-800 group-hover:text-blue-700 transition-colors mb-2 line-clamp-2"
+                                    title="{{ $artikel->judul }}">{{ $artikel->judul }}</h3>
                                 <p class="text-xs font-semibold text-blue-600 mb-2">
                                     Kategori: {{ $artikel->kategoriPengetahuan->nama_kategoripengetahuan ?? '-' }}
                                 </p>
                                 <p class="text-sm text-gray-600 line-clamp-2">
                                     {{ \Illuminate\Support\Str::limit(strip_tags($artikel->isi), 150) }}
                                 </p>
-                                
+
                                 <!-- Footer Card -->
                                 <div class="flex justify-between items-center text-xs text-gray-500 mt-auto pt-4">
-                                    <span class="flex items-center gap-1.5" title="Dilihat">
-                                        <i class="fas fa-eye"></i>
-                                        {{ $artikel->views ?? 0 }}
+                                    <span class="inline-flex items-center gap-1">
+                                        <i class="fas fa-eye"></i> {{ number_format($artikel->views_total) }}
                                     </span>
                                     <span>{{ \Carbon\Carbon::parse($artikel->created_at)->translatedFormat('d M Y') }}</span>
                                 </div>
@@ -137,8 +139,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </a>
                     @empty
-                    <div class="col-span-full flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
-                        <img src="{{ asset('assets/img/empty-state.svg') }}" class="mx-auto w-40 opacity-70 mb-4" alt="Empty">
+                    <div
+                        class="col-span-full flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
+                        <img src="{{ asset('assets/img/empty-state.svg') }}" class="mx-auto w-40 opacity-70 mb-4"
+                            alt="Empty">
                         <h3 class="text-xl font-bold text-gray-700">Belum Ada Artikel Pengetahuan</h3>
                         <p class="text-gray-500 mt-2">Silakan tambahkan artikel baru untuk memulai.</p>
                     </div>

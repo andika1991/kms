@@ -144,7 +144,7 @@ $tanggal = $carbon->format('l, d F Y');
             <div class="flex gap-3 w-full">
                 <button type="submit" form="form-kegiatan"
                     class="flex-1 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
-                    Simpan
+                    Tambah
                 </button>
                 <a href="{{ url()->previous() }}"
                     class="flex-1 px-4 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow transition text-base text-center">

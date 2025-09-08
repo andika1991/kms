@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DocumentView;
 use App\Models\Dokumen;
 use App\Models\KategoriDokumen;
 use Illuminate\Http\Request;
@@ -97,28 +98,28 @@ class DokumensekretarisController extends Controller
         $isRahasia = $dokumen->kategoriDokumen 
         && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
 
-    if ($isRahasia) {
-        $inputKey = $request->encrypted_key;
+        if ($isRahasia) {
+            $inputKey = $request->encrypted_key;
 
-        if (!$inputKey) {
-            return redirect()->route('pegawai.manajemendokumen.index')
-                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
-        }
+            if (!$inputKey) {
+                return redirect()->route('pegawai.manajemendokumen.index')
+                    ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
+            }
 
-        // Dekripsi key dari DB
-        try {
-            $decryptedKey = decrypt($dokumen->encrypted_key);
-        } catch (\Exception $e) {
-            // Jika gagal dekripsi, berarti ada masalah data
-            return redirect()->route('sekretaris.manajemendokumen.index')
-                ->with('error', 'Data kunci dokumen tidak valid.');
-        }
+            // Dekripsi key dari DB
+            try {
+                $decryptedKey = decrypt($dokumen->encrypted_key);
+            } catch (\Exception $e) {
+                // Jika gagal dekripsi, berarti ada masalah data
+                return redirect()->route('sekretaris.manajemendokumen.index')
+                    ->with('error', 'Data kunci dokumen tidak valid.');
+            }
 
-        if ($inputKey !== $decryptedKey) {
-            return redirect()->route('sekretaris.manajemendokumen.index')
-                ->with('error', 'Kunci dokumen salah.');
+            if ($inputKey !== $decryptedKey) {
+                return redirect()->route('sekretaris.manajemendokumen.index')
+                    ->with('error', 'Kunci dokumen salah.');
+            }
         }
-    }
 
 
         return view('sekretaris.dokumen.show', compact('dokumen', 'viewers'));

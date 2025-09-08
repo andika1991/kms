@@ -103,19 +103,11 @@
     #listBidangDokMobile::-webkit-scrollbar {
         display: none;
     }
-
     @keyframes bounce-x {
-        0%, 100% {
-            transform: translateX(0);
-        }
-        50% {
-            transform: translateX(-6px);
-        }
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(-6px); }
     }
-
-    .animate-bounce-x {
-        animation: bounce-x 1.2s infinite;
-    }
+    .animate-bounce-x { animation: bounce-x 1.2s infinite; }
 </style>
 @endpush
 
@@ -136,13 +128,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         data.forEach(dokumen => {
-            const card = document.createElement('div');
-            card.className = 'border rounded-xl overflow-hidden shadow hover:shadow-lg transition flex flex-col p-4';
+            const kategoriNama =
+                dokumen?.kategori_dokumen?.nama_kategoridokumen ||
+                dokumen?.kategoriDokumen?.nama_kategoridokumen ||
+                dokumen?.kategori_nama || '-';
+
+            const tgl = dokumen?.created_at
+                ? new Date(dokumen.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' })
+                : '';
+
+            const views = typeof dokumen?.views_count !== 'undefined'
+                ? dokumen.views_count
+                : (Array.isArray(dokumen?.views) ? dokumen.views.length : 0);
+
+            const showHref = `/dokumen/${dokumen.id}`;
+
+            const card = document.createElement('a');
+            card.href = showHref;
+            card.className = 'border rounded-2xl overflow-hidden shadow hover:shadow-lg transition p-4 block group focus:outline-none focus:ring-2 focus:ring-blue-500';
             card.innerHTML = `
-                <h4 class="font-semibold text-base text-gray-800 mb-1">${dokumen.nama_dokumen}</h4>
-                <p class="text-sm text-gray-500 mb-2">Oleh: ${dokumen.user?.name || '-'}</p>
-                <p class="text-gray-700 text-sm flex-grow">${dokumen.deskripsi?.substring(0, 100) || ''}...</p>
-                <a href="/storage/${dokumen.path_dokumen}" target="_blank" class="mt-3 text-blue-600 text-sm hover:underline font-semibold">Lihat Dokumen</a>
+                <div class="flex items-start gap-3">
+                    <div class="mt-1 shrink-0 h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-file text-blue-600"></i>
+                    </div>
+                    <div class="min-w-0 w-full">
+                        <h4 class="font-semibold text-base text-gray-900 mb-0.5 group-hover:text-blue-700 line-clamp-1">
+                            ${dokumen?.nama_dokumen ?? '-'}
+                        </h4>
+                        <p class="text-sm text-gray-500 mb-1">Oleh: ${dokumen?.user?.name || '-'}</p>
+                        <p class="text-gray-700 text-sm">
+                            ${((dokumen?.deskripsi || '').replace(/<[^>]*>?/gm, '').slice(0, 160))}${(dokumen?.deskripsi || '').length > 160 ? '...' : ''}
+                        </p>
+
+                        <!-- Kategori + Tanggal di kiri, Views di kanan -->
+                        <div class="mt-3 flex items-end gap-3">
+                            <div class="flex flex-col gap-1">
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                    ${kategoriNama}
+                                </span>
+                                <span class="text-xs text-gray-500">${tgl}</span>
+                            </div>
+                            <span class="ml-auto inline-flex items-center gap-1 text-xs text-gray-500" title="Dilihat">
+                                <i class="fas fa-eye"></i> ${views}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             `;
             listDokumen.appendChild(card);
         });
@@ -158,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch(`/subbidang/${bidangId}`)
                 .then(res => res.json())
                 .then(data => {
-                    if (data.length > 0) {
+                    if (Array.isArray(data) && data.length > 0) {
                         subbidangWrapperDok.classList.remove('hidden');
                         listSubbidangDok.innerHTML = '';
                         data.forEach(sub => {

@@ -1,180 +1,188 @@
 @php
 use Carbon\Carbon;
+
 $carbon = Carbon::now()->locale('id');
 $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
+
+$path = $manajemendokuman->path_dokumen ? asset('storage/'.$manajemendokuman->path_dokumen) : null;
+$ext = strtolower(pathinfo($manajemendokuman->path_dokumen ?? '', PATHINFO_EXTENSION));
+$isImg = in_array($ext, ['jpg','jpeg','png','gif','bmp','webp']);
 @endphp
 
 @section('title', 'Edit Dokumen Magang')
 
 <x-app-layout>
-    <div class="w-full min-h-screen bg-[#eaf5ff] flex flex-col pb-10">
-        {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-white">
+    <div class="w-full min-h-screen bg-[#eaf5ff] pb-10">
+
+        {{-- HEADER (seragam dengan pegawai/Figma) --}}
+        <header class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen Magang</h2>
-                    <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen</h2>
+                    <p class="text-gray-500 text-sm mt-1">{{ $tanggal }}</p>
                 </div>
+
                 <div class="flex items-center gap-4 w-full sm:w-auto">
-                    <!-- Search Bar -->
                     <form method="GET" action="{{ route('magang.manajemendokumen.index') }}"
                         class="relative flex-grow sm:flex-grow-0 sm:w-64">
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari nama dokumen..."
-                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                            <i class="fa fa-search"></i>
-                        </span>
+                        <input name="search" value="{{ request('search') }}" placeholder="Cari nama dokumen..."
+                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm" />
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><i
+                                class="fa fa-search"></i></span>
                     </form>
 
-                    <!-- Profile Dropdown -->
-                    <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open"
-                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
-                            title="Profile">
+                    <div x-data="{open:false}" class="relative">
+                        <button @click="open=!open" title="Profile"
+                            class="w-10 h-10 flex items-center justify-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition">
                             <i class="fa-solid fa-user"></i>
                         </button>
-                        <div x-show="open" @click.away="open = false"
-                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20" x-transition
-                            style="display: none;">
-                            <div class="py-1">
-                                <a href="{{ route('profile.edit') }}"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
-                                        Out</button>
-                                </form>
-                            </div>
+                        <div x-show="open" @click.away="open=false" x-transition style="display:none"
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border z-20">
+                            <a href="{{ route('profile.edit') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
+                                    Out</button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        {{-- FORM GRID --}}
-        <div class="px-4 md:px-8 grid grid-cols-1 xl:grid-cols-12 gap-8 mt-6">
-            <form method="POST" 
-                  action="{{ route('magang.manajemendokumen.update', $manajemendokuman->id) }}" 
-                  enctype="multipart/form-data"
-                  id="manajemen-dokumen-form"
-                  class="bg-white rounded-2xl shadow-lg p-8 xl:col-span-8 flex flex-col gap-7">
-                @csrf
-                @method('PUT')
+        {{-- BODY --}}
+        <main class="px-4 md:px-8 grid grid-cols-1 xl:grid-cols-12 gap-8 mt-6">
+            {{-- FORM + PREVIEW --}}
+            <section class="xl:col-span-8 bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                @if($errors->any())
+                <div class="mb-6 px-4 py-3 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $e) <li>{{ $e }}</li> @endforeach
+                    </ul>
+                </div>
+                @endif
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
-                    {{-- Dokumen Preview/Upload --}}
-                    <div class="flex flex-col items-center justify-center h-full">
-                        {{-- Preview jika file sudah ada --}}
-                        @php
-                            $ext = strtolower(pathinfo($manajemendokuman->path_dokumen, PATHINFO_EXTENSION));
-                            $thumb = $manajemendokuman->thumbnail
-                                ? asset('storage/' . $manajemendokuman->thumbnail)
-                                : null;
-                            $img = $manajemendokuman->path_dokumen
-                                ? asset('storage/' . $manajemendokuman->path_dokumen)
-                                : null;
-                        @endphp
-
-                   
-
-                        <label for="path_dokumen" class="w-full">
-                            <div class="border-2 border-gray-300 border-dashed rounded-xl h-20 flex flex-col justify-center items-center cursor-pointer hover:bg-gray-50 transition relative">
-                                <i class="fa fa-upload text-2xl text-gray-400"></i>
-                                <span class="text-gray-500 text-sm">Ganti dokumen</span>
-                                <input type="file" name="path_dokumen" id="path_dokumen"
-                                    class="absolute w-full h-full opacity-0 top-0 left-0 cursor-pointer">
-                                <span id="file-name" class="block text-gray-600 text-xs mt-1"></span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    {{-- PREVIEW --}}
+                    <div>
+                        <div class="rounded-2xl border bg-white overflow-hidden">
+                            @if($path)
+                            @if($ext==='pdf')
+                            <iframe src="{{ $path }}" class="w-full h-[440px] md:h-[520px]" style="border:0;"></iframe>
+                            @elseif($isImg)
+                            <img src="{{ $path }}" alt="Preview Dokumen"
+                                class="w-full h-[440px] md:h-[520px] object-contain bg-gray-50">
+                            @else
+                            <div class="h-[320px] md:h-[360px] flex items-center justify-center bg-gray-50">
+                                <i class="fa-solid fa-file text-6xl text-gray-400"></i>
                             </div>
-                        </label>
-                        @if($manajemendokuman->path_dokumen)
-                        <p class="mt-2 text-xs text-gray-500 truncate text-center">
-                            File saat ini: 
-                            <a href="{{ asset('storage/' . $manajemendokuman->path_dokumen) }}" target="_blank" class="text-blue-600 underline break-all">
-                                {{ basename($manajemendokuman->path_dokumen) }}
-                            </a>
-                        </p>
+                            <div class="px-4 py-3 text-xs text-gray-600 border-t">
+                                File saat ini: <a href="{{ $path }}" target="_blank"
+                                    class="text-blue-600 hover:underline">Lihat Dokumen</a>
+                            </div>
+                            @endif
+                            @else
+                            <div class="h-[320px] md:h-[360px] flex items-center justify-center bg-gray-50">
+                                <span class="text-gray-400 text-sm italic">Preview tidak tersedia.</span>
+                            </div>
+                            @endif
+                        </div>
+
+                        <button type="button" id="btn-ganti-file"
+                            class="mt-4 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2B6CB0] hover:bg-[#1f4e86] text-white font-semibold shadow-sm transition">
+                            <i class="fa-solid fa-rotate"></i> Ganti Dokumen
+                        </button>
+                        @if($path)
+                        <span class="ml-3 text-sm text-gray-500">File saat ini: <a href="{{ $path }}" target="_blank"
+                                class="text-blue-600 hover:underline">Lihat</a></span>
                         @endif
-                        @error('path_dokumen')
-                        <span class="text-red-500 text-xs mt-2">{{ $message }}</span>
-                        @enderror
+                        <p class="text-xs text-gray-500 mt-1">Kosongkan bila tidak ingin mengganti file.</p>
                     </div>
 
-                    {{-- Kolom Form --}}
-                    <div class="flex flex-col gap-5">
-                        {{-- Judul --}}
-                        <div>
-                            <label class="block font-semibold text-gray-800 mb-1">Judul</label>
-                            <input type="text" name="nama_dokumen" value="{{ old('nama_dokumen', $manajemendokuman->nama_dokumen) }}"
+                    {{-- FORM (struktur & name tetap) --}}
+                    <form id="form-edit-dokumen" method="POST"
+                        action="{{ route('magang.manajemendokumen.update', $manajemendokuman->id) }}"
+                        enctype="multipart/form-data" class="flex flex-col gap-5">
+                        @csrf
+                        @method('PUT')
+
+                        <label class="block">
+                            <span class="block font-semibold text-gray-800 mb-1">Judul</span>
+                            <input name="nama_dokumen"
+                                value="{{ old('nama_dokumen', $manajemendokuman->nama_dokumen) }}"
                                 class="w-full rounded-lg border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500"
                                 required>
-                        </div>
-                        {{-- Kategori --}}
-                        <div>
-                            <label class="block font-semibold text-gray-800 mb-1">Kategori</label>
+                        </label>
+
+                        <label class="block">
+                            <span class="block font-semibold text-gray-800 mb-1">Kategori</span>
                             <select id="kategoriSelect" name="kategori_dokumen_id"
                                 class="w-full rounded-lg border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500"
                                 required>
                                 <option value="">Pilih Kategori</option>
-                                @forelse($kategori as $kat)
+                                @foreach($kategori as $kat)
                                 <option value="{{ $kat->id }}" data-nama="{{ strtolower($kat->nama_kategoridokumen) }}"
-                                    {{ old('kategori_dokumen_id', $manajemendokuman->kategori_dokumen_id) == $kat->id ? 'selected' : '' }}>
-                                    {{ $kat->nama_kategoridokumen }}
-                                    @if($kat->subbidang)
-                                    — {{ $kat->subbidang->nama }}
+                                    {{ old('kategori_dokumen_id', $manajemendokuman->kategori_dokumen_id)==$kat->id ? 'selected':'' }}>
+                                    {{ $kat->nama_kategoridokumen }} @if($kat->subbidang) — {{ $kat->subbidang->nama }}
                                     @endif
                                 </option>
-                                @empty
-                                <option disabled>Tidak ada kategori tersedia</option>
-                                @endforelse
+                                @endforeach
                             </select>
-                        </div>
-                        {{-- Deskripsi --}}
-                        <div>
-                            <label class="block font-semibold text-gray-800 mb-1">Deskripsi</label>
-                            <textarea name="deskripsi" rows="4"
-                                class="w-full rounded-lg border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500"
-                                required>{{ old('deskripsi', $manajemendokuman->deskripsi) }}</textarea>
-                        </div>
-                        {{-- Field Kunci Rahasia --}}
-                        <div id="encrypted-key-field" class="hidden">
-                            <label class="block font-semibold text-gray-800 mb-1">Kunci Rahasia / Encrypted Key</label>
-                            <input type="text" name="encrypted_key"
-                                class="w-full rounded-lg border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500"
-                                value="{{ old('encrypted_key', $manajemendokuman->encrypted_key) }}">
-                        </div>
-                    </div>
-                </div>
-            </form>
+                        </label>
 
-            {{-- SIDEBAR AKSI --}}
-            <aside class="xl:col-span-4 w-full flex flex-col gap-8">
-                <div
-                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
-                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
-                    <div>
-                        <p class="font-bold text-lg leading-tight mb-2">
-                            Bidang {{ Auth::user()->role->nama_role ?? 'Magang' }}</p>
-                        <p class="text-xs">Edit atau perbarui dokumen kegiatan, inovasi, dan knowledge sharing di sini.</p>
-                    </div>
+                        {{-- FILE INPUT (disembunyikan, dipicu tombol ganti) --}}
+                        <input type="file" id="path_dokumen" name="path_dokumen" class="hidden"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt">
+
+                        <label class="block">
+                            <span class="block font-semibold text-gray-800 mb-1">Deskripsi</span>
+                            <textarea name="deskripsi" rows="7"
+                                class="w-full rounded-lg border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 resize-y"
+                                required>{{ old('deskripsi', $manajemendokuman->deskripsi) }}</textarea>
+                        </label>
+
+                        <label id="encrypted-key-field"
+                            class="block {{ strtolower(optional($manajemendokuman->kategoriDokumen)->nama_kategoridokumen)==='rahasia' ? '' : 'hidden' }}">
+                            <span class="block font-semibold text-gray-800 mb-1">Kunci Rahasia / Encrypted Key</span>
+                            <input name="encrypted_key"
+                                value="{{ old('encrypted_key', $manajemendokuman->encrypted_key) }}"
+                                class="w-full rounded-lg border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </label>
+
+                        {{-- Tombol submit asli (tetap untuk akses keyboard/enter) --}}
+                        <button type="submit" class="hidden">Update</button>
+                    </form>
                 </div>
-                <div class="flex gap-4">
-                    <button type="submit" form="manajemen-dokumen-form"
-                        class="flex-1 px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
-                        Simpan
+            </section>
+
+            {{-- SIDEBAR --}}
+            <aside class="xl:col-span-4 flex flex-col gap-8 mt-8 xl:mt-0">
+                <div
+                    class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 text-center">
+                    <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon"
+                        class="h-16 w-16 mx-auto mb-4">
+                    <p class="font-bold text-lg mb-1">{{ Auth::user()->role->nama_role ?? 'Magang' }}</p>
+                    <p class="text-xs opacity-90">Upload, simpan, dan kelola dokumen magang kamu di sini.</p>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <button id="btn-update" type="button"
+                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                        <i class="fa-solid fa-floppy-disk"></i><span>Simpan</span>
                     </button>
-                    <a href="{{ url()->previous() }}"
-                        class="flex-1 px-6 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base text-center">
-                        Batalkan
+                    <a id="btn-cancel" href="{{ route('magang.manajemendokumen.index') }}"
+                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
+                        <i class="fa-solid fa-xmark"></i><span>Batalkan</span>
                     </a>
                 </div>
             </aside>
-        </div>
+        </main>
     </div>
 
-    {{-- Footer --}}
+    {{-- FOOTER --}}
     <x-slot name="footer">
         <footer class="bg-[#2b6cb0] py-4 mt-8">
             <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
@@ -184,24 +192,76 @@ $tanggal = $carbon->format('l, d F Y');
         </footer>
     </x-slot>
 
+    {{-- SweetAlert2 (terbaru) --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.4/dist/sweetalert2.all.min.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const kategoriSelect = document.getElementById('kategoriSelect');
-        const keyField = document.getElementById('encrypted-key-field');
+    // Trigger file chooser
+    document.getElementById('btn-ganti-file')?.addEventListener('click', () => {
+        document.getElementById('path_dokumen')?.click();
+    });
 
-        function toggleKeyField() {
-            const selectedOption = kategoriSelect.options[kategoriSelect.selectedIndex];
-            const namaKategori = selectedOption.getAttribute('data-nama');
+    // Toggle field kunci jika kategori "Rahasia"
+    document.addEventListener('DOMContentLoaded', () => {
+        const sel = document.getElementById('kategoriSelect');
+        const key = document.getElementById('encrypted-key-field');
+        const toggle = () => {
+            const nama = (sel.options[sel.selectedIndex]?.dataset.nama || '').toLowerCase();
+            nama === 'rahasia' ? key.classList.remove('hidden') : key.classList.add('hidden');
+        };
+        sel?.addEventListener('change', toggle);
+        toggle();
+    });
 
-            if (namaKategori === 'rahasia') {
-                keyField.classList.remove('hidden');
-            } else {
-                keyField.classList.add('hidden');
-            }
-        }
+    // MODAL SIMPAN (mengikuti Figma: Tidak = merah, Ya = hijau)
+    document.getElementById('btn-update')?.addEventListener('click', () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Apakah Anda Yakin',
+            html: '<span class="text-gray-600 text-base">perubahan akan disimpan</span>',
+            showCancelButton: true,
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Tidak',
+            reverseButtons: true,
+            customClass: {
+                popup: 'rounded-2xl p-8',
+                icon: 'mt-0 mb-3',
+                title: 'mb-1',
+                htmlContainer: 'mb-3',
+                confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
+                cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-10 py-2 rounded-lg text-base',
+                actions: 'flex justify-center gap-4',
+            },
+            buttonsStyling: false
+        }).then(r => {
+            if (r.isConfirmed) document.getElementById('form-edit-dokumen')?.submit();
+        });
+    });
 
-        kategoriSelect.addEventListener('change', toggleKeyField);
-        toggleKeyField(); // run on page load
+    // MODAL BATAL (mengikuti Figma: dua tombol biru: Batal & Yakin)
+    document.getElementById('btn-cancel')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        const href = this.getAttribute('href');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Apakah Anda Yakin',
+            html: '<span class="text-gray-600 text-base">perubahan tidak akan disimpan</span>',
+            showCancelButton: true,
+            confirmButtonText: 'Yakin',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'rounded-2xl p-8',
+                icon: 'mt-0 mb-3',
+                title: 'mb-1',
+                htmlContainer: 'mb-3',
+                confirmButton: 'bg-[#2C699E] hover:bg-[#255a88] text-white font-semibold px-10 py-2 rounded-lg text-base',
+                cancelButton: 'bg-[#2C699E] hover:bg-[#255a88] text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
+                actions: 'flex justify-center gap-4',
+            },
+            buttonsStyling: false,
+            focusCancel: true
+        }).then(r => {
+            if (r.isConfirmed) window.location.href = href;
+        });
     });
     </script>
 </x-app-layout>

@@ -131,8 +131,8 @@ $viewers = $viewers ?? [];
                                     @endforeach
 
                                 </div>
-                                <span class="text-xs text-gray-500 ml-2">
-                                    Dilihat oleh {{ count($viewers) }} orang
+                                <span class="inline-flex items-center gap-1">
+                                    <i class="fas fa-eye"></i> {{ number_format($dokumen->views_count) }}
                                 </span>
                             </div>
                         </div>

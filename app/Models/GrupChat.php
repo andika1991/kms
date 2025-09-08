@@ -32,24 +32,24 @@ class GrupChat extends Model
         return $this->belongsTo(Bidang::class, 'bidang_id');
     }
     // GrupChat.php
-public function messages()
-{
-    return $this->hasMany(\App\Models\Message::class, 'grupchat_id');
-}
+    public function messages()
+    {
+        return $this->hasMany(\App\Models\Message::class, 'grupchat_id');
+    }
 
-public function pengguna()
-{
-    return $this->belongsTo(User::class, 'pengguna_id'); // pastikan nama kolom sesuai
-}
+    public function pengguna()
+    {
+        return $this->belongsTo(User::class, 'pengguna_id'); // pastikan nama kolom sesuai
+    }
 
-public function users()
-{
-    return $this->belongsToMany(
-        \App\Models\User::class,
-        'grupchat_user', // nama tabel pivot
-        'grupchat_id',    // foreign key di tabel pivot mengarah ke grup chat
-        'pengguna_id'     // foreign key di tabel pivot mengarah ke user
-    );
-}
+    public function users()
+    {
+        return $this->belongsToMany(
+            \App\Models\User::class,
+            'grupchat_user', // nama tabel pivot
+            'grupchat_id',    // foreign key di tabel pivot mengarah ke grup chat
+            'pengguna_id'     // foreign key di tabel pivot mengarah ke user
+        );
+    }
 
 }

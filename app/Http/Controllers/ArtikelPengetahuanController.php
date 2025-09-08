@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArtikelPengetahuan;
+use App\Models\ArticleView;
 use App\Models\KategoriPengetahuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -75,6 +76,13 @@ class ArtikelPengetahuanController extends Controller
     {
         $artikelpengetahuan->load(['kategoriPengetahuan', 'pengguna']);
 
+        if (auth()->check()) {
+            \App\Models\ArticleView::updateOrCreate(
+                ['artikel_id' => $artikelpengetahuan->id, 'user_id' => auth()->id()],
+                ['viewed_at' => now()]
+            );
+        }
+
         return view('kepalabagian.artikelpengetahuan-show', [
             'artikel' => $artikelpengetahuan,
         ]);
@@ -146,6 +154,6 @@ class ArtikelPengetahuanController extends Controller
         $artikelpengetahuan->delete();
 
         return redirect()->route('kepalabagian.artikelpengetahuan.index')
-                         ->with('success', 'Artikel berhasil dihapus.');
+                         ->with('deleted', 'Artikel berhasil dihapus.');
     }
 }

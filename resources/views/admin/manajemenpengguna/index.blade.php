@@ -99,9 +99,6 @@ $tanggal = $carbon->format('l, d F Y');
             <div class="w-full grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-8 max-w-[1800px] mx-auto">
                 <!-- KOLOM UTAMA (TABLE USER) -->
                 <section class="xl:col-span-8 w-full">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="font-bold text-lg text-[#2171b8]">Daftar Pengguna</span>
-                    </div>
                     <div class="overflow-x-auto rounded-2xl">
                         <table class="min-w-full bg-white rounded-2xl shadow border mb-2">
                             <thead>

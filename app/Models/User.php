@@ -39,14 +39,14 @@ class User extends Authenticatable
 
     protected $dates = ['deleted_at'];
 
-public function role()
-{
-    return $this->belongsTo(Role::class, 'role_id', 'id');
-}
-public function agenda()
-{
-    // Relasi one-to-many, karena 1 user bisa punya banyak agenda
-    return $this->hasMany(AgendaPimpinan::class, 'id_pengguna', 'id');
-}
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'id');
+    }
+    public function agenda()
+    {
+        // Relasi one-to-many, karena 1 user bisa punya banyak agenda
+        return $this->hasMany(AgendaPimpinan::class, 'id_pengguna', 'id');
+    }
 
 }

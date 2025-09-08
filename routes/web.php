@@ -207,15 +207,15 @@ Route::get('/pengetahuan/search', [HomeController::class, 'search'])->name('arti
 Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
 Route::get('/kegiatan/bidang/{bidang_id}', [KegiatanController::class, 'getByBidang'])->name('kegiatan.byBidang');
 Route::get('/kegiatan/subbidang/{subbidang_id}', [KegiatanController::class, 'getBySubbidang'])->name('kegiatan.bySubbidang');
-Route::get('/dokumen', function () { 
-    return view('dokumen');
-})->name('dokumen');
 
 Route::get('/dokumen', [HomeController::class, 'dokumen'])->name('dokumen');
 Route::get('/dokumen/bidang/{bidangId}', [HomeController::class, 'getDokumenByBidang']);
 Route::get('/dokumen/subbidang/{subbidangId}', [HomeController::class, 'getDokumenBySubbidang']);
 Route::get('/dokumen/search', [HomeController::class, 'searchDokumen'])->name('dokumen.search');
 Route::get('/dokumen/detail/{id}', [HomeController::class, 'showDokumenById'])->name('dokumen.show');
+// Alias: dukung juga /dokumen/{id} agar klik lama tidak 404
+Route::get('/dokumen/{id}', [HomeController::class, 'showDokumenById'])
+    ->whereNumber('id');
 
 // Route utama untuk daftar kegiatan
 Route::get('/kegiatan', [HomeController::class, 'kegiatan'])->name('kegiatan');
@@ -234,11 +234,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifikasi/{id}/dibaca', [NotifikasiController::class, 'tandaiSudahDibaca'])->name('notifikasi.dibaca');
     Route::get('/aksesdokumen/{id}/bagikan', [AksesDokumenController::class, 'bagikanForm'])->name('aksesdokumen.bagikan');
     Route::post('/aksesdokumen/{id}/bagikan', [AksesDokumenController::class, 'prosesBagikan'])->name('aksesdokumen.bagikan.proses');
+    
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::patch('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.uploadPhoto');
+    // ⇩ UPLOAD FOTO PROFIL
+    Route::patch('/profile/photo', [ProfileController::class, 'updatePhoto'])
+        ->name('profile.uploadPhoto');
+});
 
 require __DIR__.'/auth.php';

@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\DocumentView;
 use App\Models\Dokumen;
 use App\Models\KategoriDokumen;
 use Illuminate\Support\Facades\Storage;
@@ -111,6 +113,13 @@ class DokumenpegawaiController extends Controller
                 return redirect()->route('pegawai.manajemendokumen.index')
                     ->with('error', 'Kunci dokumen salah.');
             }
+        }
+
+        if (auth()->check()) {
+            DocumentView::updateOrCreate(
+                ['dokumen_id' => $dokumen->id, 'user_id' => auth()->id()],
+                ['viewed_at' => now()]
+            );
         }
 
         return view('pegawai.dokumen.show', compact('dokumen'));
