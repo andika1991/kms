@@ -292,16 +292,16 @@ $thumb = optional($kegiatan->fotokegiatan->first())->path_foto ?? null; // foto 
         // === Tombol Edit & Batalkan (SweetAlert2) ===
         document.getElementById('btn-update-kegiatan').addEventListener('click', () => {
             Swal.fire({
-                icon: 'question',
-                title: 'Simpan Perubahan?',
-                text: 'Apakah Anda yakin ingin menyimpan perubahan?',
+                icon: 'success',
+                title: 'Apakah Anda Yakin?',
+                text: 'Perubahan akan disimpan',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Edit',
-                cancelButtonText: 'Batal',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
                 reverseButtons: true,
                 customClass: {
-                    confirmButton: 'bg-[#2171b8] hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                    cancelButton:  'bg-[#e94545] hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
+                    confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
+                    cancelButton: 'bg-red-700 hover:bg-red-800 text-white font-semibold px-6 py-2 rounded-lg mx-2'
                 },
                 buttonsStyling: false
             }).then((r) => {
@@ -311,16 +311,32 @@ $thumb = optional($kegiatan->fotokegiatan->first())->path_foto ?? null; // foto 
 
         document.getElementById('btn-cancel-kegiatan').addEventListener('click', () => {
             Swal.fire({
+                width: 560,
+                backdrop: true,
                 icon: 'warning',
-                title: 'Batalkan Edit?',
-                text: 'Perubahan tidak akan disimpan.',
+                iconColor: 'transparent', 
+                iconHtml: `
+      <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <rect x="11" y="8" width="2" height="6" fill="white"/>
+        <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+      </svg>
+    `,
+                title: 'Apakah Anda Yakin',
+                html: '<div class="text-gray-600 text-lg">Perubahan tidak akan disimpan</div>',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Batalkan',
-                cancelButtonText: 'Kembali',
+                confirmButtonText: 'Yakin',
+                cancelButtonText: 'Batal',
                 reverseButtons: true,
+                buttonsStyling: false,
                 customClass: {
-                    confirmButton: 'bg-[#e94545] hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                    cancelButton:  'bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold px-6 py-2 rounded-lg mx-2',
+                    popup: 'rounded-2xl px-8 py-8',
+                    icon: 'mb-1', // jarak ikon ke judul dipersempit
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-5 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
                 },
                 buttonsStyling: false
             }).then((r) => {

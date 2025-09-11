@@ -27,15 +27,10 @@ class PengetahuanpegawaiController extends Controller
             ->get();
 
         $kategori = KategoriPengetahuan::query()
-            ->when(($bidangId || $subbidangId), function ($q) use ($bidangId, $subbidangId) {
-                $q->where(function ($qq) use ($bidangId, $subbidangId) {
-                    if ($bidangId)     $qq->orWhere('bidang_id', $bidangId);
-                    if ($subbidangId)  $qq->orWhere('subbidang_id', $subbidangId);
-                    $qq->orWhereNull('bidang_id'); // kategori umum
-                });
-            })
+            ->orderByRaw('CASE WHEN bidang_id IS NULL AND subbidang_id IS NULL THEN 0 ELSE 1 END')
             ->orderBy('nama_kategoripengetahuan')
             ->get();
+
 
         return view('pegawai.berbagipengetahuan.index', compact('artikels', 'kategori'));
     }
@@ -48,13 +43,7 @@ class PengetahuanpegawaiController extends Controller
         $subbidangId = $role->subbidang_id ?? null;
 
         $kategori = KategoriPengetahuan::query()
-            ->when(($bidangId || $subbidangId), function ($q) use ($bidangId, $subbidangId) {
-                $q->where(function ($qq) use ($bidangId, $subbidangId) {
-                    if ($bidangId)     $qq->orWhere('bidang_id', $bidangId);
-                    if ($subbidangId)  $qq->orWhere('subbidang_id', $subbidangId);
-                    $qq->orWhereNull('bidang_id');
-                });
-            })
+            ->orderByRaw('CASE WHEN bidang_id IS NULL AND subbidang_id IS NULL THEN 0 ELSE 1 END')
             ->orderBy('nama_kategoripengetahuan')
             ->get();
 
@@ -101,13 +90,10 @@ class PengetahuanpegawaiController extends Controller
             ->firstOrFail();
 
         $kategori = KategoriPengetahuan::query()
-            ->when(($bidangId || $subbidangId), function ($q) use ($bidangId, $subbidangId) {
-                $q->where(function ($qq) use ($bidangId, $subbidangId) {
-                    if ($bidangId)     $qq->orWhere('bidang_id', $bidangId);
-                    if ($subbidangId)  $qq->orWhere('subbidang_id', $subbidangId);
-                    $qq->orWhereNull('bidang_id');
-                });
-            })
+            ->orderByRaw('CASE WHEN bidang_id IS NULL AND subbidang_id IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('nama_kategoripengetahuan')
+            ->get();$kategori = KategoriPengetahuan::query()
+            ->orderByRaw('CASE WHEN bidang_id IS NULL AND subbidang_id IS NULL THEN 0 ELSE 1 END')
             ->orderBy('nama_kategoripengetahuan')
             ->get();
 

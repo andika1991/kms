@@ -136,8 +136,6 @@ $tanggal = $carbon->format('l, d F Y');
                     <div>
                         <p class="font-bold text-lg leading-tight mb-2">
                             Bidang {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
-                        <p class="text-xs">Upload, simpan, dan kelola dokumen kegiatan maupun knowledge sharing
-                            di sini.</p>
                     </div>
                 </div>
                 <div class="flex flex-col md:flex-row items-center gap-4">

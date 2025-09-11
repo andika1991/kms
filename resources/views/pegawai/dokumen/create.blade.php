@@ -254,7 +254,7 @@ $tanggal = $carbon->format('l, d F Y');
     });
     </script>
 
-    {{-- SWEETALERT2 (terbaru) --}}
+    {{-- SWEETALERT2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
     <script>
     document.getElementById('btn-create-dokumen').addEventListener('click', function() {
@@ -277,5 +277,62 @@ $tanggal = $carbon->format('l, d F Y');
             if (r.isConfirmed) document.getElementById('form-tambah-dokumen').submit();
         });
     });
+    </script>
+    <script>
+    (function() {
+        const cancelUrl = @json(route('pegawai.manajemendokumen.index'));
+        const cancelPath = new URL(cancelUrl, window.location.origin).pathname.replace(/\/+$/, '');
+
+        function isCancelAnchor(el) {
+            if (!el) return false;
+            const a = el.closest('a');
+            if (!a) return false;
+
+            let href = a.getAttribute('href') || '';
+            try {
+                // Normalisasi jadi pathname agar bisa cocokkan absolute vs relative
+                href = new URL(href, window.location.origin).pathname.replace(/\/+$/, '');
+            } catch (_) {}
+
+            return href === cancelPath;
+        }
+        // Delegasi klik: tangkap semua klik lalu saring kalau itu anchor "Batalkan"
+        document.addEventListener('click', function(e) {
+            if (!isCancelAnchor(e.target)) return;
+            e.preventDefault();
+            Swal.fire({
+                width: 560,
+                backdrop: true,
+                iconColor: 'transparent',
+                iconHtml: `
+        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <rect x="11" y="8" width="2" height="6" fill="white"/>
+          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+        </svg>
+      `,
+                title: 'Apakah Anda Yakin',
+                html: '<div class="text-gray-600 text-lg">perubahan tidak akan disimpan</div>',
+                showCancelButton: true,
+                confirmButtonText: 'Yakin',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl px-8 py-8',
+                    icon: 'mb-3',
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-6 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
+                },
+                buttonsStyling: false,
+                focusCancel: true
+            }).then((r) => {
+                if (r.isConfirmed) window.location.href = cancelUrl;
+            });
+        }, true);
+    })();
     </script>
 </x-app-layout>

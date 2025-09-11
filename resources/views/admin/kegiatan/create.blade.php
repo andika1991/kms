@@ -12,7 +12,7 @@ $tanggal = $carbon->format('l, d F Y');
     <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Tambah Kegiatan || Administrator</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Kegiatan </h2>
                 <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
             </div>
             <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -56,8 +56,8 @@ $tanggal = $carbon->format('l, d F Y');
     <div class="w-full min-h-[80vh] bg-[#eaf5ff] flex flex-col lg:flex-row gap-8 px-2 py-10 justify-center items-start">
         {{-- FORM UTAMA --}}
         <div class="w-full max-w-2xl">
-            <form id="form-kegiatan" method="POST" action="{{ route('admin.kegiatan.store') }}" enctype="multipart/form-data"
-                class="bg-white rounded-xl shadow-xl px-7 py-8 flex flex-col gap-6">
+            <form id="form-kegiatan" method="POST" action="{{ route('admin.kegiatan.store') }}"
+                enctype="multipart/form-data" class="bg-white rounded-xl shadow-xl px-7 py-8 flex flex-col gap-6">
                 @csrf
                 <input type="hidden" name="subbidang_id" value="{{ $subbidangId ?? '' }}">
 
@@ -70,7 +70,8 @@ $tanggal = $carbon->format('l, d F Y');
                         class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-blue-200 rounded-lg cursor-pointer hover:border-blue-500 bg-blue-50 transition">
                         <i class="fa fa-cloud-upload text-3xl text-blue-400 mb-1"></i>
                         <span class="text-blue-600 text-sm font-medium">Klik atau tarik thumbnail ke sini</span>
-                        <input type="file" id="thumbnail_kegiatan_input" name="thumbnail_kegiatan" accept="image/*" class="hidden">
+                        <input type="file" id="thumbnail_kegiatan_input" name="thumbnail_kegiatan" accept="image/*"
+                            class="hidden">
                     </label>
                     <div id="preview-thumbnail" class="mt-2"></div>
                     @error('thumbnail_kegiatan')
@@ -91,10 +92,12 @@ $tanggal = $carbon->format('l, d F Y');
 
                 {{-- Deskripsi Kegiatan --}}
                 <div>
-                    <label for="deskripsi_kegiatan" class="block font-semibold text-gray-700 mb-1">Deskripsi Kegiatan</label>
+                    <label for="deskripsi_kegiatan" class="block font-semibold text-gray-700 mb-1">Deskripsi
+                        Kegiatan</label>
                     <textarea name="deskripsi_kegiatan" id="deskripsi_kegiatan" rows="3"
                         class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2"
-                        placeholder="Jelaskan kegiatan yang dilakukan secara singkat..." required>{{ old('deskripsi_kegiatan') }}</textarea>
+                        placeholder="Jelaskan kegiatan yang dilakukan secara singkat..."
+                        required>{{ old('deskripsi_kegiatan') }}</textarea>
                     @error('deskripsi_kegiatan')
                     <span class="text-red-500 text-xs">{{ $message }}</span>
                     @enderror
@@ -102,12 +105,16 @@ $tanggal = $carbon->format('l, d F Y');
 
                 {{-- Kategori Kegiatan --}}
                 <div>
-                    <label for="kategori_kegiatan" class="block font-semibold text-gray-700 mb-1">Kategori Kegiatan</label>
+                    <label for="kategori_kegiatan" class="block font-semibold text-gray-700 mb-1">Kategori
+                        Kegiatan</label>
                     <select name="kategori_kegiatan" id="kategori_kegiatan"
-                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2" required>
+                        class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2"
+                        required>
                         <option value="">Pilih Kategori</option>
-                        <option value="publik" {{ old('kategori_kegiatan') == 'publik' ? 'selected' : '' }}>Publik</option>
-                        <option value="internal" {{ old('kategori_kegiatan') == 'internal' ? 'selected' : '' }}>Internal</option>
+                        <option value="publik" {{ old('kategori_kegiatan') == 'publik' ? 'selected' : '' }}>Publik
+                        </option>
+                        <option value="internal" {{ old('kategori_kegiatan') == 'internal' ? 'selected' : '' }}>Internal
+                        </option>
                     </select>
                     @error('kategori_kegiatan')
                     <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -123,7 +130,8 @@ $tanggal = $carbon->format('l, d F Y');
                         class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-blue-200 rounded-lg cursor-pointer hover:border-blue-500 bg-blue-50 transition">
                         <i class="fa fa-cloud-upload text-3xl text-blue-400 mb-1"></i>
                         <span class="text-blue-600 text-sm font-medium">Klik atau tarik foto ke sini</span>
-                        <input type="file" id="foto_kegiatan_input" name="foto_kegiatan[]" multiple accept="image/*" class="hidden">
+                        <input type="file" id="foto_kegiatan_input" name="foto_kegiatan[]" multiple accept="image/*"
+                            class="hidden">
                     </label>
                     <div id="preview-foto" class="flex flex-wrap gap-4 mt-2"></div>
                     @error('foto_kegiatan')
@@ -136,9 +144,11 @@ $tanggal = $carbon->format('l, d F Y');
         {{-- SIDEBAR --}}
         <aside class="flex flex-col gap-6 w-full max-w-sm mt-10 lg:mt-0">
             {{-- CARD ROLE --}}
-            <div class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+            <div
+                class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                 <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
-                <p class="font-bold text-base leading-tight">Bidang {{ Auth::user()->role->nama_role ?? 'Administrator' }}</p>
+                <p class="font-bold text-base leading-tight">Role {{ Auth::user()->role->nama_role ?? 'Administrator' }}
+                </p>
             </div>
             {{-- Tombol Simpan & Batalkan --}}
             <div class="flex gap-3 w-full">
@@ -263,11 +273,11 @@ $tanggal = $carbon->format('l, d F Y');
             e.preventDefault();
             Swal.fire({
                 icon: 'success',
-                title: 'Simpan Data?',
-                text: 'Apakah data sudah benar dan ingin disimpan?',
+                title: 'Apakah Anda Yakin?',
+                text: 'Perubahan akan disimpan',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Simpan',
-                cancelButtonText: 'Batal',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
                 reverseButtons: true,
                 customClass: {
                     confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
@@ -283,19 +293,34 @@ $tanggal = $carbon->format('l, d F Y');
         btnBatalkan.addEventListener('click', function(e) {
             e.preventDefault();
             Swal.fire({
-                icon: 'warning',
-                title: 'Batalkan Input?',
-                text: 'Data yang diisi akan dibatalkan dan tidak disimpan.',
+                width: 560,
+                backdrop: true,
+                iconColor: 'transparent', 
+                iconHtml: `
+        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <rect x="11" y="8" width="2" height="6" fill="white"/>
+          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+        </svg>
+      `,
+                title: 'Apakah Anda Yakin',
+                html: '<div class="text-gray-600 text-lg">Perubahan tidak akan disimpan</div>',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Batalkan',
-                cancelButtonText: 'Kembali',
-                reverseButtons: true,
+                confirmButtonText: 'Yakin',
+                cancelButtonText: 'Batal',
+                reverseButtons: true, 
+                buttonsStyling: false,
                 customClass: {
-                    confirmButton: 'bg-red-700 hover:bg-red-800 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                    cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold px-6 py-2 rounded-lg mx-2'
+                    popup: 'rounded-2xl px-8 py-8',
+                    icon: 'mb-3',
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-6 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
                 }
-            }).then((result) => {
-                if (result.isConfirmed) {
+            }).then((res) => {
+                if (res.isConfirmed) {
                     window.location.href = "{{ url()->previous() }}";
                 }
             });

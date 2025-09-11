@@ -15,7 +15,7 @@ $viewers = $viewers ?? [];
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] pb-12">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
+        <header class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen</h2>
@@ -52,7 +52,7 @@ $viewers = $viewers ?? [];
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
         {{-- MAIN KONTEN --}}
         <div class="p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
@@ -155,8 +155,6 @@ $viewers = $viewers ?? [];
                         <p class="font-bold text-lg leading-tight mb-2">
                             {{ Auth::user()->role->nama_role ?? 'Administrator' }}
                         </p>
-                        <p class="text-xs">Lihat dokumen kegiatan atau knowledge sharing
-                            di sini.</p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4">

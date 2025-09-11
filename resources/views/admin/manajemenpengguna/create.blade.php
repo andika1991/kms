@@ -13,7 +13,7 @@ $tanggal = $carbon->format('l, d F Y');
         <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Tambah Pengguna Baru || Administrator</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Pengguna</h2>
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -125,14 +125,14 @@ $tanggal = $carbon->format('l, d F Y');
                 <div
                     class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
-                    <p class="font-bold text-base leading-tight">Bidang
+                    <p class="font-bold text-base leading-tight">Role
                         {{ Auth::user()->role->nama_role ?? 'Administrator' }}</p>
                 </div>
                 {{-- Tombol Simpan & Batalkan --}}
                 <div class="flex gap-3 w-full">
                     <button type="button" id="btnSimpan"
                         class="flex-1 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
-                        Simpan
+                        Tambah
                     </button>
                     <a href="{{ route('admin.manajemenpengguna.index') }}" id="btnBatal"
                         class="flex-1 px-4 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow transition text-base text-center">

@@ -10,7 +10,7 @@ $tanggal = $carbon->format('l, d F Y');
 <x-app-layout>
     <div class="w-full min-h-screen bg-[#eaf5ff] flex flex-col pb-10">
         {{-- HEADER --}}
-        <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
+        <header class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Dokumen</h2>
@@ -51,13 +51,12 @@ $tanggal = $carbon->format('l, d F Y');
                     </div>
                 </div>
             </div>
-        </div>
-        
+        </header>
+
         {{-- FORM GRID --}}
         <div class="px-4 md:px-8 grid grid-cols-1 xl:grid-cols-12 gap-8 mt-6">
             <form method="POST" action="{{ route('admin.manajemendokumen.store') }}" enctype="multipart/form-data"
-                id="form-tambah-dokumen"
-                class="bg-white rounded-2xl shadow-lg p-8 xl:col-span-8 flex flex-col gap-7">
+                id="form-tambah-dokumen" class="bg-white rounded-2xl shadow-lg p-8 xl:col-span-8 flex flex-col gap-7">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start min-h-[480px]">
                     {{-- Preview Dokumen --}}
@@ -136,16 +135,16 @@ $tanggal = $carbon->format('l, d F Y');
                     <div>
                         <p class="font-bold text-lg leading-tight mb-2">
                             {{ Auth::user()->role->nama_role ?? 'Administrator' }}</p>
-                        <p class="text-xs">Upload, simpan, dan kelola dokumen kegiatan atau knowledge sharing
-                            di sini.</p>
                     </div>
                 </div>
                 <div class="flex flex-col md:flex-row items-center gap-4">
-                    <button id="btn-create-dokumen" type="button" class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
+                    <button id="btn-create-dokumen" type="button"
+                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-save"></i>
                         <span>Tambah</span>
                     </button>
-                    <a href="{{ route('admin.manajemendokumen.index') }}" class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
+                    <a id="btn-batalkan-dokumen" href="{{ route('admin.manajemendokumen.index') }}"
+                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-times"></i>
                         <span>Batalkan</span>
                     </a>
@@ -233,33 +232,77 @@ $tanggal = $carbon->format('l, d F Y');
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
     <script>
-        document.getElementById('btn-create-dokumen').addEventListener('click', function (e) {
-            // Modal konfirmasi mirip Figma
+    document.getElementById('btn-create-dokumen').addEventListener('click', function(e) {
+        Swal.fire({
+            title: 'Apakah Anda Yakin',
+            html: '<span class="font-semibold">Perubahan akan disimpan</span>',
+            icon: 'success',
+            showCancelButton: true,
+            showConfirmButton: true,
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Tidak',
+            reverseButtons: true,
+            customClass: {
+                popup: 'rounded-2xl p-8',
+                icon: 'mt-0 mb-3',
+                title: 'mb-1',
+                htmlContainer: 'mb-3',
+                confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
+                cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-10 py-2 rounded-lg text-base',
+                actions: 'flex justify-center gap-4',
+            },
+            buttonsStyling: false,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('form-tambah-dokumen').submit();
+            }
+        });
+    });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnCancel = document.getElementById('btn-batalkan-dokumen');
+        if (!btnCancel) return;
+
+        btnCancel.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetUrl = this.getAttribute('href');
+
             Swal.fire({
+                width: 560,
+                backdrop: true,
+                iconColor: 'transparent',
+                iconHtml: `
+        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <rect x="11" y="8" width="2" height="6" fill="white"/>
+          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+        </svg>
+      `,
                 title: 'Apakah Anda Yakin',
-                html: '<span class="font-semibold">perubahan akan disimpan</span>',
-                icon: 'success',
+                html: '<div class="text-gray-600 text-lg">perubahan tidak akan disimpan</div>',
                 showCancelButton: true,
-                showConfirmButton: true,
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
+                confirmButtonText: 'Yakin',
+                cancelButtonText: 'Batal',
                 reverseButtons: true,
-                customClass: {
-                    popup: 'rounded-2xl p-8',
-                    icon: 'mt-0 mb-3',
-                    title: 'mb-1',
-                    htmlContainer: 'mb-3',
-                    confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
-                    cancelButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-10 py-2 rounded-lg text-base',
-                    actions: 'flex justify-center gap-4',
-                },
                 buttonsStyling: false,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('form-tambah-dokumen').submit();
+                customClass: {
+                    popup: 'rounded-2xl px-8 py-8',
+                    icon: 'mb-3',
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-6 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
+                }
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    window.location.href = targetUrl;
                 }
             });
         });
+    });
     </script>
+
 
 </x-app-layout>

@@ -74,7 +74,7 @@ class ArtikelPengetahuanAdmController extends Controller
         $berbagipengetahuan->load(['kategoriPengetahuan', 'pengguna']);
             if (auth()->check()) {
                 ArticleView::updateOrCreate(
-                    ['artikel_id' => $artikel->id, 'user_id' => auth()->id()],
+                    ['artikel_id' => $berbagipengetahuan->id, 'user_id' => auth()->id()],
                     ['viewed_at' => now()]
             );
         }
