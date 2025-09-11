@@ -1,38 +1,30 @@
 @php
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;   
-use Illuminate\Support\Str;               
+use Illuminate\Support\Facades\Storage;
+
 $carbon = Carbon::now()->locale('id');
 $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
 
-/** URL foto profil yang stabil + cache buster */
-$photoPath = Auth::user()->photo_profil;
-$photoUrl = $photoPath
-    ? (Str::startsWith($photoPath, ['http://','https://']) ? $photoPath : Storage::disk('public')->url($photoPath))
+// Ambil foto user dari storage, fallback ke placeholder jika null
+$photoPath = $user->photo_profil;
+$photoUrl = $photoPath 
+    ? Storage::disk('public')->url($photoPath) 
     : asset('assets/img/avatar-placeholder.png');
-$photoUrl .= ($photoPath ? ('?v='.(optional(Auth::user()->updated_at)->timestamp ?? time())) : '');
+
+// Tambahkan query string timestamp untuk cache busting
+$photoUrl .= $photoPath ? ('?v=' . (optional($user->updated_at)->timestamp ?? time())) : '';
 @endphp
 
 <x-app-layout>
-    {{-- Scoped style khusus halaman profil (anti input hitam & autofill) --}}
+    {{-- Scoped style khusus halaman profil --}}
     <style>
-    .profile-card {
-        color-scheme: light;
-    }
-
-    .profile-card input,
-    .profile-card select,
-    .profile-card textarea {
+    .profile-card { color-scheme: light; }
+    .profile-card input, .profile-card select, .profile-card textarea {
         background-color: #f6f8fa !important;
         color: #111827 !important;
     }
-
-    .profile-card input::placeholder,
-    .profile-card textarea::placeholder {
-        color: #9ca3af;
-    }
-
+    .profile-card input::placeholder, .profile-card textarea::placeholder { color: #9ca3af; }
     .profile-card input:-webkit-autofill,
     .profile-card input:-webkit-autofill:hover,
     .profile-card input:-webkit-autofill:focus,
@@ -45,9 +37,8 @@ $photoUrl .= ($photoPath ? ('?v='.(optional(Auth::user()->updated_at)->timestamp
     }
     </style>
 
-    {{-- MAIN CONTENT WRAPPER --}}
     <div class="w-full min-h-screen bg-[#eaf5ff]">
-        {{-- HEADER KONTEN --}}
+        {{-- HEADER --}}
         <div class="p-6 md:p-8 border-b border-gray-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -88,11 +79,10 @@ $photoUrl .= ($photoPath ? ('?v='.(optional(Auth::user()->updated_at)->timestamp
             </div>
         </div>
 
-        {{-- BODY KONTEN GRID --}}
+        {{-- BODY GRID --}}
         <div class="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {{-- KOLOM KIRI (FORM) --}}
+            {{-- KOLOM KIRI --}}
             <div class="lg:col-span-2 space-y-8">
-
                 {{-- Form Informasi Profil --}}
                 <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border profile-card">
                     <section>
@@ -100,11 +90,9 @@ $photoUrl .= ($photoPath ? ('?v='.(optional(Auth::user()->updated_at)->timestamp
                             <h2 class="text-lg font-bold text-gray-900">Informasi Profil</h2>
                             <p class="mt-1 text-sm text-gray-600">Ubah informasi akun dan alamat email anda.</p>
                         </header>
-
                         <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
                             @csrf
                             @method('patch')
-
                             <div>
                                 <x-input-label for="name" :value="__('Nama')" class="text-gray-900" />
                                 <x-text-input id="name" name="name" type="text"
@@ -123,13 +111,11 @@ $photoUrl .= ($photoPath ? ('?v='.(optional(Auth::user()->updated_at)->timestamp
                                 <x-input-error class="mt-2" :messages="$errors->get('email')" />
                             </div>
 
-                            {{-- Tombol kanan + hijau (paksa override komponen) --}}
                             <div class="flex justify-end items-center gap-4">
                                 <x-primary-button
                                     class="!bg-green-600 hover:!bg-green-700 focus:!bg-green-700 active:!bg-green-800 !border-transparent !text-white">
                                     {{ __('Simpan') }}
                                 </x-primary-button>
-
                                 @if (session('status') === 'profile-updated')
                                 <p x-data="{ show: true }" x-show="show" x-transition
                                     x-init="setTimeout(() => show = false, 2000)" class="text-sm text-gray-600">
@@ -180,13 +166,11 @@ $photoUrl .= ($photoPath ? ('?v='.(optional(Auth::user()->updated_at)->timestamp
                                     class="mt-2" />
                             </div>
 
-                            {{-- Tombol kanan + hijau (paksa override komponen) --}}
                             <div class="flex justify-end items-center gap-4">
                                 <x-primary-button
                                     class="!bg-green-600 hover:!bg-green-700 focus:!bg-green-700 active:!bg-green-800 !border-transparent !text-white">
                                     {{ __('Simpan') }}
                                 </x-primary-button>
-
                                 @if (session('status') === 'password-updated')
                                 <p x-data="{ show: true }" x-show="show" x-transition
                                     x-init="setTimeout(() => show = false, 2000)" class="text-sm text-gray-600">
@@ -214,13 +198,13 @@ $photoUrl .= ($photoPath ? ('?v='.(optional(Auth::user()->updated_at)->timestamp
                         </x-danger-button>
 
                         <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-                            {{-- ... (Kode modal konfirmasi) ... --}}
+                            {{-- Kode modal konfirmasi --}}
                         </x-modal>
                     </section>
                 </div>
             </div>
 
-            {{-- KOLOM KANAN (PROFIL) --}}
+            {{-- KOLOM KANAN --}}
             <aside class="lg:col-span-1 w-full flex flex-col gap-8">
                 {{-- Kartu Foto Profil --}}
                 <form id="form-upload-foto" method="POST" action="{{ route('profile.uploadPhoto') }}"
@@ -230,39 +214,44 @@ $photoUrl .= ($photoPath ? ('?v='.(optional(Auth::user()->updated_at)->timestamp
                     @method('PATCH')
 
                     <div class="relative w-32 h-32 mb-4 group">
-                        <img id="preview-foto" src="{{ $photoUrl }}" alt="Foto Profil" loading="lazy"
+                        
+
+                        <img id="preview-foto" src="{{ asset('storage/' . $user->photo_profil) }}" alt="Foto Profil" loading="lazy"
                             onerror="this.onerror=null;this.src='{{ asset('assets/img/avatar-placeholder.png') }}';"
-                            class="w-full h-full rounded-full object-cover border-4 border-white/50 transition duration-150 group-hover:opacity-70">
+                            class="w-full h-full rounded-full object-cover border-4 border-white/50 transition duration-150">
                         <label for="photo_profil"
                             class="absolute inset-0 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 bg-black/30 rounded-full transition">
                             <span class="text-sm font-bold text-white">Pilih Foto</span>
                             <input type="file" id="photo_profil" name="photo_profil" accept="image/*" class="hidden"
-                                onchange="handlePhotoChange(event)">
+                                onchange="previewPhoto(event)">
                         </label>
                     </div>
 
-                    {{-- tombol hanya buka file picker (tidak submit halaman) --}}
+                    {{-- Tombol pilih file --}}
                     <button type="button" onclick="document.getElementById('photo_profil').click()"
-                        class="w-full bg-white/90 text-blue-800 font-semibold py-2 rounded-lg hover:bg-white transition mt-2">
-                        {{ $photoPath ? 'Ganti foto' : 'Unggah foto' }}
+                        class="w-full bg-white/90 text-blue-800 font-semibold py-2 rounded-lg hover:bg-white transition">
+                        Pilih Foto
                     </button>
 
-                    {{-- Notifikasi dari session (untuk full refresh/navigasi) --}}
-                    @if (session('status') === 'profile-photo-added')
-                    <div class="text-green-200 font-bold mt-2 text-sm">Foto berhasil ditambahkan!</div>
-                    @elseif (session('status') === 'profile-photo-updated')
-                    <div class="text-green-200 font-bold mt-2 text-sm">Foto berhasil diubah!</div>
+                    {{-- Tombol upload --}}
+                    <button type="submit"
+                        class="w-full bg-green-500 text-white font-semibold py-2 rounded-lg hover:bg-green-600 transition mt-2">
+                        Upload Foto
+                    </button>
+
+                    {{-- Notifikasi --}}
+                    @if(session('status') === 'profile-photo-updated')
+                        <p id="photo-status" class="mt-2 text-green-200 text-sm font-bold">
+                            Foto berhasil diubah!
+                        </p>
                     @endif
 
-                    {{-- Notifikasi dinamis (AJAX) --}}
-                    <div id="photo-status" class="hidden mt-2 text-sm font-bold"></div>
-
                     @error('photo_profil')
-                    <p class="text-red-200 font-semibold mt-2 text-sm">{{ $message }}</p>
+                        <p class="text-red-200 font-semibold mt-2 text-sm">{{ $message }}</p>
                     @enderror
                 </form>
 
-                {{-- Kartu Info Pengguna (biarkan seperti sebelumnya) --}}
+                {{-- Info User --}}
                 <div class="bg-gradient-to-br from-blue-800 to-blue-900 text-white rounded-2xl shadow-lg p-7 space-y-4">
                     <div>
                         <p class="text-sm opacity-80">Nama</p>
@@ -290,61 +279,14 @@ $photoUrl .= ($photoPath ? ('?v='.(optional(Auth::user()->updated_at)->timestamp
         </footer>
     </x-slot>
 
-    {{-- JS Preview Foto --}}
+    {{-- JS Preview --}}
     <script>
-    async function handlePhotoChange(e) {
-        const file = e.target.files && e.target.files[0];
+    function previewPhoto(e) {
+        const file = e.target.files[0];
         if (!file) return;
-
-        const form = document.getElementById('form-upload-foto');
-        const token = form.querySelector('input[name=_token]').value;
-        const had = form.dataset.hasPhoto === '1';
-        const img = document.getElementById('preview-foto');
-        const status = document.getElementById('photo-status');
-
-        // Preview cepat
         const reader = new FileReader();
-        reader.onload = ev => img.src = ev.target.result;
+        reader.onload = ev => document.getElementById('preview-foto').src = ev.target.result;
         reader.readAsDataURL(file);
-
-        // Kirim via AJAX ke route upload (PATCH)
-        const fd = new FormData();
-        fd.append('_method', 'PATCH');
-        fd.append('photo_profil', file);
-
-        try {
-            const res = await fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': token,
-                    'Accept': 'application/json'
-                },
-                body: fd
-            });
-
-            if (!res.ok) throw new Error('Upload gagal');
-
-            const data = await res.json();
-            // Pakai URL dari server + cache buster supaya tidak ketahan cache
-            if (data.url) {
-                img.src = data.url + '?v=' + (data.updated_at || Date.now());
-            }
-            form.dataset.hasPhoto = '1';
-
-            showPhotoStatus(data.status === 'added' ? 'Foto berhasil ditambahkan!' : 'Foto berhasil diubah!', true);
-        } catch (err) {
-            showPhotoStatus('Gagal mengunggah foto.', false);
-        }
-
-        function showPhotoStatus(msg, ok) {
-            status.textContent = msg;
-            status.classList.remove('hidden');
-            status.classList.toggle('text-green-200', ok);
-            status.classList.toggle('text-red-200', !ok);
-            setTimeout(() => status.classList.add('hidden'), 2500);
-        }
     }
     </script>
-
-
 </x-app-layout>

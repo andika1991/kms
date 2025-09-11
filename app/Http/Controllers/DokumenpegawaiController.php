@@ -85,45 +85,39 @@ class DokumenpegawaiController extends Controller
         return redirect()->route('pegawai.manajemendokumen.index')
                         ->with('success', 'Dokumen berhasil ditambahkan.');
     }
-    public function show(Request $request, $id)
-    {
-        $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
+   public function show(Request $request, $id)
+{
+    $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
-        $isRahasia = $dokumen->kategoriDokumen 
-            && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
+    $isRahasia = $dokumen->kategoriDokumen 
+        && $dokumen->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
 
-        if ($isRahasia) {
-            $inputKey = $request->encrypted_key;
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
 
-            if (!$inputKey) {
-                return redirect()->route('pegawai.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
-            }
-
-            // Dekripsi key dari DB
-            try {
-                $decryptedKey = decrypt($dokumen->encrypted_key);
-            } catch (\Exception $e) {
-                // Jika gagal dekripsi, berarti ada masalah data
-                return redirect()->route('pegawai.manajemendokumen.index')
-                    ->with('error', 'Data kunci dokumen tidak valid.');
-            }
-
-            if ($inputKey !== $decryptedKey) {
-                return redirect()->route('pegawai.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen salah.');
-            }
+        if (!$inputKey) {
+            return redirect()->route('pegawai.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
         }
 
-        if (auth()->check()) {
-            DocumentView::updateOrCreate(
-                ['dokumen_id' => $dokumen->id, 'user_id' => auth()->id()],
-                ['viewed_at' => now()]
-            );
+        // Karena encrypted_key sudah otomatis terdekripsi via casts,
+        // cukup bandingkan langsung saja
+        if ($inputKey !== $dokumen->encrypted_key) {
+            return redirect()->route('pegawai.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
         }
-
-        return view('pegawai.dokumen.show', compact('dokumen'));
     }
+
+    if (auth()->check()) {
+        DocumentView::updateOrCreate(
+            ['dokumen_id' => $dokumen->id, 'user_id' => auth()->id()],
+            ['viewed_at' => now()]
+        );
+    }
+
+    return view('pegawai.dokumen.show', compact('dokumen'));
+}
+
 
     public function edit(Dokumen $manajemendokuman)
     {

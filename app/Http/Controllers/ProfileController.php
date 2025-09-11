@@ -15,13 +15,12 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
-    {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
-    }
+public function edit(Request $request): View
+{
+    $user = $request->user();
 
+    return view('profile.edit', compact('user'));
+}
     /**
      * Update the user's profile information.
      */
@@ -38,47 +37,30 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    public function updatePhoto(Request $request)
-    {
-        $request->validate([
-            'photo_profil' => ['required', 'image', 'max:2048'],
-        ]);
+public function updatePhoto(Request $request)
+{
+    $request->validate([
+        'photo_profil' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+    ]);
 
-        $user = $request->user();
-        $hadPhoto = filled($user->photo_profil); // ada foto sebelumnya?
+    $user = $request->user();
 
-        // Hapus yang lama jika ada
-        if ($hadPhoto && Storage::disk('public')->exists($user->photo_profil)) {
-            Storage::disk('public')->delete($user->photo_profil);
-        }
-
-        // Simpan yang baru
-        $path = $request->file('photo_profil')->store('profile_photos', 'public');
-        $user->photo_profil = $path;
-        $user->save();
-
-        // URL publik + info untuk cache busting
-        $url = Storage::disk('public')->url($path);
-        $status = $hadPhoto ? 'updated' : 'added';
-
-        // Balas JSON untuk request AJAX/fetch
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json([
-                'status'     => $status,            // 'added' | 'updated'
-                'url'        => $url,
-                'updated_at' => optional($user->updated_at)->timestamp,
-            ]);
-        }
-
-        // Fallback bila form disubmit biasa
-        return back()->with(
-            'status',
-            $status === 'added' ? 'profile-photo-added' : 'profile-photo-updated'
-        );
+    if ($user->photo_profil && Storage::disk('public')->exists($user->photo_profil)) {
+        Storage::disk('public')->delete($user->photo_profil);
     }
-    /**
-     * Delete the user's account.
-     */
+
+    $path = $request->file('photo_profil')->store('profile_photos', 'public');
+
+    $user->photo_profil = $path;
+    $user->save();
+
+    // Refresh Auth agar Auth::user() langsung update
+    Auth::setUser($user->fresh());
+
+    return back()->with('status', 'profile-photo-updated');
+}
+
+
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [

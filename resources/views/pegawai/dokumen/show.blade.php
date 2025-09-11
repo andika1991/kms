@@ -8,10 +8,7 @@ $tanggal = $carbon->format('l, d F Y');
 $ext = strtolower(pathinfo($dokumen->path_dokumen, PATHINFO_EXTENSION));
 $namaFile = $dokumen->path_dokumen ? basename($dokumen->path_dokumen) : null;
 
-/**
-* Opsional: daftar user yang sudah melihat dokumen.
-* Jika controller tidak mengirim $viewers, jadikan koleksi kosong agar aman dipanggil.
-*/
+
 $viewers = $viewers ?? collect();
 @endphp
 
@@ -231,7 +228,7 @@ $viewers = $viewers ?? collect();
                 buttonsStyling: false
             }).then((r) => {
                 if (r.isConfirmed) {
-                    window.location.href = @json(route('aksesdokumen.bagikan', $dokumen - > id));
+                    window.location.href = @json(route('aksesdokumen.bagikan', $dokumen -> id));
                 }
             });
         });

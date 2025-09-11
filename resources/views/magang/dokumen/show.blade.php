@@ -228,7 +228,7 @@ $viewers = $viewers ?? collect(); // opsional untuk menampilkan nama viewer
                 buttonsStyling: false
             }).then((r) => {
                 if (r.isConfirmed) {
-                    window.location.href = @json(route('aksesdokumen.bagikan', $dokumen - > id));
+                    window.location.href = @json(route('aksesdokumen.bagikan', $dokumen -> id));
                 }
             });
         });

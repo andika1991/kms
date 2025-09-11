@@ -34,7 +34,7 @@ class User extends Authenticatable
         'verified' => 'boolean',
         'name' => 'encrypted',
         'email' => 'encrypted',
-        'photo_profil' => 'encrypted',
+       
     ];
 
     protected $dates = ['deleted_at'];

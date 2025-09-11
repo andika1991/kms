@@ -12,20 +12,24 @@ use Exception;
 class ManajemenDokumenController extends Controller
 {
     public function index(Request $request)
-    {
-        $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user']);
-        $dokumen = $dokumenQuery->latest()->get();
+{
+    // Ambil dokumen hanya milik user yang sedang login
+    $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
+        ->where('pengguna_id', auth()->id());
 
-        if ($request->filled('search')) {
-            $search = strtolower($request->search);
+    // Search (jika ada)
+    if ($request->filled('search')) {
+        $search = strtolower($request->search);
 
-            $dokumen = $dokumen->filter(function ($item) use ($search) {
-                return str_contains(strtolower($item->nama_dokumen ?? ''), $search);
-            });
-        }
-
-        return view('kepalabagian.dokumen.index', compact('dokumen'));
+        $dokumenQuery->whereRaw('LOWER(nama_dokumen) LIKE ?', ["%{$search}%"]);
     }
+
+    // Ambil hasil
+    $dokumen = $dokumenQuery->latest()->get();
+
+    return view('kepalabagian.dokumen.index', compact('dokumen'));
+}
+
 
     public function create()
     {
@@ -96,42 +100,35 @@ class ManajemenDokumenController extends Controller
     }
 
 
-    public function show(Request $request, $id)
-    {
-        // Ambil data dokumen dengan relasi kategori dan user
-        $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
+public function show(Request $request, $id)
+{
+    // Ambil data dokumen dengan relasi kategori dan user
+    $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
-        // Cek apakah dokumen termasuk kategori "Rahasia"
-        $isRahasia = $dokumen->kategoriDokumen 
-            && $dokumen->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
+    // Cek apakah dokumen termasuk kategori "Rahasia"
+    $isRahasia = $dokumen->kategoriDokumen 
+        && $dokumen->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
 
-        // Jika dokumen rahasia, cek kunci yang dimasukkan
-        if ($isRahasia) {
-            $inputKey = $request->encrypted_key;
+    // Jika dokumen rahasia, cek kunci yang dimasukkan
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
 
-            if (!$inputKey) {
-                return redirect()->route('kepalabagian.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
-            }
-
-            try {
-                // Dekripsi kunci yang disimpan di database
-                $decryptedKey = decrypt($dokumen->encrypted_key);
-            } catch (\Exception $e) {
-                return redirect()->route('kepalabagian.manajemendokumen.index')
-                    ->with('error', 'Data kunci dokumen tidak valid.');
-            }
-
-            // Cocokkan input dengan hasil dekripsi
-            if ($inputKey !== $decryptedKey) {
-                return redirect()->route('kepalabagian.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen salah.');
-            }
+        if (!$inputKey) {
+            return redirect()->route('kepalabagian.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
         }
 
-        // Tampilkan halaman dokumen jika lolos semua pemeriksaan
-        return view('kepalabagian.dokumen.show', compact('dokumen'));
+        // Tidak perlu decrypt() lagi, karena sudah otomatis via casts
+        if ($inputKey !== $dokumen->encrypted_key) {
+            return redirect()->route('kepalabagian.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
     }
+
+    // Tampilkan halaman dokumen jika lolos semua pemeriksaan
+    return view('kepalabagian.dokumen.show', compact('dokumen'));
+}
+
 
 
     public function edit(Dokumen $dokumen)

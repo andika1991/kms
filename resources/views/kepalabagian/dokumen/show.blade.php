@@ -210,9 +210,7 @@ $viewerCount = isset($viewers) ? $viewers->count() : 0;
                 },
                 buttonsStyling: false
             }).then(r => {
-                if (r.isConfirmed) window.location.href = @json(route('aksesdokumen.bagikan', $dokumen -
-                    >
-                    id));
+                if (r.isConfirmed) window.location.href = @json(route('aksesdokumen.bagikan', $dokumen->id));
             });
         });
     }

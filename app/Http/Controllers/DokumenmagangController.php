@@ -31,11 +31,11 @@ class DokumenmagangController extends Controller
 
     public function create()
     {
-        $bidangId = auth()->user()->role->bidang_id ?? null;
+        $bidangId = auth()->user()->role->subbidang_id ?? null;
 
         $kategori = KategoriDokumen::with('subbidang')
             ->when($bidangId, function ($query) use ($bidangId) {
-                $query->where('bidang_id', $bidangId);
+                $query->where('subbidang_id', $bidangId);
             })
             ->get();
 
@@ -77,56 +77,38 @@ class DokumenmagangController extends Controller
                         ->with('success', 'Dokumen berhasil ditambahkan.');
     }
 
-    public function show(Request $request, $id)
-    {
-        $dokumen = Dokumen::with(['kategoriDokumen','user'])
-            ->withCount('views') // <— penting agar $dokumen->views_count tersedia
-            ->findOrFail($id);
-        
-        // Izinkan semua role (yang penting sudah login melewati middleware masing2)
-        if (auth()->check()) {
-            DocumentView::updateOrCreate(
-                ['dokumen_id' => $dokumen->id, 'user_id' => auth()->id()],
-                ['viewed_at'  => now()]
-            );
-            // refresh counter setelah upsert
-            $dokumen->loadCount('views');
+   public function show(Request $request, $id)
+{
+    $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
+
+    $isRahasia = $dokumen->kategoriDokumen 
+        && $dokumen->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
+
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
+
+        if (!$inputKey) {
+            return redirect()->route('magang.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
         }
 
-        // opsional: kalau mau tampilkan siapa saja yang sudah lihat
-        $viewers = DocumentView::with('pengguna:id,name')
-            ->where('dokumen_id', $dokumen->id)
-            ->latest('viewed_at')
-            ->get();
-
-        $isRahasia = $dokumen->kategoriDokumen 
-            && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
-
-        if ($isRahasia) {
-            $inputKey = $request->encrypted_key;
-
-            if (!$inputKey) {
-                return redirect()->route('pegawai.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
-            }
-
-            // Dekripsi key dari DB
-            try {
-                $decryptedKey = decrypt($dokumen->encrypted_key);
-            } catch (\Exception $e) {
-                // Jika gagal dekripsi, berarti ada masalah data
-                return redirect()->route('magang.manajemendokumen.index')
-                    ->with('error', 'Data kunci dokumen tidak valid.');
-            }
-
-            if ($inputKey !== $decryptedKey) {
-                return redirect()->route('magang.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen salah.');
-            }
+        // Karena encrypted_key sudah auto-decrypt via casts
+        if ($inputKey !== $dokumen->encrypted_key) {
+            return redirect()->route('magang.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
         }
-
-        return view('magang.dokumen.show', compact('dokumen', 'viewers'));
     }
+
+    if (auth()->check()) {
+        DocumentView::updateOrCreate(
+            ['dokumen_id' => $dokumen->id, 'user_id' => auth()->id()],
+            ['viewed_at' => now()]
+        );
+    }
+
+    return view('magang.dokumen.show', compact('dokumen'));
+}
+
 
     public function edit(Dokumen $manajemendokuman)
     {
