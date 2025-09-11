@@ -134,11 +134,6 @@ $viewers = $viewers ?? collect(); // opsional untuk menampilkan nama viewer
 
                             {{-- Aksi bawah preview --}}
                             <div class="mt-3 flex flex-wrap gap-3">
-                                <a href="{{ asset($filePath) }}" target="_blank" download
-                                    class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition text-sm">
-                                    <i class="fa-solid fa-download"></i> Download Dokumen
-                                </a>
-
                                 <button type="button" id="btn-copy-link" data-link="{{ asset($filePath) }}"
                                     class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold shadow-sm transition text-sm">
                                     <i class="fa-solid fa-link"></i> Salin Link
@@ -178,7 +173,6 @@ $viewers = $viewers ?? collect(); // opsional untuk menampilkan nama viewer
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon"
                         class="h-16 w-16 mx-auto mb-4">
                     <p class="font-bold text-lg leading-tight mb-1">{{ Auth::user()->role->nama_role ?? 'Magang' }}</p>
-                    <p class="text-xs opacity-90">Lihat detail & bagikan dokumen kamu di sini.</p>
                 </div>
 
                 <div class="flex flex-col gap-3">

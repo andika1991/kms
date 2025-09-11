@@ -115,6 +115,8 @@ Route::delete('/pegawai/kegiatan/foto/{foto}', [FotoKegiatanController::class, '
     ->name('kegiatan.foto.delete');
 Route::resource('manajemendokumen', DokumenpegawaiController::class);
 Route::resource('forum', ForumPegawaiController::class);
+Route::post('kategoripengetahuan', [KategoriPengetahuanPegawaiController::class, 'store'])
+    ->name('kategoripengetahuan.store');
  Route::post('/grup-chat/{grupchat}/pesan', [GrupChatMessageController::class, 'store'])
     ->name('grupchat.pesan.store');
     });

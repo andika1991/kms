@@ -182,8 +182,6 @@ $tanggal = $carbon->format('l, d F Y');
                     <div>
                         <p class="font-bold text-lg leading-tight mb-2">Bidang
                             {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
-                        <p class="text-xs">Edit atau perbarui dokumen kegiatan, inovasi, dan knowledge sharing di sini.
-                        </p>
                     </div>
                 </div>
 

@@ -222,11 +222,11 @@ $tanggal = $carbon->format('l, d F Y');
             Swal.fire({
                 icon: 'warning',
                 title: 'Apakah Anda yakin?',
-                html: '<span class="text-gray-600 text-base">Kegiatan akan dihapus permanen.</span>',
+                html: '<span class="text-gray-600 text-base">Data akan dihapus</span>',
                 showCancelButton: true,
                 confirmButtonText: 'Hapus',
                 cancelButtonText: 'Batalkan',
-                reverseButtons: true,
+                reverseButtons: false,
                 focusCancel: true,
                 customClass: {
                     popup: 'rounded-2xl px-8 pt-5 pb-6',

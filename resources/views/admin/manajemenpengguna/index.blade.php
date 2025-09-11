@@ -55,7 +55,7 @@ $tanggal = $carbon->format('l, d F Y');
         <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Pengguna || Administrator</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Pengguna</h2>
                     <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
                 </div>
                 <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -166,9 +166,8 @@ $tanggal = $carbon->format('l, d F Y');
                         <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon"
                             class="h-16 w-16 mb-4">
                         <div>
-                            <p class="font-bold text-lg leading-tight mb-2">
+                            <p class="font-bold text-lg leading-tight mb-2"> Role
                                 {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
-                            <p class="text-xs">Manajemen akses pengguna, verifikasi akun, dan kontrol aksi subbidang di sini.</p>
                         </div>
                     </div>
                     <a href="{{ route('admin.manajemenpengguna.create') }}"

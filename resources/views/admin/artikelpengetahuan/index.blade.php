@@ -106,54 +106,56 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
             {{-- KOLOM KIRI (GRID ARTIKEL) --}}
             <section class="xl:col-span-8 w-full">
-                <div class="flex flex-col gap-6">
-                    @forelse($artikels as $artikel)
-                    <!-- Card Artikel Horizontal -->
-                    <a href="{{ route('admin.berbagipengetahuan.show', $artikel->id) }}"
-                        class="block bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-4 border-4 border-white group">
-                        <div class="flex flex-col sm:flex-row gap-5">
-                            <!-- Gambar Artikel -->
+                @if($artikels->count())
+                {{-- PEMBUNGKUS PUTIH KESELURUHAN --}}
+                <div class="bg-white rounded-2xl shadow-lg border p-4 sm:p-5">
+                    {{-- 2 kolom di ≥md, 1 kolom di mobile --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        @foreach($artikels as $artikel)
+                        <a href="{{ route('admin.berbagipengetahuan.show', $artikel->id) }}"
+                            class="group flex gap-4 rounded-xl p-2 hover:bg-blue-50 transition">
                             <img src="{{ asset('storage/' . ($artikel->thumbnail ?? 'default.jpg')) }}"
-                                class="w-full sm:w-48 h-40 sm:h-auto object-cover rounded-lg flex-shrink-0"
-                                alt="{{ $artikel->judul }}">
-
-                            <!-- Konten Teks -->
-                            <div class="flex flex-col flex-grow">
-                                <h3 class="font-bold text-lg text-gray-800 group-hover:text-blue-700 transition-colors mb-2 line-clamp-2"
-                                    title="{{ $artikel->judul }}">{{ $artikel->judul }}</h3>
-                                <p class="text-xs font-semibold text-blue-600 mb-2">
+                                alt="{{ $artikel->judul }}"
+                                class="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-lg flex-shrink-0">
+                            <div class="flex flex-col min-w-0">
+                                <h3 class="font-bold text-base sm:text-lg text-gray-800 line-clamp-2 group-hover:text-blue-700"
+                                    title="{{ $artikel->judul }}">
+                                    {{ $artikel->judul }}
+                                </h3>
+                                <p class="text-[11px] sm:text-xs font-semibold text-blue-600 mt-1">
                                     Kategori: {{ $artikel->kategoriPengetahuan->nama_kategoripengetahuan ?? '-' }}
                                 </p>
-                                <p class="text-sm text-gray-600 line-clamp-2">
-                                    {{ \Illuminate\Support\Str::limit(strip_tags($artikel->isi), 150) }}
+                                <p class="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">
+                                    {{ \Illuminate\Support\Str::limit(strip_tags($artikel->isi), 120) }}
                                 </p>
-
-                                <!-- Footer Card -->
-                                <div class="flex justify-between items-center text-xs text-gray-500 mt-auto pt-4">
+                                <div
+                                    class="flex justify-between items-center text-[11px] sm:text-xs text-gray-500 mt-auto pt-3">
                                     <span class="inline-flex items-center gap-1">
                                         <i class="fas fa-eye"></i> {{ number_format($artikel->views_total) }}
                                     </span>
                                     <span>{{ \Carbon\Carbon::parse($artikel->created_at)->translatedFormat('d M Y') }}</span>
                                 </div>
                             </div>
-                        </div>
-                    </a>
-                    @empty
-                    <div
-                        class="col-span-full flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
-                        <img src="{{ asset('assets/img/empty-state.svg') }}" class="mx-auto w-40 opacity-70 mb-4"
-                            alt="Empty">
-                        <h3 class="text-xl font-bold text-gray-700">Belum Ada Artikel Pengetahuan</h3>
-                        <p class="text-gray-500 mt-2">Silakan tambahkan artikel baru untuk memulai.</p>
+                        </a>
+                        @endforeach
                     </div>
-                    @endforelse
                 </div>
+                @else
+                <div
+                    class="col-span-full flex flex-col items-center justify-center text-center h-full py-20 px-6 bg-white rounded-2xl shadow-lg border">
+                    <img src="{{ asset('assets/img/empty-state.svg') }}" class="mx-auto w-40 opacity-70 mb-4"
+                        alt="Empty">
+                    <h3 class="text-xl font-bold text-gray-700">Belum Ada Artikel Pengetahuan</h3>
+                    <p class="text-gray-500 mt-2">Silakan tambahkan artikel baru untuk memulai.</p>
+                </div>
+                @endif
 
-                <!-- Pagination -->
+                {{-- Pagination tetap di luar pembungkus putih --}}
                 <div class="mt-8">
                     {{ $artikels->appends(request()->query())->links() }}
                 </div>
             </section>
+
 
             {{-- KOLOM KANAN (SIDEBAR) + MODAL DELETE --}}
             <aside class="xl:col-span-4 w-full flex flex-col gap-8">
@@ -164,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon"
                             class="h-16 w-16 mb-4">
                         <div>
-                            <p class="font-bold text-lg leading-tight">
+                            <p class="font-bold text-lg leading-tight">Role
                                 {{ Auth::user()->role->nama_role ?? 'Administrator' }}</p>
                         </div>
                     </div>

@@ -107,7 +107,8 @@ $tanggal = $carbon->format('l, d F Y');
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Administrator' }}
+                        <p class="font-bold text-lg leading-tight">Role
+                            {{ Auth::user()->role->nama_role ?? 'Administrator' }}
                         </p>
                     </div>
                 </div>
@@ -124,8 +125,8 @@ $tanggal = $carbon->format('l, d F Y');
                         <span>Hapus Artikel</span>
                     </button>
                     <form id="delete-artikel-form"
-                        action="{{ route('admin.berbagipengetahuan.destroy', ['berbagipengetahuan' => $artikel->id]) }}" method="POST"
-                        class="hidden">
+                        action="{{ route('admin.berbagipengetahuan.destroy', ['berbagipengetahuan' => $artikel->id]) }}"
+                        method="POST" class="hidden">
                         @csrf
                         @method('DELETE')
                     </form>
@@ -151,19 +152,19 @@ $tanggal = $carbon->format('l, d F Y');
         Swal.fire({
             icon: 'warning',
             title: 'Apakah Anda Yakin',
-            html: '<span class="text-gray-600 text-base">Artikel akan dihapus</span>',
+            html: '<span class="text-gray-600 text-base">Data akan dihapus</span>',
             showCancelButton: true,
-            confirmButtonText: 'Hapus',
             cancelButtonText: 'Batalkan',
-            reverseButtons: true,
+            confirmButtonText: 'Hapus',
+            reverseButtons: false,
             focusCancel: true,
             customClass: {
                 popup: 'rounded-2xl px-8 pt-5 pb-6',
                 icon: 'mt-3 mb-2',
                 title: 'mb-1',
                 htmlContainer: 'mb-3',
-                cancelButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-10 py-2 rounded-lg text-base',
                 confirmButton: 'bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
+                cancelButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-10 py-2 rounded-lg text-base',
                 actions: 'flex justify-center gap-4',
             },
             buttonsStyling: false,

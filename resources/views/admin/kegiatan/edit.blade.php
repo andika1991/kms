@@ -12,7 +12,7 @@ $tanggal = $carbon->format('l, d F Y');
     <div class="p-6 md:p-8 border-b border-gray-200 bg-[#eaf5ff]">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Edit Kegiatan || Administrator</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Manajemen Kegiatan</h2>
                 <p class="text-gray-500 text-sm font-normal mt-1">{{ $tanggal }}</p>
             </div>
             <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -56,8 +56,8 @@ $tanggal = $carbon->format('l, d F Y');
     <div class="w-full min-h-[80vh] bg-[#eaf5ff] flex flex-col lg:flex-row gap-8 px-2 py-10 justify-center items-start">
         {{-- FORM UTAMA --}}
         <div class="w-full max-w-2xl">
-            <form id="form-kegiatan" method="POST" action="{{ route('admin.kegiatan.update', $kegiatan->id) }}" enctype="multipart/form-data"
-                class="bg-white rounded-xl shadow-xl px-7 py-8 flex flex-col gap-7">
+            <form id="form-kegiatan" method="POST" action="{{ route('admin.kegiatan.update', $kegiatan->id) }}"
+                enctype="multipart/form-data" class="bg-white rounded-xl shadow-xl px-7 py-8 flex flex-col gap-7">
                 @csrf
                 @method('PUT')
 
@@ -66,11 +66,11 @@ $tanggal = $carbon->format('l, d F Y');
                     <label class="block font-semibold text-gray-700 mb-1">Thumbnail</label>
                     <div class="relative mb-3">
                         @if ($kegiatan->thumbnail)
-                            <img id="preview-thumbnail" src="{{ asset('storage/'.$kegiatan->thumbnail) }}"
-                                class="w-full h-48 object-cover rounded-lg border shadow" alt="Thumbnail Kegiatan">
+                        <img id="preview-thumbnail" src="{{ asset('storage/'.$kegiatan->thumbnail) }}"
+                            class="w-full h-48 object-cover rounded-lg border shadow" alt="Thumbnail Kegiatan">
                         @else
-                            <img id="preview-thumbnail" src="{{ asset('img/no-image.png') }}"
-                                class="w-full h-48 object-cover rounded-lg border shadow" alt="Thumbnail Kegiatan">
+                        <img id="preview-thumbnail" src="{{ asset('img/no-image.png') }}"
+                            class="w-full h-48 object-cover rounded-lg border shadow" alt="Thumbnail Kegiatan">
                         @endif
                         <div class="absolute right-4 bottom-4 flex gap-2 z-10">
                             {{-- Ganti Gambar --}}
@@ -78,16 +78,16 @@ $tanggal = $carbon->format('l, d F Y');
                                 class="px-4 py-2 rounded-lg bg-[#2171b8] hover:bg-blue-700 text-white font-semibold text-sm shadow cursor-pointer transition flex items-center gap-2">
                                 <i class="fa fa-refresh"></i>
                                 Ganti gambar
-                                <input type="file" id="thumbnail_kegiatan_input" name="thumbnail_kegiatan" accept="image/*" class="hidden">
+                                <input type="file" id="thumbnail_kegiatan_input" name="thumbnail_kegiatan"
+                                    accept="image/*" class="hidden">
                             </label>
                             {{-- Hapus Thumbnail (jika ada) --}}
                             @if ($kegiatan->thumbnail)
-                                <button type="button"
-                                    id="btn-delete-thumbnail"
-                                    class="px-4 py-2 rounded-lg bg-[#e94545] hover:bg-red-700 text-white font-semibold text-sm shadow flex items-center gap-2">
-                                    <i class="fa fa-trash"></i>
-                                    Hapus
-                                </button>
+                            <button type="button" id="btn-delete-thumbnail"
+                                class="px-4 py-2 rounded-lg bg-[#e94545] hover:bg-red-700 text-white font-semibold text-sm shadow flex items-center gap-2">
+                                <i class="fa fa-trash"></i>
+                                Hapus
+                            </button>
                             @endif
                         </div>
                     </div>
@@ -110,7 +110,8 @@ $tanggal = $carbon->format('l, d F Y');
 
                 {{-- DESKRIPSI KEGIATAN --}}
                 <div>
-                    <label for="deskripsi_kegiatan" class="block font-semibold text-gray-700 mb-1">Deskripsi Kegiatan</label>
+                    <label for="deskripsi_kegiatan" class="block font-semibold text-gray-700 mb-1">Deskripsi
+                        Kegiatan</label>
                     <textarea name="deskripsi_kegiatan" id="deskripsi_kegiatan" rows="5"
                         class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2"
                         required>{{ old('deskripsi_kegiatan', $kegiatan->deskripsi_kegiatan) }}</textarea>
@@ -121,13 +122,18 @@ $tanggal = $carbon->format('l, d F Y');
 
                 {{-- KATEGORI --}}
                 <div>
-                    <label for="kategori_kegiatan" class="block font-semibold text-gray-700 mb-1">Kategori Kegiatan</label>
+                    <label for="kategori_kegiatan" class="block font-semibold text-gray-700 mb-1">Kategori
+                        Kegiatan</label>
                     <select name="kategori_kegiatan" id="kategori_kegiatan"
                         class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-3 py-2"
                         required>
                         <option value="">Pilih Kategori</option>
-                        <option value="publik" {{ old('kategori_kegiatan', $kegiatan->kategori_kegiatan) == 'publik' ? 'selected' : '' }}>Publik</option>
-                        <option value="internal" {{ old('kategori_kegiatan', $kegiatan->kategori_kegiatan) == 'internal' ? 'selected' : '' }}>Internal</option>
+                        <option value="publik"
+                            {{ old('kategori_kegiatan', $kegiatan->kategori_kegiatan) == 'publik' ? 'selected' : '' }}>
+                            Publik</option>
+                        <option value="internal"
+                            {{ old('kategori_kegiatan', $kegiatan->kategori_kegiatan) == 'internal' ? 'selected' : '' }}>
+                            Internal</option>
                     </select>
                     @error('kategori_kegiatan')
                     <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -143,7 +149,8 @@ $tanggal = $carbon->format('l, d F Y');
                         class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-blue-200 rounded-lg cursor-pointer hover:border-blue-500 bg-blue-50 transition">
                         <i class="fa fa-cloud-upload text-3xl text-blue-400 mb-1"></i>
                         <span class="text-blue-600 text-sm font-medium">Klik atau tarik foto ke sini</span>
-                        <input type="file" id="foto_kegiatan_input" name="foto_kegiatan[]" multiple accept="image/*" class="hidden">
+                        <input type="file" id="foto_kegiatan_input" name="foto_kegiatan[]" multiple accept="image/*"
+                            class="hidden">
                     </label>
                     <div id="preview-foto" class="flex flex-wrap gap-4 mt-2"></div>
                     <div id="hidden-file-inputs"></div>
@@ -153,24 +160,26 @@ $tanggal = $carbon->format('l, d F Y');
 
                     {{-- Dokumentasi Lama --}}
                     @if($kegiatan->fotokegiatan->count())
-                        <div class="mt-4 flex flex-wrap gap-4">
-                            @foreach($kegiatan->fotokegiatan as $foto)
-                                <div class="relative group">
-                                    <img src="{{ asset('storage/' . $foto->path_foto) }}"
-                                        class="h-20 w-32 object-cover rounded-lg border" alt="Foto Kegiatan">
-                                    <a href="#" onclick="event.preventDefault(); if(confirm('Hapus foto ini?')) document.getElementById('delete-foto-{{ $foto->id }}').submit();"
-                                        class="absolute top-[-7px] right-[-7px] bg-[#e94545] text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 opacity-90 group-hover:opacity-100 transition">&times;</a>
-                                </div>
-                            @endforeach
+                    <div class="mt-4 flex flex-wrap gap-4">
+                        @foreach($kegiatan->fotokegiatan as $foto)
+                        <div class="relative group">
+                            <img src="{{ asset('storage/' . $foto->path_foto) }}"
+                                class="h-20 w-32 object-cover rounded-lg border" alt="Foto Kegiatan">
+                            <a href="#"
+                                onclick="event.preventDefault(); if(confirm('Hapus foto ini?')) document.getElementById('delete-foto-{{ $foto->id }}').submit();"
+                                class="absolute top-[-7px] right-[-7px] bg-[#e94545] text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 opacity-90 group-hover:opacity-100 transition">&times;</a>
                         </div>
+                        @endforeach
+                    </div>
                     @endif
                 </div>
 
                 @foreach($kegiatan->fotokegiatan as $foto)
-                    <form id="delete-foto-{{ $foto->id }}" action="{{ route('admin.kegiatan.foto.delete', $foto->id) }}" method="POST" style="display:none;">
-                        @csrf
-                        @method('DELETE')
-                    </form>
+                <form id="delete-foto-{{ $foto->id }}" action="{{ route('admin.kegiatan.foto.delete', $foto->id) }}"
+                    method="POST" style="display:none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
                 @endforeach
 
             </form>
@@ -178,15 +187,17 @@ $tanggal = $carbon->format('l, d F Y');
 
         {{-- SIDEBAR --}}
         <aside class="flex flex-col gap-6 w-full max-w-sm mt-10 lg:mt-0">
-            <div class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
+            <div
+                class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-7 flex flex-col items-center justify-center text-center">
                 <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-14 w-14 mb-3">
-                <p class="font-bold text-base leading-tight">Bidang {{ Auth::user()->role->nama_role ?? 'Administrator' }}</p>
+                <p class="font-bold text-base leading-tight">Bidang
+                    {{ Auth::user()->role->nama_role ?? 'Administrator' }}</p>
             </div>
             {{-- Tombol Simpan & Batalkan --}}
             <div class="flex gap-3 w-full">
                 <button type="button" id="btn-update-kegiatan"
-                    class="flex-1 px-4 py-2 rounded-lg bg-[#2171b8] hover:bg-blue-700 text-white font-semibold shadow transition text-base">
-                    Edit
+                    class="flex-1 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition text-base">
+                    Simpan
                 </button>
                 <button type="button" id="btn-cancel-kegiatan"
                     class="flex-1 px-4 py-2 rounded-lg bg-[#e94545] hover:bg-red-700 text-white font-semibold shadow transition text-base text-center">
@@ -221,7 +232,7 @@ $tanggal = $carbon->format('l, d F Y');
     });
 
     // Hapus Thumbnail
-    document.getElementById('btn-delete-thumbnail')?.addEventListener('click', function () {
+    document.getElementById('btn-delete-thumbnail')?.addEventListener('click', function() {
         Swal.fire({
             icon: 'warning',
             title: 'Hapus Thumbnail?',
@@ -309,20 +320,21 @@ $tanggal = $carbon->format('l, d F Y');
     {{-- SweetAlert2 & Tombol Sidebar --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         // Konfirmasi Edit
-        document.getElementById('btn-update-kegiatan').addEventListener('click', function () {
+        document.getElementById('btn-update-kegiatan').addEventListener('click', function(e) {
+            e.preventDefault();
             Swal.fire({
-                icon: 'question',
-                title: 'Simpan Perubahan?',
-                text: 'Apakah Anda yakin ingin menyimpan perubahan?',
+                icon: 'success',
+                title: 'Apakah Anda Yakin?',
+                text: 'Perubahan akan disimpan',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Edit',
-                cancelButtonText: 'Batal',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
                 reverseButtons: true,
                 customClass: {
-                    confirmButton: 'bg-[#2171b8] hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                    cancelButton: 'bg-[#e94545] hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mx-2'
+                    confirmButton: 'bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
+                    cancelButton: 'bg-red-700 hover:bg-red-800 text-white font-semibold px-6 py-2 rounded-lg mx-2'
                 },
                 buttonsStyling: false
             }).then((result) => {
@@ -332,20 +344,37 @@ $tanggal = $carbon->format('l, d F Y');
             });
         });
         // Konfirmasi Batal
-        document.getElementById('btn-cancel-kegiatan').addEventListener('click', function () {
+        document.getElementById('btn-cancel-kegiatan').addEventListener('click', function(e) {
+            e.preventDefault();
             Swal.fire({
+                width: 560,
+                backdrop: true,
                 icon: 'warning',
-                title: 'Batalkan Edit?',
-                text: 'Perubahan tidak akan disimpan. Lanjutkan?',
+                iconColor: 'transparent', 
+                iconHtml: `
+      <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <rect x="11" y="8" width="2" height="6" fill="white"/>
+        <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+      </svg>
+    `,
+                // title: 'Batalkan Edit?', // jika ingin mempertahankan judul lama, pakai ini
+                title: 'Apakah Anda Yakin',
+                html: '<div class="text-gray-600 text-lg">Perubahan tidak akan disimpan</div>',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Batalkan',
-                cancelButtonText: 'Kembali',
+                confirmButtonText: 'Yakin',
+                cancelButtonText: 'Batal',
                 reverseButtons: true,
+                buttonsStyling: false,
                 customClass: {
-                    confirmButton: 'bg-[#e94545] hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mx-2',
-                    cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold px-6 py-2 rounded-lg mx-2'
-                },
-                buttonsStyling: false
+                    popup: 'rounded-2xl px-8 py-8',
+                    icon: 'mb-1', // jarak ikon ke judul dipersempit
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-5 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = "{{ route('admin.kegiatan.index') }}";
@@ -359,7 +388,8 @@ $tanggal = $carbon->format('l, d F Y');
     <x-slot name="footer">
         <footer class="bg-[#2b6cb0] py-4 mt-8">
             <div class="max-w-7xl mx-auto px-4 flex justify-center items-center">
-                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik" class="h-10 object-contain">
+                <img src="{{ asset('assets/img/logo_footer_diskominfotik.png') }}" alt="Footer Diskominfotik"
+                    class="h-10 object-contain">
             </div>
         </footer>
     </x-slot>

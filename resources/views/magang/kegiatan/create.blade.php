@@ -207,7 +207,7 @@ $tanggal = $carbon->format('l, d F Y');
 
         // ====== Dokumentasi (multiple, max 5) ======
         const docsInput = document.getElementById(
-        'foto_kegiatan_input'); // tetap name="foto_kegiatan[]" agar controller tidak berubah
+            'foto_kegiatan_input'); // tetap name="foto_kegiatan[]" agar controller tidak berubah
         const docsPreview = document.getElementById('preview-foto');
         let docsFiles = [];
 
@@ -277,7 +277,7 @@ $tanggal = $carbon->format('l, d F Y');
             Swal.fire({
                 icon: 'success',
                 title: 'Apakah Anda Yakin?',
-                html: '<span class="text-gray-600 text-base">Kegiatan akan ditambahkan.</span>',
+                html: '<span class="text-gray-600 text-base">Perubahan akan disimpan</span>',
                 showCancelButton: true,
                 confirmButtonText: 'Ya',
                 cancelButtonText: 'Tidak',
@@ -291,7 +291,7 @@ $tanggal = $carbon->format('l, d F Y');
                 buttonsStyling: false,
             }).then((r) => {
                 if (r.isConfirmed) {
-                    mergeThumbToDocs(); // masukkan thumbnail ke foto_kegiatan[] sebelum submit
+                    mergeThumbToDocs();
                     form.submit();
                 }
             });
@@ -300,18 +300,31 @@ $tanggal = $carbon->format('l, d F Y');
         document.getElementById('btn-batal').addEventListener('click', function(e) {
             e.preventDefault();
             Swal.fire({
-                icon: 'warning',
-                title: 'Batalkan Input?',
-                html: '<span class="text-gray-600 text-base">Perubahan tidak akan disimpan.</span>',
+                width: 560,
+                backdrop: true,
+                iconColor: 'transparent',
+                iconHtml: `
+        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <rect x="11" y="8" width="2" height="6" fill="white"/>
+          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+        </svg>
+      `,
+                title: 'Apakah Anda Yakin',
+                html: '<div class="text-gray-600 text-lg">Perubahan tidak akan disimpan</div>',
                 showCancelButton: true,
                 confirmButtonText: 'Yakin',
                 cancelButtonText: 'Batal',
                 reverseButtons: true,
+                buttonsStyling: false,
                 customClass: {
-                    popup: 'rounded-2xl px-8 pt-5 pb-6',
-                    confirmButton: 'bg-blue-700 hover:bg-blue-800 text-white font-semibold px-8 py-2 rounded-lg text-base mr-2',
-                    cancelButton: 'bg-blue-700 hover:bg-blue-800 text-white font-semibold px-8 py-2 rounded-lg text-base',
-                    actions: 'flex justify-center gap-4',
+                    popup: 'rounded-2xl px-8 py-8',
+                    icon: 'mb-3',
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-6 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
                 },
                 buttonsStyling: false,
             }).then((r) => {

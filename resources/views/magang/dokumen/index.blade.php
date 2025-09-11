@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon"
                         class="h-16 w-16 mx-auto mb-4">
                     <p class="font-bold text-lg leading-tight mb-1">{{ Auth::user()->role->nama_role ?? 'Magang' }}</p>
-                    <p class="text-xs opacity-95">Upload, simpan, dan kelola dokumen magang kamu di sini.</p>
+                    <p class="text-xs opacity-95">Upload dan simpan dokumen kamu di sini.</p>
                 </div>
 
                 <a href="{{ route('magang.manajemendokumen.create') }}"
@@ -331,18 +331,30 @@ document.addEventListener('DOMContentLoaded', () => {
             f.addEventListener('submit', function(ev) {
                 ev.preventDefault();
                 Swal.fire({
-                    icon: 'warning',
-                    title: 'Hapus Dokumen?',
-                    html: '<span class="text-gray-600 text-base">Dokumen akan dihapus (soft delete).</span>',
+                    width: 560,
+                    backdrop: true,
+                    iconColor: 'transparent',
+                    iconHtml: `
+        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <rect x="11" y="8" width="2" height="6" fill="white"/>
+          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+        </svg>
+      `,
+                    title: 'Apakah Anda Yakin',
+                    html: '<div class="text-gray-600 text-lg">data akan dihapus</div>',
                     showCancelButton: true,
                     confirmButtonText: 'Hapus',
                     cancelButtonText: 'Batalkan',
-                    reverseButtons: true,
+                    reverseButtons: false,
+                    buttonsStyling: false,
                     customClass: {
-                        popup: 'rounded-2xl px-8 pt-5 pb-6',
-                        confirmButton: 'bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
-                        cancelButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-10 py-2 rounded-lg text-base',
-                        actions: 'flex justify-center gap-4',
+                        popup: 'rounded-2xl px-8 py-8',
+                        title: 'text-2xl font-extrabold text-gray-900',
+                        htmlContainer: 'mt-1',
+                        actions: 'mt-6 flex justify-center gap-6',
+                        confirmButton: 'px-10 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-lg font-semibold',
+                        cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
                     },
                     buttonsStyling: false,
                 }).then(res => {
@@ -376,17 +388,30 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', async () => {
                 const nama = esc(btn.dataset.nama || '');
                 const res = await Swal.fire({
-                    icon: 'warning',
-                    title: 'Hapus Kategori?',
-                    html: 'Kategori <b>' + nama + '</b> akan dihapus.',
+                    width: 560,
+                    backdrop: true,
+                    iconColor: 'transparent',
+                    iconHtml: `
+        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <rect x="11" y="8" width="2" height="6" fill="white"/>
+          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+        </svg>
+      `,
+                    title: 'Apakah Anda Yakin',
+                    html: '<div class="text-gray-600 text-lg">data akan dihapus</div>',
                     showCancelButton: true,
                     confirmButtonText: 'Hapus',
-                    cancelButtonText: 'Batal',
-                    reverseButtons: true,
+                    cancelButtonText: 'Batalkan',
+                    reverseButtons: false,
+                    buttonsStyling: false,
                     customClass: {
-                        popup: 'rounded-2xl px-8 pt-5 pb-6',
-                        confirmButton: 'bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg mr-2',
-                        cancelButton: 'bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-2 rounded-lg'
+                        popup: 'rounded-2xl px-8 py-8',
+                        title: 'text-2xl font-extrabold text-gray-900',
+                        htmlContainer: 'mt-1',
+                        actions: 'mt-6 flex justify-center gap-6',
+                        confirmButton: 'px-10 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-lg font-semibold',
+                        cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
                     },
                     buttonsStyling: false
                 });

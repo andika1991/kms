@@ -224,7 +224,7 @@ $tanggal = $carbon->format('l, d F Y');
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Administrator' }}
+                        <p class="font-bold text-lg leading-tight">Role {{ Auth::user()->role->nama_role ?? 'Administrator' }}
                         </p>
                     </div>
                 </div>

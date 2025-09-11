@@ -20,7 +20,7 @@ $tanggal = $carbon->format('l, d F Y');
                     {{-- Search Bar --}}
                     <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
                         <input type="text" placeholder="Cari artikel pengetahuan..."
-                            class="w-full rounded-full border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
+                            class="w-full rounded-full border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition" />
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                             <i class="fa fa-search"></i>
                         </span>
@@ -41,8 +41,9 @@ $tanggal = $carbon->format('l, d F Y');
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log
-                                        Out</button>
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Log Out
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -53,16 +54,16 @@ $tanggal = $carbon->format('l, d F Y');
 
         {{-- PESAN ERROR VALIDASI --}}
         @if ($errors->any())
-            <div class="max-w-4xl mx-auto mt-6 mb-2">
-                <div class="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm shadow">
-                    <strong>Periksa kembali inputan Anda:</strong>
-                    <ul class="list-disc pl-5 mt-1">
-                        @foreach ($errors->all() as $error)
-                            <li class="mb-1">{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+        <div class="max-w-4xl mx-auto mt-6 mb-2">
+            <div class="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm shadow">
+                <strong>Periksa kembali inputan Anda:</strong>
+                <ul class="list-disc pl-5 mt-1">
+                    @foreach ($errors->all() as $error)
+                    <li class="mb-1">{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
+        </div>
         @endif
 
         {{-- FORM TAMBAH ARTIKEL --}}
@@ -93,7 +94,7 @@ $tanggal = $carbon->format('l, d F Y');
                                 @change="if($event.target.files.length){let reader=new FileReader();reader.onload=e=>preview=e.target.result;reader.readAsDataURL($event.target.files[0]);}">
                         </label>
                         @error('thumbnail')
-                            <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                        <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -102,10 +103,13 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <label for="judul" class="block font-semibold text-gray-800 mb-1">Judul Artikel</label>
                     <input type="text" id="judul" name="judul" value="{{ old('judul') }}"
-                        class="w-full rounded-xl border @error('judul') border-red-400 @else border-gray-300 @enderror bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Masukkan Judul" required>
+                        @class([ 'w-full rounded-xl bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        , 'border border-gray-300'=> !$errors->has('judul'),
+                    'border border-red-400' => $errors->has('judul'),
+                    ])
+                    placeholder="Masukkan Judul" required>
                     @error('judul')
-                        <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                    <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -116,7 +120,10 @@ $tanggal = $carbon->format('l, d F Y');
                         <label for="kategori_pengetahuan_id"
                             class="block font-semibold text-gray-800 mb-1">Kategori</label>
                         <select name="kategori_pengetahuan_id" id="kategori_pengetahuan_id"
-                            class="w-full rounded-xl border @error('kategori_pengetahuan_id') border-red-400 @else border-gray-300 @enderror bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            @class([ 'w-full rounded-xl bg-white px-4 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500'
+                            , 'border border-gray-300'=> !$errors->has('kategori_pengetahuan_id'),
+                            'border border-red-400' => $errors->has('kategori_pengetahuan_id'),
+                            ])
                             required>
                             <option value="">Pilih Kategori</option>
                             @foreach($kategori as $kat)
@@ -127,17 +134,21 @@ $tanggal = $carbon->format('l, d F Y');
                             @endforeach
                         </select>
                         @error('kategori_pengetahuan_id')
-                            <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                        <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
                         @enderror
                     </div>
+
                     {{-- SLUG --}}
                     <div class="bg-white rounded-2xl shadow-lg p-6 w-full">
                         <label for="slug" class="block font-semibold text-gray-800 mb-1">Slug</label>
                         <input type="text" id="slug" name="slug" value="{{ old('slug') }}"
-                            class="w-full rounded-xl border @error('slug') border-red-400 @else border-gray-300 @enderror bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Masukkan Slug" required>
+                            @class([ 'w-full rounded-xl bg-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                            , 'border border-gray-300'=> !$errors->has('slug'),
+                        'border border-red-400' => $errors->has('slug'),
+                        ])
+                        placeholder="Masukkan Slug" required>
                         @error('slug')
-                            <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                        <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -146,10 +157,13 @@ $tanggal = $carbon->format('l, d F Y');
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <label for="isi" class="block font-semibold text-gray-800 mb-2">Isi Artikel</label>
                     <textarea id="isi" name="isi" rows="10"
-                        class="w-full rounded-xl border @error('isi') border-red-400 @else border-gray-300 @enderror bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        @class([ 'w-full rounded-xl bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y'
+                        , 'border border-gray-300'=> !$errors->has('isi'),
+                            'border border-red-400'  => $errors->has('isi'),
+                        ])
                         placeholder="Masukkan isi artikel">{{ old('isi') }}</textarea>
                     @error('isi')
-                        <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
+                    <div class="text-red-500 text-xs mt-2">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -181,8 +195,7 @@ $tanggal = $carbon->format('l, d F Y');
                     class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center text-center">
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <div>
-                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Magang' }}
-                        </p>
+                        <p class="font-bold text-lg leading-tight">{{ Auth::user()->role->nama_role ?? 'Magang' }}</p>
                     </div>
                 </div>
                 {{-- Tombol Aksi --}}
@@ -192,7 +205,7 @@ $tanggal = $carbon->format('l, d F Y');
                         <i class="fa-solid fa-save"></i>
                         <span>Tambah</span>
                     </button>
-                    <a href="{{ url()->previous() }}"
+                    <a id="btn-cancel-artikel" href="{{ url()->previous() }}" data-href="{{ url()->previous() }}"
                         class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-times"></i>
                         <span>Batalkan</span>
@@ -212,38 +225,39 @@ $tanggal = $carbon->format('l, d F Y');
     </x-slot>
 
     {{-- TinyMCE CDN --}}
-    <script src="https://cdn.tiny.cloud/1/5tsdsuoydzm2f0tjnkrffxszmoas3as1xlmcg5ujs82or4wz/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/5tsdsuoydzm2f0tjnkrffxszmoas3as1xlmcg5ujs82or4wz/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
     <script>
-        tinymce.init({
-            selector: '#isi',
-            height: 300,
-            plugins: 'lists link image preview',
-            toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | preview',
-            menubar: false,
-            content_css: false,
-            skin: "oxide-dark",
-        });
+    tinymce.init({
+        selector: '#isi',
+        height: 300,
+        plugins: 'lists link image preview',
+        toolbar: 'undo redo | formatselect | bold italic underline | bullist numlist | link image | preview',
+        menubar: false,
+        content_css: false,
+        skin: 'oxide-dark',
+    });
 
-        // Generate slug otomatis
-        document.getElementById('judul').addEventListener('keyup', function () {
-            let judul = this.value;
-            let slug = judul
-                .toLowerCase()
-                .replace(/[^a-z0-9\s-]/g, '')  // hilangkan karakter aneh
-                .trim()
-                .replace(/\s+/g, '-')          // ganti spasi dengan -
-                .replace(/-+/g, '-');          // hapus double -
-            document.getElementById('slug').value = slug;
-        });
+    // Generate slug otomatis
+    document.getElementById('judul').addEventListener('keyup', function() {
+        const slug = this.value
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+        document.getElementById('slug').value = slug;
+    });
     </script>
 
-    <!-- SweetAlert2 CDN -->
+    {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
     <script>
-    document.getElementById('btn-create-artikel').addEventListener('click', function(e) {
+    // Modal SIMPAN
+    document.getElementById('btn-create-artikel').addEventListener('click', function() {
         Swal.fire({
             title: 'Apakah Anda Yakin',
-            html: '<span class="font-semibold">perubahan akan disimpan</span>',
+            html: '<span class="font-semibold">Perubahan akan disimpan</span>',
             icon: 'success',
             showCancelButton: true,
             showConfirmButton: true,
@@ -260,10 +274,50 @@ $tanggal = $carbon->format('l, d F Y');
                 actions: 'flex justify-center gap-4',
             },
             buttonsStyling: false,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('form-tambah-artikel').submit();
-            }
+        }).then((r) => {
+            if (r.isConfirmed) document.getElementById('form-tambah-artikel').submit();
+        });
+    });
+
+    // Modal BATALKAN
+    document.addEventListener('DOMContentLoaded', () => {
+        const cancelBtn = document.getElementById('btn-cancel-artikel');        
+        if (!cancelBtn) return;
+
+        cancelBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetUrl = cancelBtn.dataset.href || cancelBtn.getAttribute('href');
+
+            Swal.fire({
+                width: 560,
+                backdrop: true,
+                iconColor: 'transparent',
+                iconHtml: `
+                        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                          <rect x="11" y="8" width="2" height="6" fill="white"/>
+                          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+                        </svg>
+                    `,
+                title: 'Apakah Anda Yakin',
+                html: '<div class="text-gray-600 text-lg">Perubahan tidak akan disimpan</div>',
+                showCancelButton: true,
+                confirmButtonText: 'Yakin',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl px-8 py-8',
+                    icon: 'mb-3',
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-6 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
+                }
+            }).then((res) => {
+                if (res.isConfirmed) window.location.href = targetUrl;
+            });
         });
     });
     </script>

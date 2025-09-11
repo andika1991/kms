@@ -103,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
             {{-- LIST KEGIATAN --}}
             <section class="xl:col-span-8 w-full">
-                <div class="font-bold text-lg text-[#2171b8] mb-5">Daftar Kegiatan Pegawai</div>
 
                 <div class="bg-white rounded-2xl shadow-xl px-7 py-8">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-7">

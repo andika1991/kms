@@ -136,7 +136,7 @@ $tanggal = $carbon->format('l, d F Y');
                     <img src="{{ asset('img/artikelpengetahuan-elemen.svg') }}" alt="Role Icon" class="h-16 w-16 mb-4">
                     <p class="font-bold text-lg leading-tight mb-1">
                         {{ Auth::user()->role->nama_role ?? 'Magang' }}</p>
-                    <p class="text-xs opacity-90">Upload, simpan, dan kelola dokumen magang kamu di sini.</p>
+
                 </div>
 
                 <div class="flex flex-col md:flex-row items-center gap-4">
@@ -276,21 +276,31 @@ $tanggal = $carbon->format('l, d F Y');
             if (!isCancelAnchor(e.target)) return;
             e.preventDefault();
             Swal.fire({
-                icon: 'warning',
+                width: 560,
+                backdrop: true,
+                iconColor: 'transparent',
+                iconHtml: `
+        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <rect x="11" y="8" width="2" height="6" fill="white"/>
+          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+        </svg>
+      `,
                 title: 'Apakah Anda Yakin',
-                html: '<span class="text-gray-600 text-base">perubahan tidak akan disimpan</span>',
+                html: '<div class="text-gray-600 text-lg">perubahan tidak akan disimpan</div>',
                 showCancelButton: true,
                 confirmButtonText: 'Yakin',
                 cancelButtonText: 'Batal',
-                // gaya tombol sesuai Figma: biru di kiri & kanan
+                reverseButtons: true,
+                buttonsStyling: false,
                 customClass: {
-                    popup: 'rounded-2xl p-8',
-                    icon: 'mt-0 mb-3',
-                    title: 'mb-1',
-                    htmlContainer: 'mb-3',
-                    confirmButton: 'bg-[#2C699E] hover:bg-[#255a88] text-white font-semibold px-10 py-2 rounded-lg text-base',
-                    cancelButton: 'bg-[#2C699E] hover:bg-[#255a88] text-white font-semibold px-10 py-2 rounded-lg text-base mr-2',
-                    actions: 'flex justify-center gap-4',
+                    popup: 'rounded-2xl px-8 py-8',
+                    icon: 'mb-3',
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-6 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
                 },
                 buttonsStyling: false,
                 focusCancel: true
