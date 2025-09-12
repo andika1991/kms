@@ -120,16 +120,19 @@ $tanggal = $carbon->format('l, d F Y');
 
                 {{-- Tombol Aksi --}}
                 <div class="flex flex-col gap-4">
-                    <a href="{{ route('pegawai.kegiatan.edit', $kegiatan->id) }}"
-                       class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Edit Kegiatan</span>
-                    </a>
-                    <button id="btn-hapus-kegiatan"
-                            class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-trash"></i>
-                        <span>Hapus Kegiatan</span>
-                    </button>
+           @if($kegiatan->pengguna_id === auth()->id())
+    <a href="{{ route('pegawai.kegiatan.edit', $kegiatan->id) }}"
+       class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Edit Kegiatan</span>
+    </a>
+
+    <button id="btn-hapus-kegiatan"
+            class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
+        <i class="fa-solid fa-trash"></i>
+        <span>Hapus Kegiatan</span>
+    </button>
+@endif
 
                     {{-- Form hapus (disubmit via SweetAlert) --}}
                     <form id="delete-kegiatan-form" action="{{ route('pegawai.kegiatan.destroy', $kegiatan->id) }}" method="POST" class="hidden">

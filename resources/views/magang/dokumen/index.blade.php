@@ -176,11 +176,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 {{-- Aksi (tombol diabaikan dari klik baris) --}}
                                 <td class="px-6 py-4 align-top">
                                     <div class="flex items-center justify-center gap-2">
-                                        <a href="{{ route('magang.manajemendokumen.edit', $item->id) }}"
-                                            class="js-no-row w-9 h-9 flex items-center justify-center rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition"
-                                            title="Edit">
-                                            <i class="fa-solid fa-pen-to-square text-lg"></i>
-                                        </a>
+                                <a href="javascript:void(0);" 
+   class="js-no-row w-9 h-9 flex items-center justify-center rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition btn-edit"
+   title="Edit"
+   data-id="{{ $item->id }}"
+   data-rahasia="{{ $rahasia ? '1' : '0' }}">
+   <i class="fa-solid fa-pen-to-square text-lg"></i>
+</a>
+
+
                                         <form action="{{ route('magang.manajemendokumen.destroy', $item->id) }}"
                                             method="POST" class="inline-block js-no-row form-hapus">
                                             @csrf @method('DELETE')
@@ -289,147 +293,174 @@ document.addEventListener('DOMContentLoaded', () => {
     {{-- SweetAlert2 (latest) --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.3/dist/sweetalert2.all.min.js"></script>
 
-    <script>
+   <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const rows = document.querySelectorAll('tr.row-dokumen');
+    const modal = document.getElementById('modal-kunci');
+    const form = document.getElementById('form-kunci');
+    const idInp = document.getElementById('dokumen_id');
+
     // ------- Klik baris untuk buka detail/rahasia -------
-    document.addEventListener('DOMContentLoaded', () => {
-        const rows = document.querySelectorAll('tr.row-dokumen');
-        const modal = document.getElementById('modal-kunci');
-        const form = document.getElementById('form-kunci');
-        const idInp = document.getElementById('dokumen_id');
+    rows.forEach(row => {
+        row.addEventListener('click', e => {
+            // Abaikan klik di tombol yang punya class .js-no-row
+            if (e.target.closest('.js-no-row')) return;
 
-        rows.forEach(row => {
-            row.addEventListener('click', e => {
-                if (e.target.closest('.js-no-row')) return; // abaikan klik di tombol
-                const id = row.dataset.id;
-                const rahasia = row.dataset.rahasia === '1';
-                if (rahasia) {
-                    idInp.value = id;
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                } else {
-                    window.location.href = `/magang/manajemendokumen/${id}`;
-                }
-            });
+            const id = row.dataset.id;
+            const rahasia = row.dataset.rahasia === '1';
+            if (rahasia) {
+                idInp.value = id;
+                delete form.dataset.editTarget; // ini bukan edit
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                window.location.href = `/magang/manajemendokumen/${id}`;
+            }
         });
+    });
 
-        document.getElementById('batal-modal').addEventListener('click', () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            form.reset();
+    // ------- Tombol Edit -------
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation(); // supaya row click tidak ikut ter-trigger
+
+            const id = btn.dataset.id;
+            const rahasia = btn.dataset.rahasia === '1';
+
+            if (rahasia) {
+                // tampilkan modal key
+                idInp.value = id;
+                form.dataset.editTarget = id; // tandai ini untuk edit
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                // langsung ke edit jika bukan rahasia
+                window.location.href = `/magang/manajemendokumen/${id}/edit`;
+            }
         });
+    });
 
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            const key = form.encrypted_key.value.trim();
-            const id = idInp.value;
-            const url = `/magang/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(key)}`;
-            window.location.href = url;
-        });
+    // ------- Tombol batal modal -------
+    document.getElementById('batal-modal').addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        form.reset();
+        delete form.dataset.editTarget;
+    });
 
-        // ------- Hapus Dokumen (SweetAlert2) -------
-        document.querySelectorAll('form.form-hapus').forEach(f => {
-            f.addEventListener('submit', function(ev) {
-                ev.preventDefault();
-                Swal.fire({
-                    width: 560,
-                    backdrop: true,
-                    iconColor: 'transparent',
-                    iconHtml: `
-        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-          <rect x="11" y="8" width="2" height="6" fill="white"/>
-          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
-        </svg>
-      `,
-                    title: 'Apakah Anda Yakin',
-                    html: '<div class="text-gray-600 text-lg">data akan dihapus</div>',
-                    showCancelButton: true,
-                    confirmButtonText: 'Hapus',
-                    cancelButtonText: 'Batalkan',
-                    reverseButtons: false,
-                    buttonsStyling: false,
-                    customClass: {
-                        popup: 'rounded-2xl px-8 py-8',
-                        title: 'text-2xl font-extrabold text-gray-900',
-                        htmlContainer: 'mt-1',
-                        actions: 'mt-6 flex justify-center gap-6',
-                        confirmButton: 'px-10 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-lg font-semibold',
-                        cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
-                    },
-                    buttonsStyling: false,
-                }).then(res => {
-                    if (res.isConfirmed) this.submit();
-                });
-            });
-        });
+    // ------- Submit modal key -------
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const key = form.encrypted_key.value.trim();
+        const id = idInp.value;
 
-        // ------- Aksi kategori (UI only, akses terbatas) -------
-        function esc(s) {
-            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        if (form.dataset.editTarget && form.dataset.editTarget === id) {
+            // redirect ke edit
+            window.location.href = `/magang/manajemendokumen/${id}/edit?encrypted_key=${encodeURIComponent(key)}`;
+        } else {
+            // redirect ke show
+            window.location.href = `/magang/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(key)}`;
         }
 
-        document.querySelectorAll('.btn-edit-kat').forEach(btn => {
-            btn.addEventListener('click', () => {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Akses Terbatas',
-                    html: 'Magang <b>tidak dapat mengubah</b> kategori dokumen. Silakan hubungi Pegawai/Atasan.',
-                    confirmButtonText: 'Mengerti',
-                    customClass: {
-                        popup: 'rounded-2xl px-8 pt-5 pb-6',
-                        confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg'
-                    },
-                    buttonsStyling: false
-                });
-            });
-        });
+        delete form.dataset.editTarget;
+    });
 
-        document.querySelectorAll('.btn-del-kat').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const nama = esc(btn.dataset.nama || '');
-                const res = await Swal.fire({
-                    width: 560,
-                    backdrop: true,
-                    iconColor: 'transparent',
-                    iconHtml: `
-        <svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-          <rect x="11" y="8" width="2" height="6" fill="white"/>
-          <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
-        </svg>
-      `,
-                    title: 'Apakah Anda Yakin',
-                    html: '<div class="text-gray-600 text-lg">data akan dihapus</div>',
-                    showCancelButton: true,
-                    confirmButtonText: 'Hapus',
-                    cancelButtonText: 'Batalkan',
-                    reverseButtons: false,
-                    buttonsStyling: false,
-                    customClass: {
-                        popup: 'rounded-2xl px-8 py-8',
-                        title: 'text-2xl font-extrabold text-gray-900',
-                        htmlContainer: 'mt-1',
-                        actions: 'mt-6 flex justify-center gap-6',
-                        confirmButton: 'px-10 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-lg font-semibold',
-                        cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
-                    },
-                    buttonsStyling: false
-                });
-                if (res.isConfirmed) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Tidak Diizinkan',
-                        text: 'Magang tidak memiliki izin menghapus kategori dokumen.',
-                        confirmButtonText: 'OK',
-                        customClass: {
-                            popup: 'rounded-2xl px-8 pt-5 pb-6',
-                            confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg'
-                        },
-                        buttonsStyling: false
-                    });
-                }
+    // ------- Hapus Dokumen (SweetAlert2) -------
+    document.querySelectorAll('form.form-hapus').forEach(f => {
+        f.addEventListener('submit', function(ev) {
+            ev.preventDefault();
+            Swal.fire({
+                width: 560,
+                backdrop: true,
+                iconColor: 'transparent',
+                iconHtml: `<svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    <rect x="11" y="8" width="2" height="6" fill="white"/>
+                    <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+                </svg>`,
+                title: 'Apakah Anda Yakin',
+                html: '<div class="text-gray-600 text-lg">data akan dihapus</div>',
+                showCancelButton: true,
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batalkan',
+                reverseButtons: false,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl px-8 py-8',
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-6 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
+                },
+            }).then(res => {
+                if (res.isConfirmed) this.submit();
             });
         });
     });
-    </script>
+
+    // ------- Kategori (akses terbatas) -------
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    document.querySelectorAll('.btn-edit-kat').forEach(btn => {
+        btn.addEventListener('click', () => {
+            Swal.fire({
+                icon: 'info',
+                title: 'Akses Terbatas',
+                html: 'Magang <b>tidak dapat mengubah</b> kategori dokumen. Silakan hubungi Pegawai/Atasan.',
+                confirmButtonText: 'Mengerti',
+                customClass: {
+                    popup: 'rounded-2xl px-8 pt-5 pb-6',
+                    confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg'
+                },
+                buttonsStyling: false
+            });
+        });
+    });
+    document.querySelectorAll('.btn-del-kat').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const nama = esc(btn.dataset.nama || '');
+            const res = await Swal.fire({
+                width: 560,
+                backdrop: true,
+                iconColor: 'transparent',
+                iconHtml: `<svg width="98" height="98" viewBox="0 0 24 24" fill="#F6C343" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.29 3.86L1.82 18A2 2 0 003.55 21h16.9a2 2 0 001.73-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    <rect x="11" y="8" width="2" height="6" fill="white"/>
+                    <rect x="11" y="15.5" width="2" height="2" rx="1" fill="white"/>
+                </svg>`,
+                title: 'Apakah Anda Yakin',
+                html: '<div class="text-gray-600 text-lg">data akan dihapus</div>',
+                showCancelButton: true,
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batalkan',
+                reverseButtons: false,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-2xl px-8 py-8',
+                    title: 'text-2xl font-extrabold text-gray-900',
+                    htmlContainer: 'mt-1',
+                    actions: 'mt-6 flex justify-center gap-6',
+                    confirmButton: 'px-10 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-lg font-semibold',
+                    cancelButton: 'px-10 py-3 rounded-2xl bg-[#2b6cb0] hover:bg-[#235089] text-white text-lg font-semibold'
+                },
+            });
+            if(res.isConfirmed){
+                Swal.fire({
+                    icon:'error',
+                    title:'Tidak Diizinkan',
+                    text:'Magang tidak memiliki izin menghapus kategori dokumen.',
+                    confirmButtonText:'OK',
+                    customClass:{
+                        popup:'rounded-2xl px-8 pt-5 pb-6',
+                        confirmButton:'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg'
+                    },
+                    buttonsStyling:false
+                });
+            }
+        });
+    });
+});
+
+</script>
+
 </x-app-layout>

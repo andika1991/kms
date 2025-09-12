@@ -12,21 +12,24 @@ use Illuminate\Http\Request;
 
 class DokumenpegawaiController extends Controller
 {
-    public function index(Request $request)
-    {
-        $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
-            ->where('pengguna_id', auth()->id());
+  public function index(Request $request)
+{
+    $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
+        ->where('pengguna_id', auth()->id())
+        ->latest();
 
-        if ($request->filled('search')) {
-            $search = strtolower($request->search);
+    $dokumen = $dokumenQuery->get(); // ambil semua dokumen dulu
 
-            $dokumenQuery->whereRaw('LOWER(nama_dokumen) LIKE ?', ["%{$search}%"]);
-        }
-
-        $dokumen = $dokumenQuery->latest()->get();
-
-        return view('pegawai.dokumen.index', compact('dokumen'));
+    // Filter search di collection karena field terenkripsi
+    if ($request->filled('search')) {
+        $search = strtolower($request->search);
+        $dokumen = $dokumen->filter(function ($item) use ($search) {
+            return str_contains(strtolower($item->nama_dokumen), $search);
+        });
     }
+
+    return view('pegawai.dokumen.index', compact('dokumen'));
+}
 
     public function create()
     {
@@ -119,14 +122,39 @@ class DokumenpegawaiController extends Controller
 }
 
 
-    public function edit(Dokumen $manajemendokuman)
-    {
+  public function edit(Request $request, $id)
+{
+    $manajemendokuman = Dokumen::with('kategoriDokumen')->findOrFail($id);
 
+    $isRahasia = $manajemendokuman->kategoriDokumen
+        && $manajemendokuman->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
 
-        $kategori = KategoriDokumen::all();
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
 
-        return view('pegawai.dokumen.edit', compact('manajemendokuman', 'kategori'));
+        if (!$inputKey) {
+            return redirect()->route('pegawai.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengedit dokumen rahasia.');
+        }
+
+        if ($inputKey !== $manajemendokuman->encrypted_key) {
+            return redirect()->route('pegawai.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
     }
+
+    // Ambil kategori sesuai subbidang_id user
+    $kategori = KategoriDokumen::when(auth()->check(), function ($query) {
+        $subbidangId = auth()->user()->role->subbidang_id;
+        if ($subbidangId) {
+            $query->where('subbidang_id', $subbidangId);
+        }
+    })
+    ->orderBy('nama_kategoridokumen')
+    ->get();
+
+    return view('pegawai.dokumen.edit', compact('manajemendokuman', 'kategori'));
+}
 
     public function update(Request $request, $id)
     {

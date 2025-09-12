@@ -177,18 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         @forelse ($kategori as $kat)
                         <li class="flex items-center justify-between gap-3">
                             <span class="text-sm text-gray-700 truncate">{{ $kat->nama_kategoripengetahuan }}</span>
-                            <span class="flex items-center gap-1.5">
-                                <button type="button" title="Edit"
-                                    class="btn-edit-kat p-1.5 rounded-lg hover:bg-blue-50 text-blue-600"
-                                    data-id="{{ $kat->id }}" data-name="{{ e($kat->nama_kategoripengetahuan) }}">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button type="button" title="Hapus"
-                                    class="btn-del-kat p-1.5 rounded-lg hover:bg-red-50 text-red-600"
-                                    data-id="{{ $kat->id }}" data-name="{{ e($kat->nama_kategoripengetahuan) }}">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </span>
+                      
 
                             {{-- FORM EDIT (hidden) --}}
                             <form id="form-edit-kat-{{ $kat->id }}" method="POST"

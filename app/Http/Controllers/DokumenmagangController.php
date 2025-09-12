@@ -11,23 +11,29 @@ use Illuminate\Support\Carbon;
 use Exception;
 class DokumenmagangController extends Controller
 {
-    public function index(Request $request)
-    {
-        $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
-            ->where('pengguna_id', auth()->id());
+ public function index(Request $request)
+{
+    // Ambil semua dokumen milik user yang login
+    $dokumen = Dokumen::with(['kategoriDokumen', 'user'])
+        ->where('pengguna_id', auth()->id())
+        ->latest()
+        ->get(); // ambil semua dokumen dulu
 
-        if ($request->filled('search')) {
-            $search = strtolower($request->search);
-
-            $dokumenQuery->whereRaw('LOWER(nama_dokumen) LIKE ?', ["%{$search}%"]);
-        }
-
-        $dokumen = $dokumenQuery->latest()->get();
-
-        $kategori = KategoriDokumen::all();
-
-        return view('magang.dokumen.index', compact('dokumen', 'kategori'));
+    // Filter search di collection karena field terenkripsi
+    if ($request->filled('search')) {
+        $search = strtolower($request->search);
+        $dokumen = $dokumen->filter(function ($item) use ($search) {
+            // strtolower agar case-insensitive
+            return str_contains(strtolower($item->nama_dokumen), $search);
+        });
     }
+
+    // Ambil kategori untuk dropdown atau sidebar (opsional)
+    $kategori = KategoriDokumen::all();
+
+    return view('magang.dokumen.index', compact('dokumen', 'kategori'));
+}
+
 
     public function create()
     {
@@ -110,17 +116,39 @@ class DokumenmagangController extends Controller
 }
 
 
-    public function edit(Dokumen $manajemendokuman)
-    {
-        $bidangId = auth()->user()->role->bidang_id ?? null;
-        $kategori = KategoriDokumen::with('subbidang')
-            ->when($bidangId, function ($query) use ($bidangId) {
-                $query->where('bidang_id', $bidangId);
-            })
-            ->get();
+  public function edit(Request $request, Dokumen $manajemendokuman)
+{
+    $bidangId = auth()->user()->role->bidang_id ?? null;
 
-        return view('magang.dokumen.edit', compact('manajemendokuman', 'kategori'));
+    // Ambil kategori dokumen beserta subbidangnya
+    $kategori = KategoriDokumen::with('subbidang')
+        ->when($bidangId, function ($query) use ($bidangId) {
+            $query->where('bidang_id', $bidangId);
+        })
+        ->get();
+
+    // Cek apakah dokumen termasuk kategori Rahasia
+    $isRahasia = $manajemendokuman->kategoriDokumen
+        && strtolower($manajemendokuman->kategoriDokumen->nama_kategoridokumen) === 'rahasia';
+
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
+
+        if (!$inputKey) {
+            return redirect()->route('magang.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
+        }
+
+        // Karena encrypted_key biasanya sudah di-cast otomatis
+        if ($inputKey !== $manajemendokuman->encrypted_key) {
+            return redirect()->route('magang.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
     }
+
+    return view('magang.dokumen.edit', compact('manajemendokuman', 'kategori'));
+}
+
 
     public function update(Request $request, $id)
     {

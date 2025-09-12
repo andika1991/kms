@@ -117,17 +117,20 @@ $tanggal = $carbon->format('l, d F Y');
 
                 {{-- Tombol Aksi (samakan dengan sekretaris, tapi rute pegawai) --}}
                 <div class="flex flex-col gap-4">
-                    <a href="{{ route('pegawai.berbagipengetahuan.edit', $artikel->id) }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Edit Artikel</span>
-                    </a>
+                    @if($artikel->pengguna_id === auth()->id())
+    <a href="{{ route('pegawai.berbagipengetahuan.edit', $artikel->id) }}"
+        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Edit Artikel</span>
+    </a>
 
-                    <button id="btn-hapus-artikel"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-trash"></i>
-                        <span>Hapus Artikel</span>
-                    </button>
+    <button id="btn-hapus-artikel"
+        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
+        <i class="fa-solid fa-trash"></i>
+        <span>Hapus Artikel</span>
+    </button>
+@endif
+
 
                     <form id="delete-artikel-form"
                         action="{{ route('pegawai.berbagipengetahuan.destroy', $artikel->id) }}" method="POST"

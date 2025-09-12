@@ -11,29 +11,39 @@ use Illuminate\Support\Facades\Storage;
 
 class PengetahuanpegawaiController extends Controller
 {
-    public function index(Request $request)
-    {
-        $user = Auth::user();
-        $role = $user->role;
-        $bidangId = $role->bidang_id ?? null;
-        $subbidangId = $role->subbidang_id ?? null;
+public function index(Request $request)
+{
+    $user = Auth::user();
+    $role = $user->role;
+    $bidangId = $role->bidang_id ?? null;
+    $subbidangId = $role->subbidang_id ?? null;
 
-        $artikels = ArtikelPengetahuan::where('pengguna_id', $user->id)
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where('judul', 'like', '%' . $request->search . '%');
-            })
-            ->with('kategoriPengetahuan')
-            ->latest()
-            ->get();
+    // Ambil semua artikel milik user
+    $artikelsQuery = ArtikelPengetahuan::with('kategoriPengetahuan')
+        ->where('pengguna_id', $user->id)
+        ->latest();
 
-        $kategori = KategoriPengetahuan::query()
-            ->orderByRaw('CASE WHEN bidang_id IS NULL AND subbidang_id IS NULL THEN 0 ELSE 1 END')
-            ->orderBy('nama_kategoripengetahuan')
-            ->get();
-
-
-        return view('pegawai.berbagipengetahuan.index', compact('artikels', 'kategori'));
+    // Filter search di database menggunakan slug (plain text)
+    if ($request->filled('search')) {
+        $search = strtolower($request->search);
+        $artikelsQuery->whereRaw('LOWER(slug) LIKE ?', ["%{$search}%"]);
     }
+
+    $artikels = $artikelsQuery->get();
+
+    // Ambil kategori sesuai role (bidang/subbidang) atau kategori umum
+    $kategori = KategoriPengetahuan::query()
+        ->when($bidangId, fn($q) => $q->where(function($q2) use ($bidangId, $subbidangId) {
+            $q2->where('bidang_id', $bidangId)
+               ->when($subbidangId, fn($q3) => $q3->where('subbidang_id', $subbidangId));
+        }))
+        ->orWhere(fn($q) => $q->whereNull('bidang_id')->whereNull('subbidang_id'))
+        ->orderBy('nama_kategoripengetahuan')
+        ->get();
+
+    return view('pegawai.berbagipengetahuan.index', compact('artikels', 'kategori'));
+}
+
 
     public function create()
     {

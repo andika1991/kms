@@ -180,11 +180,14 @@ $viewers = $viewers ?? collect();
                 </div>
 
                 <div class="flex flex-col gap-3">
-                    <a href="{{ route('pegawai.manajemendokumen.edit', $dokumen->id) }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#2B6CB0] hover:bg-[#1f4e86] text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Edit Dokumen</span>
-                    </a>
+                 @if($dokumen->pengguna_id === auth()->id())
+    <a href="{{ route('pegawai.manajemendokumen.edit', $dokumen->id) }}"
+        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#2B6CB0] hover:bg-[#1f4e86] text-white font-semibold shadow-sm transition text-base">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Edit Dokumen</span>
+    </a>
+@endif
+
                     <a href="{{ route('pegawai.manajemendokumen.index') }}"
                         class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold shadow-sm transition text-base">
                         <i class="fa-solid fa-arrow-left"></i>

@@ -143,11 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="flex items-center gap-1 text-gray-500 text-xs sm:text-sm">
                                         <i class="fa-solid fa-eye"></i>
                                         <span>{{ $item->views_count ?? 0 }}</span>
-                                    </div>
-                                    <span class="text-xs sm:text-sm text-gray-400">
+                                    </div> 
+                                 
+                                </div>
+                                   <span class="text-xs sm:text-sm text-gray-400">
                                         {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}
                                     </span>
-                                </div>
                             </div>
                         </a>
                         @empty
