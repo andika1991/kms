@@ -13,19 +13,20 @@ class ManajemenDokumenController extends Controller
 {
     public function index(Request $request)
 {
-    // Ambil dokumen hanya milik user yang sedang login
     $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
-        ->where('pengguna_id', auth()->id());
+        ->where('pengguna_id', auth()->id())
+        ->latest();
 
-    // Search (jika ada)
+    $dokumen = $dokumenQuery->get();
+
+    // Search setelah auto-decrypt
     if ($request->filled('search')) {
         $search = strtolower($request->search);
 
-        $dokumenQuery->whereRaw('LOWER(nama_dokumen) LIKE ?', ["%{$search}%"]);
+        $dokumen = $dokumen->filter(function ($item) use ($search) {
+            return str_contains(strtolower($item->nama_dokumen), $search);
+        });
     }
-
-    // Ambil hasil
-    $dokumen = $dokumenQuery->latest()->get();
 
     return view('kepalabagian.dokumen.index', compact('dokumen'));
 }
@@ -51,9 +52,12 @@ class ManajemenDokumenController extends Controller
 
         // (opsional) fallback: kalau masih kosong, tampilkan semua agar tidak blank
         if ($kategori->isEmpty()) {
-            $kategori = KategoriDokumen::with('subbidang')
-                ->orderBy('nama_kategoridokumen')
-                ->get();
+        // Ambil kategori sesuai bidang_id dari role user
+$kategori = KategoriDokumen::whereHas('subbidang', function ($q) use ($bidangId) {
+        $q->where('bidang_id', $bidangId);
+    })
+    ->orderBy('nama_kategoridokumen')
+    ->get();
         }
 
         return view('kepalabagian.dokumen.create', compact('kategori'));
@@ -131,34 +135,47 @@ public function show(Request $request, $id)
 
 
 
-    public function edit(Dokumen $dokumen)
-    {
-        $kategori = KategoriDokumen::all();
+public function edit(Request $request, Dokumen $dokumen)
+{
+    $user = auth()->user();
 
-        return view('kepalabagian.dokumen.edit', compact('dokumen', 'kategori'));
+    // 1. Validasi akses: Kepala Bagian hanya bisa edit dokumen di subbidangnya
+    if ($dokumen->subbidang_id !== $user->role->subbidang_id) {
+        abort(403, 'Anda tidak memiliki akses untuk mengedit dokumen ini.');
     }
 
-    public function update(Request $request, Dokumen $dokumen)
-    {
-        $validated = $request->validate([
-            'nama_dokumen' => ['required', 'string', 'max:255'],
-            'deskripsi' => ['nullable', 'string'],
-            'kategori_dokumen_id' => ['required', 'exists:kategori_dokumen,id'],
-            'path_dokumen' => ['nullable', 'file', 'max:10240'],
-        ]);
+    // 2. Cek apakah dokumen kategori Rahasia
+    $isRahasia = $dokumen->kategoriDokumen 
+        && strtolower($dokumen->kategoriDokumen->nama_kategoridokumen) === 'Rahasia';
 
-        if ($request->hasFile('path_dokumen')) {
-            if ($dokumen->path_dokumen && Storage::disk('public')->exists($dokumen->path_dokumen)) {
-                Storage::disk('public')->delete($dokumen->path_dokumen);
-            }
-            $validated['path_dokumen'] = $request->file('path_dokumen')->store('dokumen', 'public');
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
+
+        // Kalau belum input kunci
+        if (!$inputKey) {
+            return back()->with('info', 'Masukkan kunci dokumen untuk mengedit dokumen rahasia.');
         }
 
-        $dokumen->update($validated);
+        // Karena field terenkripsi, kita decrypt dulu untuk validasi
+        try {
+            $savedKey = decrypt($dokumen->encrypted_key);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal membaca kunci dokumen.');
+        }
 
-        return redirect()->route('kepalabagian.manajemendokumen.index')
-                         ->with('success', 'Dokumen berhasil diperbarui.');
+        if ($inputKey !== $savedKey) {
+            return back()->with('error', 'Kunci dokumen salah.');
+        }
     }
+
+    // 3. Ambil daftar kategori sesuai subbidang user
+    $kategori = KategoriDokumen::where('bidang_id', $user->role->bidang_id)->get();
+
+    // 4. Tampilkan form edit
+    return view('kepalabagian.dokumen.edit', compact('dokumen', 'kategori'));
+}
+
+
 
    
     public function destroy(Dokumen $dokumen)

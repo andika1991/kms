@@ -5,42 +5,60 @@ namespace App\Http\Controllers;
 use App\Models\ArtikelPengetahuan;
 use App\Models\ArticleView;
 use App\Models\KategoriPengetahuan;
+use App\Models\Subbidang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Auth;
 class ArtikelPengetahuanController extends Controller
 {
     /**
      * Tampilkan daftar artikel pengetahuan.
      */
-    public function index(Request $request)
+ public function index(Request $request)
     {
+        $user = Auth::user();
+        $bidangId = $user->role->bidang_id ?? null;
+
+        // Ambil semua subbidang yang terkait dengan bidang pengguna yang sedang login
+        $subbidangIds = Subbidang::where('bidang_id', $bidangId)->pluck('id');
+
+        // Buat query untuk mengambil artikel
         $query = ArtikelPengetahuan::query();
 
+        // Filter artikel berdasarkan subbidang yang relevan dengan pengguna
+        $query->whereHas('kategoriPengetahuan', function ($q) use ($subbidangIds) {
+            $q->whereIn('subbidang_id', $subbidangIds);
+        });
+
+        // Tambahkan filter pencarian jika ada
         if ($request->filled('search')) {
             $query->where('judul', 'like', '%' . $request->search . '%');
         }
 
+        // Ambil artikel yang relevan
         $artikels = $query->latest()->get();
 
-        $kategori = KategoriPengetahuan::all();
+        // Ambil kategori yang juga relevan dengan subbidang pengguna
+        $kategori = KategoriPengetahuan::whereIn('subbidang_id', $subbidangIds)->get();
 
         return view('kepalabagian.artikelpengetahuan', compact('artikels', 'kategori'));
     }
-
     /**
      * Tampilkan form create artikel.
      */
     public function create()
     {
-        $kategori = KategoriPengetahuan::all();
+        $user = Auth::user();
+        $bidangId = $user->role->bidang_id ?? null;
+
+        // Ambil semua subbidang yang terkait dengan bidang pengguna yang sedang login
+        $subbidangIds = Subbidang::where('bidang_id', $bidangId)->pluck('id');
+        
+        // Filter kategori berdasarkan subbidang yang relevan
+        $kategori = KategoriPengetahuan::whereIn('subbidang_id', $subbidangIds)->get();
 
         return view('kepalabagian.artikelpengetahuan-create', compact('kategori'));
     }
-
-    /**
-     * Simpan artikel baru.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -91,9 +109,14 @@ class ArtikelPengetahuanController extends Controller
     /**
      * Tampilkan form edit artikel.
      */
-    public function edit(ArtikelPengetahuan $artikelpengetahuan)
+   public function edit(ArtikelPengetahuan $artikelpengetahuan)
     {
-        $kategori = KategoriPengetahuan::all();
+        $user = Auth::user();
+        $bidangId = $user->role->bidang_id ?? null;
+
+        $subbidangIds = Subbidang::where('bidang_id', $bidangId)->pluck('id');
+        
+        $kategori = KategoriPengetahuan::whereIn('subbidang_id', $subbidangIds)->get();
 
         return view('kepalabagian.artikelpengetahuan-edit', compact('artikelpengetahuan', 'kategori'));
     }

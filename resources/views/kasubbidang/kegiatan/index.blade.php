@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div
                                     class="mt-3 flex items-center justify-between text-[12px] sm:text-xs text-gray-500">
                                     <span class="inline-flex items-center gap-1">
-                                        <i class="fa-regular fa-eye"></i> {{ $views }}
+                                        <i class="fa-regular fa-eye"></i>  {{ number_format($item->views_count ?? (method_exists($item,'views') ? $item->views()->count() : 0)) }}
                                     </span>
                                     <time datetime="{{ $item->created_at?->toISOString() }}"
                                         class="whitespace-nowrap">{{ $tanggalBuat }}</time>

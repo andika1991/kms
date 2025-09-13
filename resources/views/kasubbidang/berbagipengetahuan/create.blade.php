@@ -106,9 +106,14 @@ $ctrlClass = function(string $name) use ($errors) {
                             class="w-full h-48 md:h-56 border-2 border-dashed {{ $errors->has('thumbnail') ? 'border-red-400' : 'border-gray-300' }} rounded-xl grid place-items-center text-center cursor-pointer hover:bg-gray-50 transition"
                             @keydown.enter.prevent="$refs.thumb.click()"
                         >
-                            <template x-if="preview">
-                                <img :src="preview" alt="Preview Thumbnail" class="w-full h-full object-contain rounded-xl" />
-                            </template>
+                        <template x-if="preview">
+                            <img 
+                                :src="preview" 
+                                alt="Preview Thumbnail" 
+                                class="max-h-48 md:max-h-56 w-auto mx-auto object-contain rounded-xl"
+                            />
+                        </template>
+
                             <template x-if="!preview">
                                 <div>
                                     <i class="fa-solid fa-image text-4xl text-gray-400"></i>

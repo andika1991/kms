@@ -141,11 +141,16 @@ $viewCount = $dokumen->views_count ?? 0;
                         class="h-16 w-16 mx-auto mb-3">
                     <p class="font-bold">Bidang {{ Auth::user()->role->nama_role ?? 'Kasubbidang' }}</p>
                 </section>
+             {{-- Pastikan hanya pemilik dokumen yang bisa edit --}}
+                @if ($dokumen->pengguna_id === auth()->id())
+                    <a href="{{ route('kasubbidang.manajemendokumen.edit', $dokumen->id) }}"
+                        class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#356ea7] hover:bg-[#295480] text-white font-semibold shadow-sm transition">
+                        <i class="fa-solid fa-pen-to-square"></i> 
+                        Edit Dokumen
+                    </a>
+                @endif
 
-                <a href="{{ route('kasubbidang.manajemendokumen.edit', $dokumen->id) }}"
-                    class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#356ea7] hover:bg-[#295480] text-white font-semibold shadow-sm transition">
-                    <i class="fa-solid fa-pen-to-square"></i> Edit Dokumen
-                </a>
+
 
                 {{-- Tambahan: Kembali ke daftar --}}
                 <a href="{{ route('kasubbidang.manajemendokumen.index') }}"

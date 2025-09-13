@@ -13,23 +13,27 @@ use Illuminate\Http\Request;
 
 class DokumenkasubbidangController extends Controller
 {
-    public function index(Request $request)
-    {
-        $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
-            ->where('pengguna_id', auth()->id());
+public function index(Request $request)
+{
+    $dokumenQuery = Dokumen::with(['kategoriDokumen', 'user'])
+        ->where('pengguna_id', auth()->id());
 
-        if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $dokumenQuery->whereRaw('LOWER(nama_dokumen) LIKE ?', ["%{$search}%"]);
-        }
+    // Ambil semua dulu
+    $dokumen = $dokumenQuery->latest()->get();
 
-        $dokumen = $dokumenQuery->latest()->get();
-
-        
-        $kategori = KategoriDokumen::where('subbidang_id', auth()->user()->role->subbidang_id)->get();
-
-        return view('kasubbidang.dokumen.index', compact('dokumen', 'kategori'));
+    // Jika ada pencarian → filter di collection (karena nama_dokumen terenkripsi di DB)
+    if ($request->filled('search')) {
+        $search = strtolower($request->search);
+        $dokumen = $dokumen->filter(function ($item) use ($search) {
+            return str_contains(strtolower($item->nama_dokumen), $search);
+        });
     }
+
+    // Ambil kategori sesuai subbidang user
+    $kategori = KategoriDokumen::where('subbidang_id', auth()->user()->role->subbidang_id)->get();
+
+    return view('kasubbidang.dokumen.index', compact('dokumen', 'kategori'));
+}
 
     public function create()
     {
@@ -100,53 +104,75 @@ class DokumenkasubbidangController extends Controller
              ->with('success', 'Dokumen berhasil ditambahkan.');
     }
 
-    public function show(Request $request, $id)
-    {
-        $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
+public function show(Request $request, $id)
+{
+    $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
-        $isRahasia = $dokumen->kategoriDokumen 
-        && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
+    $isRahasia = $dokumen->kategoriDokumen 
+        && $dokumen->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
 
-        if ($isRahasia) {
-            $inputKey = $request->encrypted_key;
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
 
-            if (!$inputKey) {
-                return redirect()->route('pegawai.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
-            }
-
-            // Dekripsi key dari DB
-            try {
-                $decryptedKey = decrypt($dokumen->encrypted_key);
-            } catch (\Exception $e) {
-                // Jika gagal dekripsi, berarti ada masalah data
-                return redirect()->route('kasubbidang.manajemendokumen.index')
-                    ->with('error', 'Data kunci dokumen tidak valid.');
-            }
-
-            if ($inputKey !== $decryptedKey) {
-                return redirect()->route('kasubbidang.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen salah.');
-            }
+        if (!$inputKey) {
+            return redirect()->route('kasubbidang.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
         }
 
-        if (auth()->check()) {
-            DocumentView::updateOrCreate(
-                ['dokumen_id' => $dokumen->id, 'user_id' => auth()->id()],
-                ['viewed_at' => now()]
-            );
+        // langsung dibandingkan, karena otomatis didekripsi
+        if ($inputKey !== $dokumen->encrypted_key) {
+            return redirect()->route('kasubbidang.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
+    }
+
+    if (auth()->check()) {
+        DocumentView::updateOrCreate(
+            ['dokumen_id' => $dokumen->id, 'user_id' => auth()->id()],
+            ['viewed_at' => now()]
+        );
+    }
+
+    return view('kasubbidang.dokumen.show', compact('dokumen'));
+}
+
+
+public function edit(Request $request, Dokumen $manajemendokuman)
+{
+    $user = auth()->user();
+
+    // 1. Cek kepemilikan dokumen
+    if ($manajemendokuman->pengguna_id !== $user->id) {
+        abort(403, 'Anda tidak memiliki akses untuk mengedit dokumen ini.');
+    }
+
+    // 2. Cek apakah dokumen rahasia
+    $isRahasia = $manajemendokuman->kategoriDokumen
+        && strtolower($manajemendokuman->kategoriDokumen->nama_kategoridokumen) === 'rahasia';
+
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
+
+        if (!$inputKey) {
+            return redirect()->route('kasubbidang.manajemendokumen.index')
+                ->with('info', 'Masukkan kunci dokumen untuk mengedit dokumen rahasia.');
         }
 
-
-        return view('kasubbidang.dokumen.show', compact('dokumen'));
+        // langsung bandingkan karena $casts sudah auto-decrypt
+        if ($inputKey !== $manajemendokuman->encrypted_key) {
+            return redirect()->route('kasubbidang.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
     }
 
-    public function edit(Dokumen $manajemendokuman)
-    {
-        $kategori = KategoriDokumen::all();
+    // 3. Ambil daftar kategori sesuai subbidang_id user login
+    $kategori = KategoriDokumen::where('subbidang_id', $user->role->subbidang_id)->get();
 
-        return view('kasubbidang.dokumen.edit', compact('manajemendokuman', 'kategori'));
-    }
+    // 4. Lolos validasi → tampilkan form edit
+    return view('kasubbidang.dokumen.edit', compact('manajemendokuman', 'kategori'));
+}
+
+
 
     public function update(Request $request, $id)
     {

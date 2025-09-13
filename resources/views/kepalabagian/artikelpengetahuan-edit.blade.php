@@ -136,7 +136,7 @@ $tanggal = $carbon->format('l, d F Y');
                             @foreach($kategori as $kat)
                             <option value="{{ $kat->id }}"
                                 {{ old('kategori_pengetahuan_id', $artikelpengetahuan->kategori_pengetahuan_id) == $kat->id ? 'selected' : '' }}>
-                                {{ $kat->nama_kategoripengetahuan }}
+                            {{ $kat->nama_kategoripengetahuan }}-{{ $kat->subbidang->nama ?? '-' }}
                             </option>
                             @endforeach
                         </select>

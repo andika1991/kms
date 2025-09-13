@@ -113,16 +113,28 @@ $tanggal = $carbon->format('l, d F Y');
                 </div>
                 {{-- Tombol Aksi --}}
                 <div class="flex flex-col gap-4">
-                    <a href="{{ route('kasubbidang.berbagipengetahuan.edit', $artikel->id) }}"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Edit Artikel</span>
-                    </a>
-                    <button id="btn-hapus-artikel"
-                        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
-                        <i class="fa-solid fa-trash"></i>
-                        <span>Hapus Artikel</span>
-                    </button>
+                  {{-- Pastikan hanya pemilik artikel yang bisa edit & hapus --}}
+@if ($artikel->pengguna_id === auth()->id())
+    <a href="{{ route('kasubbidang.berbagipengetahuan.edit', $artikel->id) }}"
+        class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-900 text-white font-semibold shadow-sm transition text-base">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Edit Artikel</span>
+    </a>
+
+    <form action="{{ route('kasubbidang.berbagipengetahuan.destroy', $artikel->id) }}" 
+          method="POST" 
+          onsubmit="return confirm('Yakin mau hapus artikel ini?')"
+          class="w-full">
+        @csrf
+        @method('DELETE')
+        <button type="submit"
+            class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-800 text-white font-semibold shadow-sm transition text-base">
+            <i class="fa-solid fa-trash"></i>
+            <span>Hapus Artikel</span>
+        </button>
+    </form>
+@endif
+
                     <form id="delete-artikel-form"
                         action="{{ route('kasubbidang.berbagipengetahuan.destroy', $artikel->id) }}" method="POST"
                         class="hidden">

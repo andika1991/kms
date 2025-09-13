@@ -63,17 +63,17 @@ $waktu = $carbon->format('H:i:s') . ' WIB';
                         <!-- Avatar -->
                         <div
                             class="flex-shrink-0 flex items-center justify-center w-20 h-20 rounded-full bg-[#c9ecd7] border">
-                            @if(!empty($user->photo_url))
-                            <img src="{{ asset('storage/' . $user->photo_url) }}" alt="Foto {{ $user->decrypted_name }}"
+                            @if(!empty($user->photo_profil))
+                            <img src="{{ asset('storage/' . $user->photo_profil) }}" alt="Foto {{ $user->decrypted_name }}"
                                 class="w-20 h-20 object-cover rounded-full">
                             @else
                             <img src="{{ asset('assets/img/avatar_icon.svg') }}"
-                                alt="Avatar {{ $user->decrypted_name }}" class="w-16 h-16 rounded-full object-cover">
+                                alt="Avatar {{ $user->name }}" class="w-16 h-16 rounded-full object-cover">
                             @endif
                         </div>
                         <!-- Info -->
                         <div class="flex-1">
-                            <div class="font-bold text-lg text-gray-900 leading-tight">{{ $user->decrypted_name }}</div>
+                            <div class="font-bold text-lg text-gray-900 leading-tight">{{ $user->name }}</div>
                             <div class="text-gray-500 text-sm mb-1">{{ $user->role->nama_role ?? '-' }}</div>
                             @if($user->agenda && $user->agenda->count() > 0)
                             @foreach($user->agenda as $agenda)

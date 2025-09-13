@@ -7,27 +7,35 @@ use App\Models\ArticleView;
 use App\Models\KategoriPengetahuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+
 
 class PengetahuansekretarisController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
-        $query = ArtikelPengetahuan::query()->where('pengguna_id', auth()->id());
+        $query = ArtikelPengetahuan::where('pengguna_id', Auth::id());
 
         if ($request->filled('search')) {
-            $query->where('judul', 'like', '%' . $request->search . '%');
+            $query->where('slug', 'like', '%' . $request->search . '%');
         }
 
         $artikels = $query->latest()->paginate(9);
 
-        $kategoriPengetahuans = KategoriPengetahuan::all(); // Tidak filter subbidang
+        // Filter KategoriPengetahuan untuk yang memiliki bidang_id dan subbidang_id kosong/null
+        $kategoriPengetahuans = KategoriPengetahuan::whereNull('bidang_id')
+                                                 ->whereNull('subbidang_id')
+                                                 ->get();
 
         return view('sekretaris.berbagipengetahuan.index', compact('artikels', 'kategoriPengetahuans'));
     }
 
-    public function create()
+   public function create()
     {
-        $kategori = KategoriPengetahuan::all();
+        // Ambil kategori pengetahuan yang tidak memiliki bidang-ID dan subbidang-ID (kategori umum)
+        $kategori = KategoriPengetahuan::whereNull('bidang_id')
+                                         ->whereNull('subbidang_id')
+                                         ->get();
 
         return view('sekretaris.berbagipengetahuan.create', compact('kategori'));
     }
@@ -59,16 +67,19 @@ class PengetahuansekretarisController extends Controller
             ->route('sekretaris.berbagipengetahuan.index')
             ->with('success', 'Artikel berhasil ditambahkan.');
     }
-
-    public function edit($id)
+ public function edit($id)
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
 
+        // Cari artikel berdasarkan ID dan pastikan artikel tersebut milik pengguna yang sedang login
         $artikelpengetahuan = ArtikelPengetahuan::where('id', $id)
             ->where('pengguna_id', $userId)
             ->firstOrFail();
 
-        $kategori = KategoriPengetahuan::all();
+        // Ambil kategori yang tidak memiliki bidang-ID dan subbidang-ID (kategori umum)
+        $kategori = KategoriPengetahuan::whereNull('bidang_id')
+                                         ->whereNull('subbidang_id')
+                                         ->get();
 
         return view('sekretaris.berbagipengetahuan.edit', compact('artikelpengetahuan', 'kategori'));
     }

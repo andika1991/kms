@@ -109,17 +109,19 @@ $tanggal = $carbon->format('l, d F Y');
 
                 {{-- Tombol aksi (pakai rute kepala bagian) --}}
                 <nav class="flex flex-col gap-4">
-                    <a href="{{ route('kepalabagian.artikelpengetahuan.edit', $artikel->id) }}"
-                       class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-base font-semibold text-white shadow-sm transition hover:bg-blue-900">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Edit Artikel</span>
-                    </a>
+                   @if(Auth::id() === $artikel->pengguna_id)
+    <a href="{{ route('kepalabagian.artikelpengetahuan.edit', $artikel->id) }}"
+       class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-base font-semibold text-white shadow-sm transition hover:bg-blue-900">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Edit Artikel</span>
+    </a>
 
-                    <button id="btn-hapus-artikel"
-                            class="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm transition hover:bg-red-800">
-                        <i class="fa-solid fa-trash"></i>
-                        <span>Hapus Artikel</span>
-                    </button>
+    <button id="btn-hapus-artikel"
+            class="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm transition hover:bg-red-800">
+        <i class="fa-solid fa-trash"></i>
+        <span>Hapus Artikel</span>
+    </button>
+@endif
 
                     <form id="delete-artikel-form"
                           action="{{ route('kepalabagian.artikelpengetahuan.destroy', $artikel->id) }}"

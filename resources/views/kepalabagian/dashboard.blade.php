@@ -42,7 +42,7 @@ $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
                             </span>
                         </label>
 
-                        {{-- Profile dropdown (tetap) --}}
+                        {{-- Profile dropdown --}}
                         <div x-data="{ open:false }" class="relative">
                             <button @click="open=!open"
                                 class="w-10 h-10 grid place-items-center bg-white rounded-full border border-gray-300 text-gray-600 text-lg hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition"
@@ -63,7 +63,7 @@ $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
                             </nav>
                         </div>
 
-                        {{-- Notifikasi (TIDAK diubah) --}}
+                        {{-- Notifikasi --}}
                         <a href="{{ route('notifikasi.index') }}"
                             class="relative w-10 h-10 flex items-center justify-center bg-white rounded-full border border-gray-300 text-blue-600 text-lg hover:shadow-md hover:border-blue-500 transition">
                             <i class="fa-solid fa-bell"></i>
@@ -128,7 +128,7 @@ $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
 
             {{-- GRAFIK & DOKUMEN TERATAS --}}
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {{-- Grafik (span 2 kolom di desktop) --}}
+                {{-- Grafik Garis Perkembangan Dokumen & Artikel --}}
                 <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
                     <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Dokumen & Artikel Tahun Ini</h3>
                     <div class="relative h-72 sm:h-80 md:h-96">
@@ -142,10 +142,10 @@ $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
                     <ul class="space-y-3">
                         @forelse($dokumenTeratas as $doc)
                         <li class="flex justify-between items-center text-sm text-gray-700
-                       @class(['bg-[#f3f7fb] rounded-md px-3 py-2' => $loop->odd, 'px-3 py-2' => $loop->even])">
+                        @class(['bg-[#f3f7fb] rounded-md px-3 py-2' => $loop->odd, 'px-3 py-2' => $loop->even])">
                             <span class="truncate max-w-[75%]">{{ $doc->nama_dokumen }}</span>
                             <span class="font-semibold flex items-center gap-1.5 text-gray-600">
-                                {{ $doc->total_views }} <i class="fa-solid fa-eye text-xs"></i>
+                                {{ $doc->views_total }} <i class="fa-solid fa-eye text-xs"></i>
                             </span>
                         </li>
                         @empty
@@ -155,8 +155,9 @@ $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
                 </div>
             </section>
 
-            {{-- KONTEN 3 KOLOM (KMS + Placeholder chart) --}}
+            {{-- KONTEN BAWAH (KMS + RANKING + BAR CHARTS) --}}
             <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {{-- Kotak Keterangan KMS --}}
                 <article class="bg-white rounded-2xl shadow-lg p-6">
                     <h3 class="font-bold text-[#2171b8] text-lg mb-2">Knowledge Management System</h3>
                     <p class="text-sm text-gray-700 leading-relaxed mb-2">
@@ -171,7 +172,46 @@ $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
                     </p>
                 </article>
 
-                <!-- Perkembangan Pengetahuan -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4">Pengunggah Dokumen Teraktif</h3>
+                    <ul class="space-y-3">
+                        @forelse($rankDokumen as $rank)
+                        <li class="flex justify-between items-center text-sm text-gray-700
+                        @class(['bg-[#f3f7fb] rounded-md px-3 py-2' => $loop->odd, 'px-3 py-2' => $loop->even])">
+                            <span class="truncate max-w-[75%] font-semibold">
+                                {{ $loop->index + 1 }}. {{ $rank->user->name ?? 'Pengguna Tidak Dikenal' }}
+                            </span>
+                            <span class="font-semibold flex items-center gap-1.5 text-gray-600">
+                                {{ $rank->total_dokumen }} Dokumen
+                            </span>
+                        </li>
+                        @empty
+                        <li class="text-gray-500 text-sm">Belum ada data peringkat.</li>
+                        @endforelse
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4">Penulis Artikel Teraktif</h3>
+                    <ul class="space-y-3">
+                        @forelse($rankArtikel as $rank)
+                        <li class="flex justify-between items-center text-sm text-gray-700
+                        @class(['bg-[#f3f7fb] rounded-md px-3 py-2' => $loop->odd, 'px-3 py-2' => $loop->even])">
+                            <span class="truncate max-w-[75%] font-semibold">
+                                {{ $loop->index + 1 }}. {{ $rank->pengguna->name ?? 'Pengguna Tidak Dikenal' }}
+                            </span>
+                            <span class="font-semibold flex items-center gap-1.5 text-gray-600">
+                                {{ $rank->total_artikel }} Artikel
+                            </span>
+                        </li>
+                        @empty
+                        <li class="text-gray-500 text-sm">Belum ada data peringkat.</li>
+                        @endforelse
+                    </ul>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Pengetahuan</h3>
                     <div class="relative h-56 sm:h-64 md:h-72">
@@ -179,14 +219,12 @@ $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
                     </div>
                 </div>
 
-                <!-- Perkembangan Artikel -->
                 <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Artikel</h3>
+                    <h3 class="font-bold text-lg text-gray-800 mb-4">Perkembangan Dokumen</h3>
                     <div class="relative h-56 sm:h-64 md:h-72">
-                        <canvas id="barArtikel"></canvas>
+                        <canvas id="barDokumen"></canvas>
                     </div>
                 </div>
-
             </section>
         </main>
 
@@ -201,149 +239,118 @@ $jumlahNotifikasi = Notifikasi::where('pengguna_id', Auth::id())
         </x-slot>
     </div>
 
-    {{-- Chart.js --}}
+    {{-- Chart.js Script --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-    const ctx = document.getElementById('lineChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: {
-                !!json_encode($bulan) !!
+        const getMonthName = (monthNumber) => {
+            const date = new Date();
+            date.setMonth(monthNumber - 1);
+            return date.toLocaleString('id-ID', { month: 'long' });
+        };
+
+        /* ---------- LINE CHART: Dokumen & Artikel per Bulan ---------- */
+        const labelsBulan = {!! json_encode($bulan) !!}.map(getMonthName);
+        const dataDokumenLine = {!! json_encode($dataDokumen) !!};
+        const dataArtikelLine = {!! json_encode($dataArtikel) !!};
+
+        const lineChart = new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: labelsBulan,
+                datasets: [
+                    {
+                        label: 'Dokumen',
+                        data: dataDokumenLine,
+                        borderColor: '#2b6cb0',
+                        backgroundColor: 'rgba(43, 108, 176, 0.2)',
+                        tension: 0.3,
+                        fill: true,
+                    },
+                    {
+                        label: 'Artikel',
+                        data: dataArtikelLine,
+                        borderColor: '#e53e3e',
+                        backgroundColor: 'rgba(229, 62, 62, 0.2)',
+                        tension: 0.3,
+                        fill: true,
+                    }
+                ]
             },
-            datasets: [{
-                    label: 'Dokumen',
-                    data: {
-                        !!json_encode($dataDokumen) !!
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
                     },
-                    borderColor: 'rgba(34,197,94,1)',
-                    backgroundColor: 'rgba(34,197,94,.12)',
-                    fill: true,
-                    tension: .35,
-                    pointRadius: 2
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
                 },
-                {
-                    label: 'Artikel',
-                    data: {
-                        !!json_encode($dataArtikel) !!
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
                     },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        /* ---------- BAR CHART: Per Subbidang ---------- */
+        const labelsSub = {!! json_encode($subbidangNames->values()) !!};
+        const barArtikelData = {!! json_encode($barArtikel->values()) !!};
+        const barDokumenData = {!! json_encode($barDokumen->values()) !!};
+
+        // Grafik Perkembangan Pengetahuan (Artikel)
+        new Chart(document.getElementById('barPengetahuan').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labelsSub,
+                datasets: [{
+                    label: 'Jumlah Artikel',
+                    data: barArtikelData,
+                    backgroundColor: 'rgba(59,130,246,0.75)',
                     borderColor: 'rgba(59,130,246,1)',
-                    backgroundColor: 'rgba(59,130,246,.12)',
-                    fill: true,
-                    tension: .35,
-                    pointRadius: 2
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false, // biar tinggi canvas mengikuti container
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
+                    borderWidth: 1,
+                    maxBarThickness: 28
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0
-                    }
-                }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
             }
-        }
-    });
+        });
+
+        // Grafik Perkembangan Dokumen
+        new Chart(document.getElementById('barDokumen').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labelsSub,
+                datasets: [{
+                    label: 'Jumlah Dokumen',
+                    data: barDokumenData,
+                    backgroundColor: 'rgba(239,68,68,0.75)',
+                    borderColor: 'rgba(239,68,68,1)',
+                    borderWidth: 1,
+                    maxBarThickness: 28
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+        });
     </script>
-
-    <script>
-    /* ---------- BAR: Per Subbidang ---------- */
-    const labelsSub = {
-        !!json_encode($subbidangNames - > values()) !!
-    };
-
-    /* Pengetahuan = jumlah Artikel Pengetahuan per subbidang */
-    new Chart(document.getElementById('barPengetahuan').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: labelsSub,
-            datasets: [{
-                label: 'Jumlah Pengetahuan',
-                data: {
-                    !!json_encode($barArtikel - > values()) !!
-                },
-                backgroundColor: 'rgba(59,130,246,0.75)', // biru
-                borderColor: 'rgba(59,130,246,1)',
-                borderWidth: 1,
-                maxBarThickness: 28
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        maxRotation: 40,
-                        minRotation: 0,
-                        autoSkip: true
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0
-                    }
-                }
-            }
-        }
-    });
-
-    /* Artikel = jumlah Dokumen per subbidang (sesuai label kartu di UI) */
-    new Chart(document.getElementById('barArtikel').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: labelsSub,
-            datasets: [{
-                label: 'Jumlah Artikel',
-                data: {
-                    !!json_encode($barDokumen - > values()) !!
-                },
-                backgroundColor: 'rgba(239,68,68,0.75)', // merah
-                borderColor: 'rgba(239,68,68,1)',
-                borderWidth: 1,
-                maxBarThickness: 28
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        maxRotation: 40,
-                        minRotation: 0,
-                        autoSkip: true
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0
-                    }
-                }
-            }
-        }
-    });
-    </script>
-
 </x-app-layout>

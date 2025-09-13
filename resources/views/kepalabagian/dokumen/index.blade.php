@@ -5,9 +5,15 @@ use App\Models\KategoriDokumen;
 $carbon = Carbon::now()->locale('id');
 $carbon->settings(['formatFunction' => 'translatedFormat']);
 $tanggal = $carbon->format('l, d F Y');
+$user = Auth::user();
+$bidangId = $user->role->bidang_id;
 
-/** Kepala Bagian tidak membuat kategori → hanya tampilkan daftar sebagai sidebar */
-$kategori = KategoriDokumen::orderBy('nama_kategoridokumen')->get();
+// Ambil kategori sesuai bidang_id dari role user
+$kategori = KategoriDokumen::whereHas('subbidang', function ($q) use ($bidangId) {
+        $q->where('bidang_id', $bidangId);
+    })
+    ->orderBy('nama_kategoridokumen')
+    ->get();
 @endphp
 
 @section('title', 'Manajemen Dokumen Kepala Bagian')
@@ -169,10 +175,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                         </a>
                                         @endif
 
-                                        {{-- Edit --}}
-                                        <a href="{{ route('kepalabagian.manajemendokumen.edit', $item->id) }}"
-                                            class="js-no-row w-9 h-9 grid place-items-center rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-600"
-                                            title="Edit"><i class="fa-solid fa-pen-to-square"></i></a>
+                                       {{-- Edit --}}
+{{-- Edit --}}
+                        {{-- Edit --}}
+<a href="javascript:void(0);" 
+   class="js-no-row w-9 h-9 flex items-center justify-center rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition btn-edit"
+   title="Edit"
+   data-id="{{ $item->id }}"
+   data-rahasia="{{ $rahasia ? '1' : '0' }}">
+   <i class="fa-solid fa-pen-to-square text-lg"></i>
+</a>
+
 
                                         {{-- Hapus --}}
                                         <form action="{{ route('kepalabagian.manajemendokumen.destroy', $item->id) }}"
@@ -242,7 +255,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         @foreach($kategori as $kat)
                         <li class="flex items-center gap-2">
                             <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
-                            <span class="text-sm text-gray-700">{{ $kat->nama_kategoridokumen }}</span>
+                          <span class="text-sm text-gray-700">
+        {{ $kat->nama_kategoridokumen }} 
+        <span class="text-xs text-gray-500">({{ $kat->subbidang->nama}})</span>
+    </span>
                         </li>
                         @endforeach
                     </ul>
@@ -264,44 +280,68 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     {{-- Interaksi baris & modal rahasia (persis pola pegawai, rute kepala bagian) --}}
-    <script>
-    function openRahasia(id) {
-        document.getElementById('dokumen_id').value = id;
-        document.getElementById('modal-kunci').classList.remove('hidden');
-        document.getElementById('modal-kunci').classList.add('flex');
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        const rows = document.querySelectorAll('tr.row-dokumen');
-        const modal = document.getElementById('modal-kunci');
-        const form = document.getElementById('form-kunci');
-        const batal = document.getElementById('batal-modal');
+   <script>
+function openRahasia(id, mode = 'view') {
+    document.getElementById('dokumen_id').value = id;
+    document.getElementById('modal-kunci').dataset.mode = mode; // simpan mode (lihat/edit)
+    document.getElementById('modal-kunci').classList.remove('hidden');
+    document.getElementById('modal-kunci').classList.add('flex');
+}
 
-        rows.forEach(row => {
-            row.addEventListener('click', (e) => {
-                if (e.target.closest('.js-no-row')) return; // cegah trigger dari tombol aksi
-                const id = row.dataset.id;
-                const isRahasia = row.dataset.rahasia === '1';
-                if (isRahasia) {
-                    openRahasia(id);
-                } else {
-                    window.location.href = `/kepalabagian/manajemendokumen/${id}`;
-                }
-            });
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    const rows = document.querySelectorAll('tr.row-dokumen');
+    const modal = document.getElementById('modal-kunci');
+    const form = document.getElementById('form-kunci');
+    const batal = document.getElementById('batal-modal');
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const key = form.encrypted_key.value;
-            const id = document.getElementById('dokumen_id').value;
-            window.location.href =
-                `/kepalabagian/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(key)}`;
-        });
-
-        batal.addEventListener('click', () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            form.reset();
+    // Klik baris dokumen → lihat
+    rows.forEach(row => {
+        row.addEventListener('click', (e) => {
+            if (e.target.closest('.js-no-row')) return; 
+            const id = row.dataset.id;
+            const isRahasia = row.dataset.rahasia === '1';
+            if (isRahasia) {
+                openRahasia(id, 'view');
+            } else {
+                window.location.href = `/kepalabagian/manajemendokumen/${id}`;
+            }
         });
     });
-    </script>
+
+    // Klik tombol edit
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const isRahasia = btn.dataset.rahasia === '1';
+            if (isRahasia) {
+                openRahasia(id, 'edit');
+            } else {
+                window.location.href = `/kepalabagian/manajemendokumen/${id}/edit`;
+            }
+        });
+    });
+
+    // Submit form modal → arahkan sesuai mode
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const key = form.encrypted_key.value;
+        const id = document.getElementById('dokumen_id').value;
+        const mode = modal.dataset.mode || 'view';
+
+        if (mode === 'edit') {
+            window.location.href = `/kepalabagian/manajemendokumen/${id}/edit?encrypted_key=${encodeURIComponent(key)}`;
+        } else {
+            window.location.href = `/kepalabagian/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(key)}`;
+        }
+    });
+
+    // Tutup modal
+    batal.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        form.reset();
+    });
+});
+</script>
+
 </x-app-layout>

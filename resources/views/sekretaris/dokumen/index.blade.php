@@ -184,19 +184,20 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <td class="px-6 py-4 align-top">
                                     <div class="flex items-center justify-center gap-2">
                                         @if ($isSecret)
-                                        <button onclick="event.stopPropagation(); showPasswordModal('{{ $item->id }}')"
+                                        <button onclick="event.stopPropagation(); showPasswordModal('{{ $item->id }}', 'show')"
                                             class="w-9 h-9 grid place-items-center rounded bg-blue-100 hover:bg-blue-200 text-blue-600 transition"
                                             title="Lihat (Rahasia)">
                                             <i class="fa-solid fa-key text-lg"></i>
                                         </button>
                                         @endif
 
-                                        <a href="{{ route('sekretaris.manajemendokumen.edit', $item->id) }}"
-                                            onclick="event.stopPropagation();"
+                                        {{-- PERBAIKAN DI SINI: Ganti <a> tag dengan <button> --}}
+                                        <button
+                                            onclick="event.stopPropagation(); handleEditClick('{{ $item->id }}', '{{ $isSecret ? '1' : '0' }}')"
                                             class="w-9 h-9 grid place-items-center rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-600 transition"
                                             title="Edit">
                                             <i class="fa-solid fa-pen-to-square text-lg"></i>
-                                        </a>
+                                        </button>
 
                                         <button type="button"
                                             onclick="event.stopPropagation(); hapusDokumen('{{ route('sekretaris.manajemendokumen.destroy', $item->id) }}')"
@@ -342,10 +343,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             <i class="fa-solid fa-lock text-white text-3xl"></i>
                         </div>
                         <h2 class="font-bold text-lg text-gray-800">Masukkan Kunci Dokumen</h2>
-                        <p class="text-sm text-gray-500 mt-1">Dokumen ini bersifat rahasia.</p>
+                        <p class="text-sm text-gray-500 mt-1" id="modalPurposeText">Dokumen ini bersifat rahasia.</p>
                     </header>
 
                     <input type="hidden" id="dokumenId">
+                    <input type="hidden" id="modalActionPurpose">
                     <input type="password" id="modalPasswordInput"
                         class="w-full rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-blue-500 px-4 py-3 text-base text-center"
                         placeholder="••••••••••" required>
@@ -353,8 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button type="button" onclick="closeModal()"
                             class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold">Batal</button>
                         <button type="button" onclick="submitPassword()"
-                            class="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">Buka
-                            Dokumen</button>
+                            class="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">Lanjut</button>
                     </div>
                 </div>
             </div>
@@ -374,113 +375,142 @@ document.addEventListener('DOMContentLoaded', () => {
     {{-- SCRIPT --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.2/dist/sweetalert2.all.min.js"></script>
     <script>
-    // Klik baris dokumen
-    function openDokumenRow(row) {
-        const isSecret = row.dataset.secret === '1';
-        const id = row.dataset.id;
-        const url = row.dataset.url;
-        if (isSecret) {
-            showPasswordModal(id);
-        } else {
-            window.location.href = url;
+        // Klik baris dokumen
+        function openDokumenRow(row) {
+            const isSecret = row.dataset.secret === '1';
+            const id = row.dataset.id;
+            const url = row.dataset.url;
+            if (isSecret) {
+                showPasswordModal(id, 'show');
+            } else {
+                window.location.href = url;
+            }
         }
-    }
 
-    // Modal kategori
-    function closeKategoriModal() {
-        document.getElementById('kategoriModal').classList.add('hidden');
-    }
+        // PERBAIKAN DI SINI
+        function handleEditClick(id, isSecret) {
+            if (isSecret === '1') {
+                showPasswordModal(id, 'edit');
+            } else {
+                window.location.href = `/sekretaris/manajemendokumen/${id}/edit`;
+            }
+        }
 
-    function openEditKategoriModal(id, nama) {
-        const m = document.getElementById('editKategoriModal');
-        m.querySelector('#edit_nama_kategori').value = nama;
-        m.querySelector('#editKategoriForm').action = `/sekretaris/kategori-dokumen/${id}`;
-        m.classList.remove('hidden');
-    }
+        // Modal kategori
+        function closeKategoriModal() {
+            document.getElementById('kategoriModal').classList.add('hidden');
+        }
 
-    function closeEditKategoriModal() {
-        document.getElementById('editKategoriModal').classList.add('hidden');
-    }
+        function openEditKategoriModal(id, nama) {
+            const m = document.getElementById('editKategoriModal');
+            m.querySelector('#edit_nama_kategori').value = nama;
+            m.querySelector('#editKategoriForm').action = `/sekretaris/kategori-dokumen/${id}`;
+            m.classList.remove('hidden');
+        }
 
-    // Modal rahasia
-    function showPasswordModal(dokumenId) {
-        const m = document.getElementById('passwordModal');
-        m.classList.remove('hidden');
-        m.querySelector('#dokumenId').value = dokumenId;
-        const inp = m.querySelector('#modalPasswordInput');
-        inp.value = '';
-        inp.focus();
-    }
+        function closeEditKategoriModal() {
+            document.getElementById('editKategoriModal').classList.add('hidden');
+        }
 
-    function closeModal() {
-        document.getElementById('passwordModal').classList.add('hidden');
-    }
+        // Modal rahasia
+        function showPasswordModal(dokumenId, action) {
+            const m = document.getElementById('passwordModal');
+            const purposeText = document.getElementById('modalPurposeText');
+            m.classList.remove('hidden');
+            m.querySelector('#dokumenId').value = dokumenId;
+            m.querySelector('#modalActionPurpose').value = action;
+            const inp = m.querySelector('#modalPasswordInput');
+            
+            // Mengubah teks modal berdasarkan aksi (show/edit)
+            if (action === 'edit') {
+                purposeText.textContent = 'Masukkan kunci untuk mengedit dokumen rahasia.';
+            } else {
+                purposeText.textContent = 'Dokumen ini bersifat rahasia.';
+            }
 
-    function submitPassword() {
-        const id = document.getElementById('dokumenId').value;
-        const password = document.getElementById('modalPasswordInput').value.trim();
-        if (!password) {
+            inp.value = '';
+            inp.focus();
+        }
+
+        function closeModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        }
+
+        // Mengirimkan password berdasarkan aksi (show/edit)
+        function submitPassword() {
+            const id = document.getElementById('dokumenId').value;
+            const password = document.getElementById('modalPasswordInput').value.trim();
+            const action = document.getElementById('modalActionPurpose').value;
+
+            if (!password) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Kunci tidak boleh kosong!'
+                });
+                return;
+            }
+            
+            if (action === 'edit') {
+                // Redirect ke halaman edit dengan kunci
+                window.location.href = `/sekretaris/manajemendokumen/${id}/edit?encrypted_key=${encodeURIComponent(password)}`;
+            } else {
+                // Redirect ke halaman show dengan kunci
+                window.location.href = `/sekretaris/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(password)}`;
+            }
+        }
+
+        // Hapus
+        function hapusDokumen(url) {
             Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Kunci tidak boleh kosong!'
+                title: 'Apakah Anda Yakin?',
+                text: 'Dokumen akan dihapus permanen!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batalkan',
+                customClass: {
+                    popup: 'rounded-xl p-7',
+                    confirmButton: 'text-base font-semibold px-8 py-2 rounded-lg mr-2 bg-red-600 text-white hover:bg-red-700',
+                    cancelButton: 'text-base font-semibold px-8 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600'
+                },
+                buttonsStyling: false
+            }).then(r => {
+                if (r.isConfirmed) {
+                    const f = document.createElement('form');
+                    f.action = url;
+                    f.method = 'POST';
+                    f.innerHTML = `@csrf @method('DELETE')`;
+                    document.body.appendChild(f);
+                    f.submit();
+                }
             });
-            return;
         }
-        window.location.href = `/sekretaris/manajemendokumen/${id}?encrypted_key=${encodeURIComponent(password)}`;
-    }
 
-    // Hapus
-    function hapusDokumen(url) {
-        Swal.fire({
-            title: 'Apakah Anda Yakin?',
-            text: 'Dokumen akan dihapus permanen!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batalkan',
-            customClass: {
-                popup: 'rounded-xl p-7',
-                confirmButton: 'text-base font-semibold px-8 py-2 rounded-lg mr-2 bg-red-600 text-white hover:bg-red-700',
-                cancelButton: 'text-base font-semibold px-8 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600'
-            },
-            buttonsStyling: false
-        }).then(r => {
-            if (r.isConfirmed) {
-                const f = document.createElement('form');
-                f.action = url;
-                f.method = 'POST';
-                f.innerHTML = `@csrf @method('DELETE')`;
-                document.body.appendChild(f);
-                f.submit();
-            }
-        });
-    }
-
-    function hapusKategori(url) {
-        Swal.fire({
-            title: 'Apakah Anda Yakin?',
-            text: 'Menghapus kategori akan membuat dokumen terkait tidak memiliki kategori.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batalkan',
-            customClass: {
-                popup: 'rounded-xl p-7',
-                confirmButton: 'text-base font-semibold px-8 py-2 rounded-lg mr-2 bg-red-600 text-white hover:bg-red-700',
-                cancelButton: 'text-base font-semibold px-8 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600'
-            },
-            buttonsStyling: false
-        }).then(r => {
-            if (r.isConfirmed) {
-                const f = document.createElement('form');
-                f.action = url;
-                f.method = 'POST';
-                f.innerHTML = `@csrf @method('DELETE')`;
-                document.body.appendChild(f);
-                f.submit();
-            }
-        });
-    }
+        function hapusKategori(url) {
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: 'Menghapus kategori akan membuat dokumen terkait tidak memiliki kategori.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batalkan',
+                customClass: {
+                    popup: 'rounded-xl p-7',
+                    confirmButton: 'text-base font-semibold px-8 py-2 rounded-lg mr-2 bg-red-600 text-white hover:bg-red-700',
+                    cancelButton: 'text-base font-semibold px-8 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600'
+                },
+                buttonsStyling: false
+            }).then(r => {
+                if (r.isConfirmed) {
+                    const f = document.createElement('form');
+                    f.action = url;
+                    f.method = 'POST';
+                    f.innerHTML = `@csrf @method('DELETE')`;
+                    document.body.appendChild(f);
+                    f.submit();
+                }
+            });
+        }
     </script>
 </x-app-layout>

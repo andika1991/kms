@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <ul class="space-y-2 max-h-80 overflow-auto pr-1">
                         @foreach ($kategori as $kat)
                         <li class="flex items-center justify-between gap-3">
-                            <span class="text-sm text-slate-700 truncate">{{ $kat->nama_kategoripengetahuan }}</span>
+                            <span class="text-sm text-slate-700 truncate">{{ $kat->nama_kategoripengetahuan }}-{{ $kat->subbidang->nama ?? '-' }}</span>
                             <div class="flex items-center gap-2">
                                 <button type="button"
                                     class="btn-kat-edit p-1.5 rounded hover:bg-slate-50 text-slate-400"

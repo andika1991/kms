@@ -76,64 +76,85 @@ class DokumensekretarisController extends Controller
     }
 
     public function show(Request $request, $id)
-    {
-        $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
+{
+    $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
-        // Log view
-        if (auth()->check()) {
-            $currentUser = \App\Models\User::find(auth()->id());
-            \App\Models\DocumentView::updateOrCreate(
-                [
-                    'dokumen_id' => $dokumen->id,
-                    'user_id' => auth()->id(),
-                ],
-                [
-                    'viewed_at' => now(),
-                ]
-            );
+    // Check if the document is a secret document
+    $isRahasia = $dokumen->kategoriDokumen && $dokumen->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
+
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
+
+        // Redirect if the user hasn't provided a key
+        if (!$inputKey) {
+            // Use the same route for consistency, regardless of the error
+            return redirect()->route('sekretaris.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
         }
 
-        $viewers = \App\Models\DocumentView::where('dokumen_id', $dokumen->id)->with('pengguna')->latest('viewed_at')->get();
+        // The model automatically decrypts the key on access
+        $decryptedKey = $dokumen->encrypted_key;
 
-        $isRahasia = $dokumen->kategoriDokumen 
-        && $dokumen->kategoriDokumen->nama_kategoridokumen == 'Rahasia';
-
-        if ($isRahasia) {
-            $inputKey = $request->encrypted_key;
-
-            if (!$inputKey) {
-                return redirect()->route('pegawai.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
-            }
-
-            // Dekripsi key dari DB
-            try {
-                $decryptedKey = decrypt($dokumen->encrypted_key);
-            } catch (\Exception $e) {
-                // Jika gagal dekripsi, berarti ada masalah data
-                return redirect()->route('sekretaris.manajemendokumen.index')
-                    ->with('error', 'Data kunci dokumen tidak valid.');
-            }
-
-            if ($inputKey !== $decryptedKey) {
-                return redirect()->route('sekretaris.manajemendokumen.index')
-                    ->with('error', 'Kunci dokumen salah.');
-            }
+        // Compare the raw input key with the decrypted key
+        if ($inputKey !== $decryptedKey) {
+            return redirect()->route('sekretaris.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
         }
-
-
-        return view('sekretaris.dokumen.show', compact('dokumen', 'viewers'));
+    }
+    
+    // If we've passed the secret key check, we can log the view
+    if (auth()->check()) {
+        \App\Models\DocumentView::updateOrCreate(
+            [
+                'dokumen_id' => $dokumen->id,
+                'user_id'    => auth()->id(),
+            ],
+            [
+                'viewed_at' => now(),
+            ]
+        );
     }
 
-    public function edit(Dokumen $manajemendokuman)
-    {
-        $kategori = KategoriDokumen::whereNull('bidang_id')
+    $viewers = \App\Models\DocumentView::where('dokumen_id', $dokumen->id)
+        ->with('pengguna')
+        ->latest('viewed_at')
+        ->get();
+
+    return view('sekretaris.dokumen.show', compact('dokumen', 'viewers'));
+}
+
+    public function edit(Request $request, Dokumen $manajemendokuman)
+{
+    // Cek apakah dokumen ini berstatus 'Rahasia'
+    $isRahasia = $manajemendokuman->kategoriDokumen 
+        && $manajemendokuman->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
+
+    if ($isRahasia) {
+        $inputKey = $request->encrypted_key;
+
+        // Redirect jika pengguna tidak menyediakan kunci
+        if (!$inputKey) {
+            return redirect()->route('sekretaris.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen diperlukan untuk mengedit dokumen rahasia.');
+        }
+
+        // Laravel secara otomatis melakukan dekripsi karena adanya cast 'encrypted'
+        $decryptedKey = $manajemendokuman->encrypted_key;
+
+        // Cek apakah kunci yang dimasukkan sesuai dengan kunci yang sudah di-dekripsi
+        if ($inputKey !== $decryptedKey) {
+            return redirect()->route('sekretaris.manajemendokumen.index')
+                ->with('error', 'Kunci dokumen salah.');
+        }
+    }
+    
+    // Jika semua pengecekan kunci berhasil, lanjutkan ke halaman edit
+    $kategori = KategoriDokumen::whereNull('bidang_id')
         ->whereNull('subbidang_id')
         ->get();
     
-        return view('sekretaris.dokumen.edit', compact('manajemendokuman', 'kategori'));
-    
-    }
+    return view('sekretaris.dokumen.edit', compact('manajemendokuman', 'kategori'));
+}
 
     public function update(Request $request, $id)
     {

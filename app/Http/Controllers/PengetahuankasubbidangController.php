@@ -16,7 +16,7 @@ class PengetahuankasubbidangController extends Controller
         $query->where('pengguna_id', auth()->id());
 
         if ($request->filled('search')) {
-            $query->where('judul', 'like', '%' . $request->search . '%');
+            $query->where('slug', 'like', '%' . $request->search . '%');
         }
 
         $artikels = $query->latest()->get();

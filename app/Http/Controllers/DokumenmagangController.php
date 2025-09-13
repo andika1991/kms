@@ -83,37 +83,47 @@ class DokumenmagangController extends Controller
                         ->with('success', 'Dokumen berhasil ditambahkan.');
     }
 
-   public function show(Request $request, $id)
+ public function show(Request $request, $id)
 {
     $dokumen = Dokumen::with(['kategoriDokumen', 'user'])->findOrFail($id);
 
+    // cek kategori Rahasia
     $isRahasia = $dokumen->kategoriDokumen 
-        && $dokumen->kategoriDokumen->nama_kategoridokumen === 'Rahasia';
+        && strtolower($dokumen->kategoriDokumen->nama_kategoridokumen) === 'rahasia';
 
     if ($isRahasia) {
         $inputKey = $request->encrypted_key;
 
         if (!$inputKey) {
-            return redirect()->route('magang.manajemendokumen.index')
+            return redirect()->route('kepalabidang.manajemendokumen.index')
                 ->with('error', 'Kunci dokumen diperlukan untuk mengakses dokumen rahasia.');
         }
 
-        // Karena encrypted_key sudah auto-decrypt via casts
-        if ($inputKey !== $dokumen->encrypted_key) {
-            return redirect()->route('magang.manajemendokumen.index')
+        // karena encrypted_key sudah otomatis didekripsi lewat casts
+        // maka cukup bandingkan plain-text nya
+        if (trim($inputKey) !== trim($dokumen->encrypted_key)) {
+            return redirect()->route('kepalabidang.manajemendokumen.index')
                 ->with('error', 'Kunci dokumen salah.');
         }
     }
 
+    // catat view
     if (auth()->check()) {
         DocumentView::updateOrCreate(
-            ['dokumen_id' => $dokumen->id, 'user_id' => auth()->id()],
-            ['viewed_at' => now()]
+            [
+                'dokumen_id' => $dokumen->id,
+                'user_id'    => auth()->id()
+            ],
+            [
+                'viewed_at'  => now()
+            ]
         );
     }
 
-    return view('magang.dokumen.show', compact('dokumen'));
+    return view('kepalabidang.dokumen.show', compact('dokumen'));
 }
+
+
 
 
   public function edit(Request $request, Dokumen $manajemendokuman)

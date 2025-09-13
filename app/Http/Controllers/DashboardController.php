@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\GrupChat;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Kegiatan;
 use App\Models\Dokumen;
@@ -86,131 +87,134 @@ class DashboardController extends Controller
         ));
     }
 
-    public function kepalabagian()
+ public function kepalabagian()
     {
-        $user = Auth::user();
-        $bidangId = $user->role->bidang_id; // Ambil bidang_id dari role
+        $user = auth()->user();
+        $bidangId = $user->role->bidang_id ?? null;
 
-        // Ambil semua ID pengguna dalam bidang yang sama
-        $penggunaIds = \App\Models\User::whereHas('role', function ($query) use ($bidangId) {
-            $query->where('bidang_id', $bidangId);
-        })->pluck('id');
-
-        // Total ringkasan
-        $jumlahKegiatan = Kegiatan::whereIn('pengguna_id', $penggunaIds)->count();
-        $jumlahDokumen  = Dokumen::whereIn('pengguna_id', $penggunaIds)->count();
-        $jumlahForum    = GrupChatUser::whereIn('pengguna_id', $penggunaIds)->count();
-        $jumlahArtikel  = ArtikelPengetahuan::whereIn('pengguna_id', $penggunaIds)->count();
-
-        // Bulan
-        $bulan = collect(range(1, 12))->map(function ($m) {
-            return Carbon::create()->month($m)->translatedFormat('F');
-        });
-
-        // Data dokumen per bulan
-        $dokumenPerBulan = DB::table('dokumen')
-            ->whereIn('pengguna_id', $penggunaIds)
-            ->whereYear('created_at', date('Y'))
-            ->selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
-            ->groupBy('bulan')
-            ->pluck('total', 'bulan');
-
-        // Data artikel per bulan
-        $artikelPerBulan = DB::table('artikelpengetahuan')
-            ->whereIn('pengguna_id', $penggunaIds)
-            ->whereYear('created_at', date('Y'))
-            ->selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
-            ->groupBy('bulan')
-            ->pluck('total', 'bulan');
-
-        // --- BAR CHART: data per Subbidang di bidang Kepala Bagian ---
-        $subbidangs = Subbidang::where('bidang_id', $bidangId)
-            ->orderBy('nama')
-            ->get(['id','nama']);
-
-        $subbidangNames = $subbidangs->pluck('nama');
-
-        // jumlah Dokumen per Subbidang (berdasarkan kategori_dokumen.subbidang_id)
-        $barDokumen = $subbidangs->map(function ($sb) {
-            return \App\Models\Dokumen::whereHas('kategoriDokumen', function ($q) use ($sb) {
-                $q->where('subbidang_id', $sb->id);
-            })->count();
-        });
-
-        // jumlah Artikel Pengetahuan per Subbidang (berdasarkan kategori_pengetahuan.subbidang_id)
-        $barArtikel = $subbidangs->map(function ($sb) {
-            return \App\Models\ArtikelPengetahuan::whereHas('kategoriPengetahuan', function ($q) use ($sb) {
-                $q->where('subbidang_id', $sb->id);
-            })->count();
-        });
-
-        
-        // Format data untuk grafik (lengkap 12 bulan)
-        $dataDokumen = [];
-        $dataArtikel = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $dataDokumen[] = $dokumenPerBulan[$i] ?? 0;
-            $dataArtikel[] = $artikelPerBulan[$i] ?? 0;
+        if (!$bidangId) {
+            return view('kepalabagian.dashboard', [
+                'jumlahDokumen'   => 0,
+                'jumlahArtikel'   => 0,
+                'jumlahKegiatan'  => 0,
+                'jumlahForum'     => 0,
+                'dokumenTeratas'  => collect(),
+                'bulan'           => [],
+                'dataDokumen'     => [],
+                'dataArtikel'     => [],
+                'subbidangNames'  => collect(),
+                'barArtikel'      => collect(),
+                'barDokumen'      => collect(),
+                'rankArtikel'     => collect(),
+                'rankDokumen'     => collect(),
+            ]);
         }
 
-        // Dokumen terbaru
-        $dokumenTerbaru = Dokumen::whereIn('pengguna_id', $penggunaIds)
-            ->orderBy('created_at', 'desc')
+        $subbidangIds = Subbidang::where('bidang_id', $bidangId)->pluck('id');
+
+        if ($subbidangIds->isEmpty()) {
+            return view('kepalabagian.dashboard', [
+                'jumlahDokumen'   => 0,
+                'jumlahArtikel'   => 0,
+                'jumlahKegiatan'  => 0,
+                'jumlahForum'     => 0,
+                'dokumenTeratas'  => collect(),
+                'bulan'           => [],
+                'dataDokumen'     => [],
+                'dataArtikel'     => [],
+                'subbidangNames'  => collect(),
+                'barArtikel'      => collect(),
+                'barDokumen'      => collect(),
+                'rankArtikel'     => collect(),
+                'rankDokumen'     => collect(),
+            ]);
+        }
+
+        // ======== JUMLAH DATA ======== //
+        $jumlahDokumen = Dokumen::whereHas('kategoriDokumen', fn ($q) => $q->whereIn('subbidang_id', $subbidangIds))->count();
+        $jumlahArtikel = ArtikelPengetahuan::whereHas('kategoriPengetahuan', fn ($q) => $q->whereIn('subbidang_id', $subbidangIds))->count();
+        $jumlahKegiatan = Kegiatan::whereIn('subbidang_id', $subbidangIds)->count();
+        $jumlahForum = GrupChat::where('bidang_id', $bidangId)->count();
+
+        // ======== DOKUMEN TERATAS ======== //
+        $dokumenTeratas = Dokumen::with('kategoriDokumen')
+            ->whereHas('kategoriDokumen', fn ($q) => $q->whereIn('subbidang_id', $subbidangIds))
+            ->orderByDesc('created_at')
             ->take(5)
             ->get();
 
-        // Dokumen teratas (optional)
-        $viewsAgg = DB::table('document_views')
-        ->select('dokumen_id', DB::raw('COUNT(*) as views'))
-        ->groupBy('dokumen_id');
+        // ======== DATA PER BULAN ======== //
+        $tahunSekarang = now()->year;
+        $dataDokumenMentah = Dokumen::withoutGlobalScopes()
+            ->select(DB::raw('MONTH(created_at) as bulan'), DB::raw('COUNT(*) as total'))
+            ->whereYear('created_at', $tahunSekarang)
+            ->whereHas('kategoriDokumen', fn ($q) => $q->whereIn('subbidang_id', $subbidangIds))
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->pluck('total', 'bulan');
 
-        $dokumenTeratas = Dokumen::query()
-            // pastikan hanya dokumen dari bidang Kepala Bagian & bukan kategori "rahasia"
-            ->whereHas('kategoriDokumen', function ($q) use ($bidangId) {
-                $q->where('bidang_id', $bidangId)
-                ->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
-            })
-            // join agregasi views
-            ->leftJoinSub($viewsAgg, 'dv', function ($join) {
-                $join->on('dokumen.id', '=', 'dv.dokumen_id');
-            })
-            ->orderByDesc(DB::raw('COALESCE(dv.views,0)'))
+        $dataArtikelMentah = ArtikelPengetahuan::withoutGlobalScopes()
+            ->select(DB::raw('MONTH(created_at) as bulan'), DB::raw('COUNT(*) as total'))
+            ->whereYear('created_at', $tahunSekarang)
+            ->whereHas('kategoriPengetahuan', fn ($q) => $q->whereIn('subbidang_id', $subbidangIds))
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->pluck('total', 'bulan');
+
+        $bulan = range(1, 12);
+        $dataDokumen = array_values(array_map(fn ($b) => $dataDokumenMentah->get($b) ?? 0, $bulan));
+        $dataArtikel = array_values(array_map(fn ($b) => $dataArtikelMentah->get($b) ?? 0, $bulan));
+
+        // ======== DATA BAR PER SUBBIDANG ======== //
+        $subbidangNames = Subbidang::whereIn('id', $subbidangIds)->pluck('nama', 'id');
+        $barArtikel = ArtikelPengetahuan::withoutGlobalScopes()
+            ->select('kategori_pengetahuan.subbidang_id', DB::raw('COUNT(*) as total'))
+            ->join('kategori_pengetahuan', 'artikelpengetahuan.kategori_pengetahuan_id', '=', 'kategori_pengetahuan.id')
+            ->whereIn('kategori_pengetahuan.subbidang_id', $subbidangIds)
+            ->groupBy('kategori_pengetahuan.subbidang_id')
+            ->pluck('total', 'kategori_pengetahuan.subbidang_id');
+
+        $barDokumen = Dokumen::withoutGlobalScopes()
+            ->select('kategori_dokumen.subbidang_id', DB::raw('COUNT(*) as total'))
+            ->join('kategori_dokumen', 'dokumen.kategori_dokumen_id', '=', 'kategori_dokumen.id')
+            ->whereIn('kategori_dokumen.subbidang_id', $subbidangIds)
+            ->groupBy('kategori_dokumen.subbidang_id')
+            ->pluck('total', 'kategori_dokumen.subbidang_id');
+
+        // ======== PENGGUNA TERATIF (RANKING) ======== //
+        // Peringkat 5 teratas pengunggah dokumen per subbidang
+        $rankDokumen = Dokumen::withoutGlobalScopes()
+            ->select('pengguna_id', DB::raw('COUNT(*) as total_dokumen'))
+            ->whereHas('kategoriDokumen', fn ($q) => $q->whereIn('subbidang_id', $subbidangIds))
+            ->groupBy('pengguna_id')
+            ->orderByDesc('total_dokumen')
             ->limit(5)
-            ->get([
-                'dokumen.id',
-                'dokumen.nama_dokumen',
-                DB::raw('COALESCE(dv.views,0) as total_views'),
-            ]);
+            ->with('user')
+            ->get();
 
-        // fallback kalau belum ada view sama sekali
-        if ($dokumenTeratas->isEmpty()) {
-            $dokumenTeratas = Dokumen::whereHas('kategoriDokumen', function ($q) use ($bidangId) {
-                    $q->where('bidang_id', $bidangId)
-                    ->whereRaw('LOWER(nama_kategoridokumen) <> ?', ['rahasia']);
-                })
-                ->latest()
-                ->limit(5)
-                ->get()
-                ->map(function ($d) {
-                    $d->total_views = 0;
-                    return $d;
-                });
-        }
+        // Peringkat 5 teratas penulis artikel pengetahuan per subbidang
+        $rankArtikel = ArtikelPengetahuan::withoutGlobalScopes()
+            ->select('pengguna_id', DB::raw('COUNT(*) as total_artikel'))
+            ->whereHas('kategoriPengetahuan', fn ($q) => $q->whereIn('subbidang_id', $subbidangIds))
+            ->groupBy('pengguna_id')
+            ->orderByDesc('total_artikel')
+            ->limit(5)
+            ->with('pengguna')
+            ->get();
+
 
         return view('kepalabagian.dashboard', compact(
-            'jumlahKegiatan',
             'jumlahDokumen',
-            'jumlahForum',
             'jumlahArtikel',
+            'jumlahKegiatan',
+            'jumlahForum',
+            'dokumenTeratas',
             'bulan',
             'dataDokumen',
             'dataArtikel',
-            'dokumenTerbaru',
-            'dokumenTeratas',
             'subbidangNames',
+            'barArtikel',
             'barDokumen',
-            'barArtikel'
-        
+            'rankArtikel',
+            'rankDokumen'
         ));
     }
     public function kasubbidang()

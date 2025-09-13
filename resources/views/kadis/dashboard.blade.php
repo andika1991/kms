@@ -115,9 +115,10 @@ $tanggal = $carbon->format('l, d F Y');
                             <ul class="space-y-2 text-sm text-gray-700">
                                 @forelse ($penggunaTeraktifArtikel as $user)
                                 <li class="flex justify-between items-center">
-                                    <span>{{ $user->pengguna->name ?? 'Tidak diketahui' }}</span>
+                                    <span>{{ $user->pengguna->name ?? 'Tidak diketahui' }} - {{ $user->pengguna->role->bidang->nama }}</span>
                                     <span class="font-semibold text-gray-500">{{ $user->total_artikel }} artikel</span>
                                 </li>
+                                    
                                 @empty
                                 <li>Tidak ada data pengguna aktif artikel.</li>
                                 @endforelse
